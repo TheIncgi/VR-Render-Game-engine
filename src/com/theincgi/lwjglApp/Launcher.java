@@ -8,7 +8,6 @@ public class Launcher {
 	
 	public static void main(String[] args) {
 		mainWindow = new Window(720, 440, APPLICATION_NAME, null);
-		
 	}
 
 	public static Window getMainWindow() {

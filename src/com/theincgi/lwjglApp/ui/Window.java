@@ -35,12 +35,16 @@ import com.theincgi.lwjglApp.ui.CallbackListener.OnWindowIconified;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnWindowMaximized;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnWindowMoved;
 
+
+import org.lwjgl.*;
+
 public class Window {
 	public final long WINDOW_HANDLE;
 	ArrayList<CallbackListener> callbackListeners = new ArrayList<>();
 	Optional<Scene> scene;
 	
 	static {
+		System.out.println("LWJGL Version: " + Version.getVersion());
 		GLFWErrorCallback.createPrint(System.err).set();
 		if ( !glfwInit() )
 			throw new IllegalStateException("Unable to initialize GLFW");
