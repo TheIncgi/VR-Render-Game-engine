@@ -1,18 +1,24 @@
 package com.theincgi.lwjglApp.ui;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryStack.*;
 
 import java.io.File;
+import java.nio.DoubleBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Optional;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
+import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnChar;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnFilesDrop;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnJoystick;
@@ -32,7 +38,7 @@ import com.theincgi.lwjglApp.ui.CallbackListener.OnWindowMoved;
 public class Window {
 	public final long WINDOW_HANDLE;
 	ArrayList<CallbackListener> callbackListeners = new ArrayList<>();
-	
+	Optional<Scene> scene;
 	
 	static {
 		GLFWErrorCallback.createPrint(System.err).set();
@@ -45,7 +51,15 @@ public class Window {
 
 	}
 
-	public Window(int wid, int hei, String title) {
+	/**
+	 * Creates a new window with the given size, title and scene
+	 * @param wid width of the new window
+	 * @param hei height of the new window
+	 * @param title title of the new window
+	 * @param scene scene to render in the window, may be null
+	 * */
+	public Window(int wid, int hei, String title, Scene scene) {
+		this.scene = Optional.ofNullable(scene);
 		WINDOW_HANDLE = glfwCreateWindow(wid, hei, title, 0, 0); //NULL is 0
 		if ( WINDOW_HANDLE == 0 )
 			throw new RuntimeException("Failed to create the GLFW window");
@@ -78,6 +92,43 @@ public class Window {
 
 		// Make the window visible
 		glfwShowWindow(WINDOW_HANDLE);
+		
+		loop();
+	}
+
+	private void loop() {
+		// This line is critical for LWJGL's interoperation with GLFW's
+		// OpenGL context, or any context that is managed externally.
+		// LWJGL detects the context that is current in the current thread,
+		// creates the GLCapabilities instance and makes the OpenGL
+		// bindings available for use.
+		GL.createCapabilities();
+
+		// Run the rendering loop until the user has attempted to close
+		// the window
+		while ( !glfwWindowShouldClose(WINDOW_HANDLE) ) {
+			scene.ifPresentOrElse(value->{
+				Color cc = value.clearColor;
+				glClearColor(cc.r(), cc.g(), cc.b(), cc.a());
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				Pair<Double, Double> mousePos = getMousePos();
+				value.render(mousePos.x, mousePos.y);
+			}, /*else*/()->{
+				glClearColor(0,0,0,0);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			});
+			 // clear the framebuffer
+
+			glfwSwapBuffers(WINDOW_HANDLE); // swap the color buffers
+
+			// Poll for window events. The key callback above will only be
+			// invoked during this call.
+			glfwPollEvents();
+		}
+	}
+	
+	public void close() {
+		glfwSetWindowShouldClose(WINDOW_HANDLE, true);
 	}
 
 	private void setupCallbacks() {
@@ -170,5 +221,12 @@ public class Window {
 				if(callbackListener instanceof OnWindowFocus)
 					((OnWindowMoved)callbackListeners).onWindowMoved(this, x, y);
 		});
+	}
+	
+	public Pair<Double, Double> getMousePos() {
+		DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
+		DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
+		glfwGetCursorPos(WINDOW_HANDLE, xBuffer, yBuffer);
+		return new Pair<>(xBuffer.get(0), yBuffer.get(0));
 	}
 }
