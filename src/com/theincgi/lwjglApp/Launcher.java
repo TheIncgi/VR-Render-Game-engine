@@ -16,4 +16,8 @@ public class Launcher {
 }
 
 
-
+/*
+ * TODO
+ * Custom shaders: http://wiki.lwjgl.org/wiki/GLSL_Shaders_with_LWJGL.html
+ * Test shaders in custom enviroment
+ * */
