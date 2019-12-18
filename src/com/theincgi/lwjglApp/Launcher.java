@@ -1,5 +1,6 @@
 package com.theincgi.lwjglApp;
 
+import com.theincgi.lwjglApp.scenes.PrimaryScene;
 import com.theincgi.lwjglApp.ui.Window;
 
 public class Launcher {
@@ -8,6 +9,8 @@ public class Launcher {
 	
 	public static void main(String[] args) {
 		mainWindow = new Window(720, 440, APPLICATION_NAME, null);
+		mainWindow.setScene(new PrimaryScene());
+		mainWindow.show();
 	}
 
 	public static Window getMainWindow() {

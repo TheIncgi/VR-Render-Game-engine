@@ -1,17 +1,30 @@
 package com.theincgi.lwjglApp;
 
 public class Utils {
-	public static boolean inRange(double x, double min, double max) {
+	/**Exclusive In range test*/
+	public static boolean inRangeE(float x, float min, float max) {
 		return min<=x && x < max;
 	}
-	public static boolean inRange(double x, int min, int max) {
+	/**Exclusive In range test*/
+	public static boolean inRangeE(int x, int min, int max) {
 		return min<=x && x < max;
 	}
-	public static boolean inRange(int x, int min, int max) {
+	/**Exclusive In range test*/
+	public static boolean inRangeE(long x, long min, long max) {
 		return min<=x && x < max;
 	}
-	public static boolean inRange(long x, long min, long max) {
-		return min<=x && x < max;
+	
+	/**Inclusive In range test*/
+	public static boolean inRangeI(float x, float min, float max) {
+		return min<=x && x <= max;
+	}
+	/**Inclusive In range test*/
+	public static boolean inRangeI(int x, int min, int max) {
+		return min<=x && x <= max;
+	}
+	/**Inclusive In range test*/
+	public static boolean inRangeI(long x, long min, long max) {
+		return min<=x && x <= max;
 	}
 	
 	public static double max(double a, double... args) {

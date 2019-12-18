@@ -1,6 +1,7 @@
 package com.theincgi.lwjglApp.ui;
 
-import static com.theincgi.lwjglApp.Utils.inRange;
+import static com.theincgi.lwjglApp.Utils.inRangeI;
+import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
 
 import com.theincgi.lwjglApp.Utils;
@@ -14,13 +15,13 @@ public class Color implements Cloneable{
 							  YELLOW= new Color(1, 1, 0).lock(),
 							  SKY   = new Color(0, 1, 1).lock(),
 							  PURPLE= new Color(1, 0, 1).lock(),
-							  LIGHT_GRAY = fromHSV(0, 0, .75),
-							  GRAY       = fromHSV(0, 0, .50),
-							  DARK_GRAY  = fromHSV(0, 0, .25);
+							  LIGHT_GRAY = fromHSV(0, 0, .75f),
+							  GRAY       = fromHSV(0, 0, .50f),
+							  DARK_GRAY  = fromHSV(0, 0, .25f);
 	
 	
 	private float r,g,b,a;
-	private boolean isMutable;
+	private boolean isMutable = true;
 	
 	public Color(double r, double g, double b) {
 		this(r,g,b, 1.0);
@@ -39,36 +40,36 @@ public class Color implements Cloneable{
 		return new Color((argb >> 16) & 0xFF, (argb >> 8) & 0xFF, argb & 0xFF, (argb >> 24) & 0xFF);
 	}
 	
-	public static Color fromHSV(double h, double s, double v) { return fromHSV(h,s,v,1);}
-	public static Color fromHSV(double h, double s, double v, double a) {
+	public static Color fromHSV(float h, float s, float v) { return fromHSV(h,s,v,1);}
+	public static Color fromHSV(float h, float s, float v, float a) {
 		Color x = new Color(0, 0, 0);
 		x.setHSV(h, s, v, a);
 		return x;
 	}
 	
-	public void setHSV(double h, double s, double v, double a) {
+	public void setHSV(float h, float s, float v, float a) {
 		if(!isMutable) throw new ImmutableColorException();
-		double c = v*s;
-		double x = c*(1-abs(h/60)%2-1);
-		double m = v-c;
+		float c = v*s;
+		float x = c*(1-abs(h/60)%2-1);
+		float m = v-c;
 		
-		if(inRange(h, 0, 60)) {
+		if(inRangeE(h, 0f, 60f)) {
 			r = (float) c;
 			g = (float) x;
 			b = 0;
-		}else if(inRange(h, 0, 120)) {
+		}else if(inRangeE(h, 0f, 120f)) {
 			r = (float) x;
 			g = (float) c;
 			b = 0;
-		}else if(inRange(h, 120, 180)) {
+		}else if(inRangeE(h, 120f, 180f)) {
 			r = 0;
 			g = (float) c;
 			b = (float) x;
-		}else if(inRange(h, 180, 240)) {
+		}else if(inRangeE(h, 180f, 240f)) {
 			r = 0;
 			g = (float) x;
 			b = (float) c;
-		}else if(inRange(h, 240, 300)) {
+		}else if(inRangeE(h, 240f, 300f)) {
 			r = (float) x;
 			g = 0;
 			b = (float) c;
@@ -176,14 +177,14 @@ public class Color implements Cloneable{
 
 
 	private final void check() {
-		if(!inRange(r, 0, 1)) throw new InvalidColorException(this);
-		if(!inRange(g, 0, 1)) throw new InvalidColorException(this);
-		if(!inRange(b, 0, 1)) throw new InvalidColorException(this);
-		if(!inRange(a, 0, 1)) throw new InvalidColorException(this);
+		if(!inRangeI(r, 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(g, 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(b, 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(a, 0f, 1f)) throw new InvalidColorException(this);
 	}
 	
 	@Override
-	public Object clone() throws CloneNotSupportedException {
+	public Color clone(){
 		return new Color(r, g, b, a);
 	}
 	public Color lock() {

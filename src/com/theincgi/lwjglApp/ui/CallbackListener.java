@@ -40,7 +40,7 @@ public class CallbackListener {
 	}
 	@FunctionalInterface
 	public interface OnMouseButton {
-		public boolean onMouseButton(Window window, int button, int action, int mods);
+		public boolean onMouseButton(Window window, double x, double y, int button, int action, int mods);
 	}
 	@FunctionalInterface
 	public interface OnScroll {

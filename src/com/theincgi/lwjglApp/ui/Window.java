@@ -41,8 +41,8 @@ import org.lwjgl.*;
 public class Window {
 	public final long WINDOW_HANDLE;
 	ArrayList<CallbackListener> callbackListeners = new ArrayList<>();
-	Optional<Scene> scene;
-	
+	private Optional<Scene> scene;
+
 	static {
 		System.out.println("LWJGL Version: " + Version.getVersion());
 		GLFWErrorCallback.createPrint(System.err).set();
@@ -94,10 +94,31 @@ public class Window {
 		// Enable v-sync
 		glfwSwapInterval(1);
 
+
+	}
+
+	public void show() {
 		// Make the window visible
 		glfwShowWindow(WINDOW_HANDLE);
-		
+
 		loop();
+	}
+
+	public void setScene(Scene s) {
+		this.scene.ifPresent(v->{
+			v.getSceneListener().ifPresent(u->{
+				callbackListeners.remove(u);
+			});
+		});
+		this.scene = Optional.ofNullable(s);
+		this.scene.ifPresent(v->{
+			v.getSceneListener().ifPresent(u->{
+				callbackListeners.add(u);
+			});
+		});
+	}
+	public void close() {
+		glfwSetWindowShouldClose(WINDOW_HANDLE, true);
 	}
 
 	private void loop() {
@@ -121,7 +142,7 @@ public class Window {
 				glClearColor(0,0,0,0);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			});
-			 // clear the framebuffer
+			// clear the framebuffer
 
 			glfwSwapBuffers(WINDOW_HANDLE); // swap the color buffers
 
@@ -130,10 +151,8 @@ public class Window {
 			glfwPollEvents();
 		}
 	}
-	
-	public void close() {
-		glfwSetWindowShouldClose(WINDOW_HANDLE, true);
-	}
+
+
 
 	private void setupCallbacks() {
 		// Setup a key callback. It will be called every time a key is pressed, repeated or released.
@@ -170,10 +189,10 @@ public class Window {
 		glfwSetDropCallback(WINDOW_HANDLE, (window, count, names)->{
 			PointerBuffer nameBuffer = MemoryUtil.memPointerBuffer(names, count);
 			File[] files = new File[count];
-		    for ( int i = 0; i < count; i++ ) {
-		        files[i] = new File(MemoryUtil.memUTF8(MemoryUtil.memByteBufferNT1(nameBuffer.get(i))));
-		    }
-		    for (CallbackListener callbackListener : callbackListeners) {
+			for ( int i = 0; i < count; i++ ) {
+				files[i] = new File(MemoryUtil.memUTF8(MemoryUtil.memByteBufferNT1(nameBuffer.get(i))));
+			}
+			for (CallbackListener callbackListener : callbackListeners) {
 				if (callbackListener instanceof OnFilesDrop)
 					if(((OnFilesDrop)callbackListener).onFilesDrop(this, files)) return;
 			}
@@ -191,9 +210,10 @@ public class Window {
 			}
 		});
 		glfwSetMouseButtonCallback(WINDOW_HANDLE, (window, button, action, mods)->{
+			Pair<Double, Double> mpos = getMousePos();
 			for (CallbackListener callbackListener : callbackListeners)
 				if(callbackListener instanceof OnMouseButton)
-					if(((OnMouseButton)callbackListener).onMouseButton(this, button, action, mods)) return;
+					if(((OnMouseButton)callbackListener).onMouseButton(this,mpos.x, mpos.y, button, action, mods)) return;
 		});
 		glfwSetScrollCallback(WINDOW_HANDLE, (window, dx, dy)->{
 			for (CallbackListener callbackListener : callbackListeners)
@@ -226,11 +246,35 @@ public class Window {
 					((OnWindowMoved)callbackListeners).onWindowMoved(this, x, y);
 		});
 	}
-	
+
 	public Pair<Double, Double> getMousePos() {
-		DoubleBuffer xBuffer = BufferUtils.createDoubleBuffer(1);
-		DoubleBuffer yBuffer = BufferUtils.createDoubleBuffer(1);
-		glfwGetCursorPos(WINDOW_HANDLE, xBuffer, yBuffer);
-		return new Pair<>(xBuffer.get(0), yBuffer.get(0));
+		try( MemoryStack stack = stackPush()){
+			DoubleBuffer xBuffer = stack.mallocDouble(1);
+			DoubleBuffer yBuffer = stack.mallocDouble(1);
+			glfwGetCursorPos(WINDOW_HANDLE, xBuffer, yBuffer);
+			return new Pair<>(xBuffer.get(0), yBuffer.get(0));
+		}
+	}
+	public Pair<Integer, Integer> getBufferSize() {
+		try ( MemoryStack stack = stackPush() ) {
+			IntBuffer pWidth = stack.mallocInt(1); // int*
+			IntBuffer pHeight = stack.mallocInt(1); // int*
+			glfwGetWindowSize(WINDOW_HANDLE, pWidth, pHeight);
+			return new Pair<Integer, Integer>(pWidth.get(0), pHeight.get(0));		
+		}
+	}
+	public Pair<Integer, Integer> getWindowPos() {
+		try ( MemoryStack stack = stackPush() ) {
+			IntBuffer px = stack.mallocInt(1); // int*
+			IntBuffer py = stack.mallocInt(1); // int*
+			glfwGetWindowPos(WINDOW_HANDLE, px, py);
+			return new Pair<Integer, Integer>(px.get(0), py.get(0));		
+		}
+	}
+
+	@Override
+	public String toString() {
+		Pair<Integer, Integer> pos = getWindowPos(), size = getBufferSize();
+		return String.format("Window: [#%d | Pos: <%d, %d> | BufSize: <%d, %d>]", WINDOW_HANDLE, pos.x, pos.y, size.x, size.y);
 	}
 }
