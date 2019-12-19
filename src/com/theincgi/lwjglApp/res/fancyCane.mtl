@@ -1,0 +1,35 @@
+# Blender MTL File: 'fancyCane.blend'
+# Material Count: 3
+
+newmtl Gold_Leaf
+Ns 575.999996
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.437117 0.106916
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+
+newmtl Realistic_Glass_01
+Ns 900.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+newmtl floor_planks_oak_dirty
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Bump F:\\blenderDEV\\blenderhub\\models\\texwork\\wood_floors\\floor_planks_oak_dirty\\floor_planks_oak_dirty_normal.jpg
+map_Kd F:\\blenderDEV\\blenderhub\\models\\texwork\\wood_floors\\floor_planks_oak_dirty\\floor_planks_oak_dirty_albedo.jpg
+map_Ns F:\\blenderDEV\\blenderhub\\models\\texwork\\wood_floors\\floor_planks_oak_dirty\\floor_planks_oak_dirty_roughness.jpg

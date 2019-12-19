@@ -1,7 +1,7 @@
 package com.theincgi.lwjglApp.ui;
 
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL45.*;
 import static org.lwjgl.system.MemoryStack.*;
 
 import java.io.File;
@@ -12,9 +12,11 @@ import java.util.Optional;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
+import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -44,14 +46,11 @@ public class Window {
 	private Optional<Scene> scene;
 
 	static {
-		System.out.println("LWJGL Version: " + Version.getVersion());
+		System.out.println("LWJGL Version:  " + Version.getVersion());
+
 		GLFWErrorCallback.createPrint(System.err).set();
 		if ( !glfwInit() )
 			throw new IllegalStateException("Unable to initialize GLFW");
-
-		// Configure GLFW
-		glfwDefaultWindowHints(); // optional, the current window hints are already the default
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 	}
 
@@ -64,6 +63,13 @@ public class Window {
 	 * */
 	public Window(int wid, int hei, String title, Scene scene) {
 		this.scene = Optional.ofNullable(scene);
+
+		// Configure GLFW
+		glfwDefaultWindowHints(); // optional, the current window hints are already the default
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+		GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, 4);
+		GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MINOR, 5);
+
 		WINDOW_HANDLE = glfwCreateWindow(wid, hei, title, 0, 0); //NULL is 0
 		if ( WINDOW_HANDLE == 0 )
 			throw new RuntimeException("Failed to create the GLFW window");
@@ -93,7 +99,12 @@ public class Window {
 		glfwMakeContextCurrent(WINDOW_HANDLE);
 		// Enable v-sync
 		glfwSwapInterval(1);
-
+		// This line is critical for LWJGL's interoperation with GLFW's
+		// OpenGL context, or any context that is managed externally.
+		// LWJGL detects the context that is current in the current thread,
+		// creates the GLCapabilities instance and makes the OpenGL
+		// bindings available for use.
+		GL.createCapabilities();
 
 	}
 
@@ -106,6 +117,7 @@ public class Window {
 
 	public void setScene(Scene s) {
 		this.scene.ifPresent(v->{
+			v.onUnload();
 			v.getSceneListener().ifPresent(u->{
 				callbackListeners.remove(u);
 			});
@@ -122,12 +134,7 @@ public class Window {
 	}
 
 	private void loop() {
-		// This line is critical for LWJGL's interoperation with GLFW's
-		// OpenGL context, or any context that is managed externally.
-		// LWJGL detects the context that is current in the current thread,
-		// creates the GLCapabilities instance and makes the OpenGL
-		// bindings available for use.
-		GL.createCapabilities();
+
 
 		// Run the rendering loop until the user has attempted to close
 		// the window

@@ -5,12 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.opengl.GL20;
 import org.lwjgl.system.MemoryStack;
 
-import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL45.*;
 
 import com.theincgi.lwjglApp.misc.Logger;
 
@@ -20,12 +20,164 @@ public class ShaderProgram {
 	private int programHandle;
 	private String label;
 	
+	public ShaderProgram(File vertex, File fragment) {
+		int vShader = loadShader(GL_VERTEX_SHADER, vertex);
+		int fShader = loadShader(GL_FRAGMENT_SHADER, fragment);
+		programHandle = glCreateProgram();
+		//log.checkGL();
+		
+		glAttachShader(programHandle, vShader);
+		glAttachShader(programHandle, fShader);
+		//log.checkGL();
+		
+		glLinkProgram(programHandle);
+		
+		try(MemoryStack stack = MemoryStack.stackPush()){
+			IntBuffer link = stack.mallocInt(1);
+			glGetProgramiv(programHandle, GL_LINK_STATUS, link);
+			if(link.get(0) == GL_FALSE) {
+				log.w("ShaderProgram#new", "Unable to create shader with source files: "+vertex+" and "+fragment);
+				glDeleteProgram(programHandle);
+				programHandle = 0;
+			}else {
+				log.i("ShaderProgram#new", "Created shader with files: "+vertex+" and "+fragment);
+			}
+		}
+		glDeleteShader(vShader);
+		glDeleteShader(fShader);
+		//log.checkGL();
+	}
+	
+	public int getAttribLocation(String name) {
+		return glGetAttribLocation(programHandle, name);
+	}
+	public int getUniformLocation(String name) {
+		return glGetUniformLocation(programHandle, name);
+	}
+	
+	/**Used with VAO*/
+	public boolean tryEnableVertexAttribArray(String key) {
+		int posH = getAttribLocation(key);
+		if(posH==-1) {log.w("ShaderProgram#tryEnableVertexAttribArray", "could not enable attribVertArray for '"+key+"'"); return false;}
+		glEnableVertexAttribArray(posH);
+		return true;
+	}
+	/**Used with VAO*/
+	public boolean disableVertexAttribArray(String key) {
+		int posH = getAttribLocation(key);
+		if(posH==-1) {log.w("ShaderProgram#tryDisableVertexAttribArray", "could not disable attribVertArray for '"+key+"'"); return false;}
+		glDisableVertexAttribArray(posH);
+		return true;
+	}
+	
+	@Deprecated
+	public boolean trySetVertexAttribArray(String key, FloatBuffer vCoords) {
+		int posH = getAttribLocation(key);
+		if(posH==-1) {log.w("ShaderProgram#trySetVerexAttribArray", "could not set atrib. verted array for '"+key+"'"); return false;}
+		glEnableVertexAttribArray(posH);
+		glVertexAttribPointer(posH, 3, GL_FLOAT, false, 3*Float.BYTES, vCoords);
+		return true;
+	}
+	public boolean trySetUniform( String name, int i ){
+        int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "integer"); return false;}
+        glUniform1i( handle, i );
+        return true;
+    }
+    public boolean trySetUniform( String name, float f) {
+        int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "float"); return false;}
+        glUniform1f( handle, f );
+
+        return true;
+    }
+    public boolean trySetUniform( String name, float[] f){
+        int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "vec"+f.length); return false;}
+        switch (f.length){
+            case 0:
+                throw new RuntimeException("Empty float array!");
+            case 1:
+                glUniform1fv(handle, f);
+                break;
+            case 2:
+                glUniform2fv(handle, f);
+                break;
+            case 3:
+                glUniform3fv(handle, f);
+                break;
+            case 4:
+                glUniform4fv(handle, f);
+                break;
+            default:
+                throw new RuntimeException("Not a valid vector size ("+f.length+")");
+
+        }
+        return true;
+    }
+    public boolean trySetMatrix(String name, float[] m){
+        int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "Matrix"); return false;}
+        switch (m.length){
+            case 4:
+                glUniformMatrix2fv(handle, false, m);
+                break;
+            case 9:
+                glUniformMatrix3fv(handle, false, m);
+                break;
+            case 16:
+                glUniformMatrix4fv(handle, false, m);
+                break;
+            default:
+                throw new RuntimeException("Not a valid matrix size");
+        }
+        return true;
+    }
+    public boolean trySetUniformTexture( String name ){
+        throw new RuntimeException("Unimplemented!");
+    }
+
+    private void warnMissingKey(String key, String type){
+        log.sd("ShaderProgram", String.format("warnMissingKey: \"%s\" for type '%s' in shader [%s]",key, type,label));
+    }
+
+    /**
+     * called on finalization
+     * */
+    private void delete(){
+    	if(programHandle!=0)
+        glDeleteProgram(programHandle);
+        programHandle = 0;
+    }
+
+    /**
+     * Called when no object referes to this material anymore
+     * */
+    @Override
+    protected void finalize() throws Throwable {
+        if(programHandle!=0 && glIsProgram(programHandle)) {
+            delete();
+            log.w("ShaderProgram#finalize", "Program "+label+" was not deleted before all references were lost.");
+        }
+        super.finalize();
+    }
+
+	public int getProgram() {
+		return programHandle;
+	}
+	
+	public String getName() {
+		return label;
+	}
 	
 	
-	public void use() {
+	public void bind() {
 		if(programHandle==0)
 			log.w("ShaderProgram#use", "No program handle exists for '"+label+"'");
 		glUseProgram(programHandle);
+	}
+	public void unbind() {
+		glUseProgram(0);
 	}
 	
 	public static int loadShader( int type, File srcFile ) {
@@ -50,11 +202,11 @@ public class ShaderProgram {
 	}
 	private static int loadShader(int type, String src) {
 		int shader = glCreateShader(type);
-		log.checkGL();
+		//log.checkGL();
 		glShaderSource(shader, src);
-		log.checkGL();
+		//log.checkGL();
 		glCompileShader(shader);
-		log.checkGL();
+		//log.checkGL();
 		try(MemoryStack stack = MemoryStack.stackPush()){
 			IntBuffer status = stack.mallocInt(1);
 			glGetShaderiv(shader, GL_COMPILE_STATUS, status);

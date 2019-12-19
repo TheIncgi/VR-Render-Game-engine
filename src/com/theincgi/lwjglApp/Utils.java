@@ -1,5 +1,9 @@
 package com.theincgi.lwjglApp;
 
+import java.nio.FloatBuffer;
+
+import org.lwjgl.system.MemoryUtil;
+
 public class Utils {
 	/**Exclusive In range test*/
 	public static boolean inRangeE(float x, float min, float max) {
@@ -54,5 +58,14 @@ public class Utils {
 			m = Math.max(m, args[i]);
 		}
 		return m;
+	}
+	
+	public static FloatBuffer toBuffer(float... floats) {
+		FloatBuffer buf = MemoryUtil.memAllocFloat(floats.length);
+		buf.put(floats).flip();
+		return buf;
+	}
+	public static void freeBuffer(FloatBuffer buf) {
+		MemoryUtil.memFree(buf);
 	}
 }
