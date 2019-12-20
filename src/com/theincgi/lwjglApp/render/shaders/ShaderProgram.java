@@ -1,4 +1,4 @@
-package com.theincgi.lwjglApp.mvc.view.shaders;
+package com.theincgi.lwjglApp.render.shaders;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,6 +21,9 @@ public class ShaderProgram {
 	private String label;
 	
 	File vertexSrc, fragmentSrc;
+	long vertexLastModified, fragmentLastModified;
+
+	private boolean autoRefresh = false;
 	
 	public ShaderProgram(File vertex, File fragment) {
 		this.vertexSrc = vertex;
@@ -31,11 +34,12 @@ public class ShaderProgram {
 		int vShader = loadShader(GL_VERTEX_SHADER, vertexSrc);
 		int fShader = loadShader(GL_FRAGMENT_SHADER, fragmentSrc);
 		programHandle = glCreateProgram();
-		//log.checkGL();
-		
+
+		vertexLastModified   = vertexSrc.lastModified();
+		fragmentLastModified = fragmentSrc.lastModified();
 		glAttachShader(programHandle, vShader);
 		glAttachShader(programHandle, fShader);
-		//log.checkGL();
+
 		
 		glLinkProgram(programHandle);
 		
@@ -52,13 +56,16 @@ public class ShaderProgram {
 		}
 		glDeleteShader(vShader);
 		glDeleteShader(fShader);
-		//log.checkGL();
 	}
 	
-	
+	/**Do from open GL thread only*/
 	public void reload() {
 		delete();
 		init();
+	}
+	public ShaderProgram autoRefresh(boolean doAutoRefresh) {
+		autoRefresh = doAutoRefresh;
+		return this;
 	}
 	
 	public int getAttribLocation(String name) {
@@ -186,6 +193,12 @@ public class ShaderProgram {
 	
 	
 	public void bind() {
+		if(autoRefresh && (vertexLastModified!=vertexSrc.lastModified() || fragmentLastModified!=fragmentSrc.lastModified())) {
+			vertexLastModified   = vertexSrc.lastModified();
+			fragmentLastModified = fragmentSrc.lastModified();
+			log.i("ShaderProgram#bind", "Auto-reloading shader due to file changes");
+			reload();
+		}
 		if(programHandle==0)
 			log.w("ShaderProgram#use", "No program handle exists for '"+label+"'");
 		glUseProgram(programHandle);

@@ -1,19 +1,24 @@
 package com.theincgi.lwjglApp.scenes;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import com.theincgi.lwjglApp.mvc.view.drawables.HelloTriangle;
+import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.ui.CallbackListener;
 import com.theincgi.lwjglApp.ui.Scene;
 import com.theincgi.lwjglApp.ui.Window;
 
+import static org.lwjgl.opengl.GL45.*;
+
 public class PrimaryScene extends Scene{
-	
+	Camera camera;
 	HelloTriangle ht;
 	float[] mvpm;
+	
+	
 	public PrimaryScene() {
 		sceneListener = Optional.of(new SceneCallbackListener());
+		camera = new Camera();
 		ht = new HelloTriangle();
 		mvpm = new float[16];
 		
@@ -22,6 +27,12 @@ public class PrimaryScene extends Scene{
 	@Override
 	public void render(double mouseX, double mouseY) {
 		super.render(mouseX, mouseY);
+		//glMatrixMode(GL_PROJECTION);
+		//glLoadIdentity();
+		//glMatrixMode(GL_MODELVIEW);
+		
+		
+		
 		ht.draw(mvpm);
 	}
 	

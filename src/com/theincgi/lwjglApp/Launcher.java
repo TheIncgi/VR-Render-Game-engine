@@ -20,6 +20,7 @@ public class Launcher {
 		GLFW.glfwSetErrorCallback((err, desc)->{
 			log.w("GL_ERROR", "["+Integer.toHexString(err)+ "]: "+ GLFWErrorCallback.getDescription(desc));
 		});
+		
 		mainWindow.show();
 	}
 

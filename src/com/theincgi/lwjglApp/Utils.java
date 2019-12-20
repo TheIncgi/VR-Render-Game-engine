@@ -3,8 +3,15 @@ package com.theincgi.lwjglApp;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.vector.Vector3f;
 
 public class Utils {
+	public static final Vector3f 
+		AXIS_UP = new Vector3f(0, 1, 0),
+		AXIS_RIGHT = new Vector3f(1, 0, 0),
+		AXIS_OUT = new Vector3f(0, 0, 1);
+	
+	
 	/**Exclusive In range test*/
 	public static boolean inRangeE(float x, float min, float max) {
 		return min<=x && x < max;
