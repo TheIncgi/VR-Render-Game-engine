@@ -20,9 +20,16 @@ public class ShaderProgram {
 	private int programHandle;
 	private String label;
 	
+	File vertexSrc, fragmentSrc;
+	
 	public ShaderProgram(File vertex, File fragment) {
-		int vShader = loadShader(GL_VERTEX_SHADER, vertex);
-		int fShader = loadShader(GL_FRAGMENT_SHADER, fragment);
+		this.vertexSrc = vertex;
+		this.fragmentSrc = fragment;
+		init();
+	}
+	private void init() {
+		int vShader = loadShader(GL_VERTEX_SHADER, vertexSrc);
+		int fShader = loadShader(GL_FRAGMENT_SHADER, fragmentSrc);
 		programHandle = glCreateProgram();
 		//log.checkGL();
 		
@@ -36,16 +43,22 @@ public class ShaderProgram {
 			IntBuffer link = stack.mallocInt(1);
 			glGetProgramiv(programHandle, GL_LINK_STATUS, link);
 			if(link.get(0) == GL_FALSE) {
-				log.w("ShaderProgram#new", "Unable to create shader with source files: "+vertex+" and "+fragment);
+				log.w("ShaderProgram#new", "Unable to create shader with source files: "+vertexSrc.getName()+" and "+fragmentSrc.getName());
 				glDeleteProgram(programHandle);
 				programHandle = 0;
 			}else {
-				log.i("ShaderProgram#new", "Created shader with files: "+vertex+" and "+fragment);
+				log.i("ShaderProgram#new", "Created shader with files: "+vertexSrc.getName()+" and "+fragmentSrc.getName());
 			}
 		}
 		glDeleteShader(vShader);
 		glDeleteShader(fShader);
 		//log.checkGL();
+	}
+	
+	
+	public void reload() {
+		delete();
+		init();
 	}
 	
 	public int getAttribLocation(String name) {
@@ -142,7 +155,8 @@ public class ShaderProgram {
     }
 
     /**
-     * called on finalization
+     * called on finalization if not by application<br>
+     * don't rely on finalize please
      * */
     private void delete(){
     	if(programHandle!=0)

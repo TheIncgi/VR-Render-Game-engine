@@ -20,6 +20,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
+import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnChar;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnFilesDrop;
@@ -46,7 +47,7 @@ public class Window {
 	private Optional<Scene> scene;
 
 	static {
-		System.out.println("LWJGL Version:  " + Version.getVersion());
+		Logger.consoleLogger.i("Window","LWJGL Version:  " + Version.getVersion());
 
 		GLFWErrorCallback.createPrint(System.err).set();
 		if ( !glfwInit() )

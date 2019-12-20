@@ -16,20 +16,20 @@ public class Logger {
 		if(matchesLast("INFO", tag, debugMsg))
 			incrementLast();
 		else
-			System.out.printf("[INFO]  %s30 | %s\n", tag, debugMsg);
+			System.out.printf("[INFO]  %30s | %s\n", tag, debugMsg);
 	}
 	
 	public void d(String tag, String debugMsg) {
 		if(matchesLast("DEBUG", tag, debugMsg))
 			incrementLast();
 		else
-			System.out.printf("[DEBUG] %s30 | %s\n", tag, debugMsg);
+			System.out.printf("[DEBUG] %30s | %s\n", tag, debugMsg);
 	}
 	public void w(String tag, String warningMessage) {
 		if(matchesLast("WARN", tag, warningMessage))
 			incrementLast();
 		else
-			System.err.printf("[WARN]  %s30 | %s\n", tag, warningMessage);
+			System.err.printf("[WARN]  %30s | %s\n", tag, warningMessage);
 	}
 	/**Debug Warning, added because notification about a missing key for a shader could be handy if you are debuging the shader
 	 * but not handy if it's intended*/
@@ -37,13 +37,13 @@ public class Logger {
 		if(matchesLast("SHADER DEBUG", tag, warningMessage))
 			incrementLast();
 		else
-			System.err.printf("[SDEBUG]%s30 | %s\n", tag, warningMessage);
+			System.err.printf("[SDEBUG]%30s | %s\n", tag, warningMessage);
 	}
 	public void e(String tag, Throwable er) {
 		if(matchesLast("ER", tag, er))
 			incrementLast();
 		else {
-			System.err.printf("[ERROR] %s30 | ", tag);
+			System.err.printf("[ERROR] %30s | ", tag);
 			er.printStackTrace();
 		}
 	}
@@ -51,7 +51,7 @@ public class Logger {
 		if(matchesLast("ER", tag, msg, er))
 			incrementLast();
 		else {
-			System.err.printf("[ERROR] %s30 | %s | ",msg,  tag);
+			System.err.printf("[ERROR] %30s | %s | ",msg,  tag);
 			er.printStackTrace();
 		}
 	}
