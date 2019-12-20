@@ -5,7 +5,7 @@ import static org.lwjgl.opengl.GL45.*;
 public class Logger {
 	public Logger() {}
 	
-	public static final Logger consoleLogger = new Logger();
+	public static Logger preferedLogger = new Logger();
 	
 	/**Crash the app if a gl error occurs*/
 	public static boolean strictGL = true;
@@ -86,6 +86,10 @@ public class Logger {
 		for(int i = 0; i<last.length; i++) {
 			if(!args[i].equals(last.length)) return false;
 		}
+		return true;
+	}
+
+	public boolean outputsToConsole() {
 		return true;
 	}
 }

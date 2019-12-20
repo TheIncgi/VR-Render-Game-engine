@@ -3,6 +3,7 @@ package com.theincgi.lwjglApp.render.shaders;
 import java.io.File;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 public class ShaderManager {
 	private static WeakHashMap<String, ShaderProgram> cache = new WeakHashMap<>();
@@ -25,7 +26,12 @@ public class ShaderManager {
 		}));
 	}
 
-
+	public static void forLoaded(Consumer<ShaderProgram> each) {
+		for (ShaderProgram shader : cache.values()) {
+			each.accept(shader);
+		}
+	}
+	
 	private static ShaderProgram loadShader(String k) {
 		File vs = new File(shadersFolder, k+".vs");
 		File fs = new File(shadersFolder, k+".fs");

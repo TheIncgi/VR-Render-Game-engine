@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.render.Drawable;
+import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;
@@ -16,6 +17,8 @@ public class HelloTriangle implements Drawable {
 	private int vao, vbo;
 	Optional<ShaderProgram> shader = Optional.empty();
 	// number of coordinates per vertex in this array
+	Location location = new Location();
+	
 	static final int COORDS_PER_VERTEX = 3;
 	static float triangleCoords[] = {   // in counterclockwise order:
 			0.0f,  0.622008459f, 0.0f, // top
@@ -68,12 +71,14 @@ public class HelloTriangle implements Drawable {
 
 	@Override
 	public void draw(float[] mvpm) {
-		shader.ifPresent(s->s.bind());
-
 		glBindVertexArray(vao);
-		//glEnableVertexAttribArray(0);
-		shader.ifPresentOrElse(s->s.tryEnableVertexAttribArray(VERTEX_ATTRIB),()->glEnableVertexAttribArray(0));
-
+		
+		shader.ifPresentOrElse(s->{
+			s.bind();
+			s.tryEnableVertexAttribArray(VERTEX_ATTRIB);
+			location.tellShader(s);
+		},()->glEnableVertexAttribArray(0));
+		
 
 		glDrawArrays(GL_TRIANGLES, 0, triangleCoords.length / COORDS_PER_VERTEX);
 
@@ -87,6 +92,11 @@ public class HelloTriangle implements Drawable {
 	public void drawAsColor(float[] mvpm, Color color) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	public Location getLocation() {
+		return location;
 	}
 
 

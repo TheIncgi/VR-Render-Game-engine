@@ -15,7 +15,7 @@ import static org.lwjgl.opengl.GL45.*;
 import com.theincgi.lwjglApp.misc.Logger;
 
 public class ShaderProgram {
-	static Logger log = Logger.consoleLogger;
+	static Logger log = Logger.preferedLogger;
 	
 	private int programHandle;
 	private String label;
@@ -78,14 +78,18 @@ public class ShaderProgram {
 	/**Used with VAO*/
 	public boolean tryEnableVertexAttribArray(String key) {
 		int posH = getAttribLocation(key);
-		if(posH==-1) {log.w("ShaderProgram#tryEnableVertexAttribArray", "could not enable attribVertArray for '"+key+"'"); return false;}
+		if(posH==-1) {
+			//log.w("ShaderProgram#tryEnableVertexAttribArray", "could not enable attribVertArray for '"+key+"'"); 
+		return false;}
 		glEnableVertexAttribArray(posH);
 		return true;
 	}
 	/**Used with VAO*/
 	public boolean disableVertexAttribArray(String key) {
 		int posH = getAttribLocation(key);
-		if(posH==-1) {log.w("ShaderProgram#tryDisableVertexAttribArray", "could not disable attribVertArray for '"+key+"'"); return false;}
+		if(posH==-1) {
+			//log.w("ShaderProgram#tryDisableVertexAttribArray", "could not disable attribVertArray for '"+key+"'"); 
+			return false;}
 		glDisableVertexAttribArray(posH);
 		return true;
 	}
@@ -93,7 +97,9 @@ public class ShaderProgram {
 	@Deprecated
 	public boolean trySetVertexAttribArray(String key, FloatBuffer vCoords) {
 		int posH = getAttribLocation(key);
-		if(posH==-1) {log.w("ShaderProgram#trySetVerexAttribArray", "could not set atrib. verted array for '"+key+"'"); return false;}
+		if(posH==-1) {
+			//log.w("ShaderProgram#trySetVerexAttribArray", "could not set atrib. verted array for '"+key+"'");
+			return false;}
 		glEnableVertexAttribArray(posH);
 		glVertexAttribPointer(posH, 3, GL_FLOAT, false, 3*Float.BYTES, vCoords);
 		return true;
@@ -108,7 +114,6 @@ public class ShaderProgram {
         int handle = getUniformLocation( name );
         if(handle == -1){warnMissingKey(name, "float"); return false;}
         glUniform1f( handle, f );
-
         return true;
     }
     public boolean trySetUniform( String name, float[] f){
@@ -158,7 +163,8 @@ public class ShaderProgram {
     }
 
     private void warnMissingKey(String key, String type){
-        log.sd("ShaderProgram", String.format("warnMissingKey: \"%s\" for type '%s' in shader [%s]",key, type,label));
+    	//if(!log.outputsToConsole())
+        //log.sd("ShaderProgram", String.format("warnMissingKey: \"%s\" for type '%s' in shader [%s]",key, type,label));
     }
 
     /**
@@ -203,7 +209,7 @@ public class ShaderProgram {
 			log.w("ShaderProgram#use", "No program handle exists for '"+label+"'");
 		glUseProgram(programHandle);
 	}
-	public void unbind() {
+	public static void unbind() {
 		glUseProgram(0);
 	}
 	

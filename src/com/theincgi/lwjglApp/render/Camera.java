@@ -1,9 +1,7 @@
 package com.theincgi.lwjglApp.render;
 
-import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
-import com.theincgi.lwjglApp.Utils;
+import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 
 public class Camera {
     Location location;
@@ -18,12 +16,14 @@ public class Camera {
         location = new Location(x, y, z, yaw, pitch, roll);
 
     }
-    
-    public void apply() {
-    	location.apply();
-    }
 
     public Location getLocation() {
         return location;
+    }
+    
+    /**Pass camera location, rotation*/
+    public void tellShader(ShaderProgram sp) {
+    	sp.trySetUniform("cameraPos", location.pos);
+    	sp.trySetUniform("cameraRot", location.rot);
     }
 }

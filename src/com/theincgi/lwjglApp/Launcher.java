@@ -11,7 +11,7 @@ import com.theincgi.lwjglApp.ui.Window;
 public class Launcher {
 	public static final String APPLICATION_NAME = "Unnamed Application";
 	private static Window mainWindow;
-	static Logger log = Logger.consoleLogger;
+	static Logger log = Logger.preferedLogger;
 	
 	public static void main(String[] args) {
 		log.i("#main", "Main thread: "+Thread.currentThread().getId());
