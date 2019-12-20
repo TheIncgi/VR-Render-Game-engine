@@ -2,6 +2,9 @@ package com.theincgi.lwjglApp.scenes;
 
 import java.util.Optional;
 
+import org.lwjgl.util.vector.Matrix4f;
+
+import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.mvc.view.drawables.HelloTriangle;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Location;
@@ -17,30 +20,34 @@ public class PrimaryScene extends Scene{
 	Location sun = new Location(0, 10, 0);
 	Camera camera;
 	HelloTriangle ht;
-	float[] mvpm;
 	long startupTime = System.currentTimeMillis();
 	
 	public PrimaryScene() {
 		sceneListener = Optional.of(new SceneCallbackListener());
 		camera = new Camera();
 		ht = new HelloTriangle();
-		mvpm = new float[16];
+		
 		
 	}
 	
 	@Override
 	public void render(double mouseX, double mouseY) {
 		super.render(mouseX, mouseY);
+		
+		MatrixStack.modelViewStack.reset();
+		MatrixStack.projection.reset();
+		camera.loadProjectionMatrix();
+		
 		ShaderManager.forLoaded(s->{
 			camera.tellShader(s);
 			s.bind();
 			s.trySetUniform("uptime", (System.currentTimeMillis()-startupTime)/1000f); //casted to float
 			s.trySetUniform("sunPos", sun.pos);
-			s.trySetUniform("mode", 4432);
+			s.trySetMatrix("projectionMatrix", MatrixStack.projection.get());
 			
 		});
 		ShaderProgram.unbind();
-		ht.draw(mvpm);
+		ht.draw();
 	}
 	
 	private class SceneCallbackListener extends CallbackListener

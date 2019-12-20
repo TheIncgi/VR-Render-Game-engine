@@ -5,6 +5,7 @@ import java.nio.FloatBuffer;
 import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
+import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
@@ -18,7 +19,7 @@ public class HelloTriangle implements Drawable {
 	Optional<ShaderProgram> shader = Optional.empty();
 	// number of coordinates per vertex in this array
 	Location location = new Location();
-	
+
 	static final int COORDS_PER_VERTEX = 3;
 	static float triangleCoords[] = {   // in counterclockwise order:
 			0.0f,  0.622008459f, 0.0f, // top
@@ -70,22 +71,23 @@ public class HelloTriangle implements Drawable {
 	}
 
 	@Override
-	public void draw(float[] mvpm) {
-		glBindVertexArray(vao);
-		
-		shader.ifPresentOrElse(s->{
-			s.bind();
-			s.tryEnableVertexAttribArray(VERTEX_ATTRIB);
-			location.tellShader(s);
-		},()->glEnableVertexAttribArray(0));
-		
+	public void draw() {
+		try (MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
+			glBindVertexArray(vao);
 
-		glDrawArrays(GL_TRIANGLES, 0, triangleCoords.length / COORDS_PER_VERTEX);
+			shader.ifPresentOrElse(s->{
+				s.bind();
+				s.tryEnableVertexAttribArray(VERTEX_ATTRIB);
+				s.trySetMatrix("modelViewMatrix", stk.get());
+			},()->glEnableVertexAttribArray(0));
 
-		shader.ifPresentOrElse(s->s.disableVertexAttribArray(VERTEX_ATTRIB),()->glDisableVertexAttribArray(0));
-		glBindVertexArray(0);
-		shader.ifPresent(s->s.unbind());
 
+			glDrawArrays(GL_TRIANGLES, 0, triangleCoords.length / COORDS_PER_VERTEX);
+
+			shader.ifPresentOrElse(s->s.disableVertexAttribArray(VERTEX_ATTRIB),()->glDisableVertexAttribArray(0));
+			glBindVertexArray(0);
+			ShaderProgram.unbind();
+		}
 	}
 
 	@Override

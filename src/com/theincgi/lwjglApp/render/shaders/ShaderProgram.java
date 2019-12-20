@@ -9,6 +9,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.vector.Matrix4f;
 
 import static org.lwjgl.opengl.GL45.*;
 
@@ -155,6 +156,17 @@ public class ShaderProgram {
                 break;
             default:
                 throw new RuntimeException("Not a valid matrix size");
+        }
+        return true;
+    }
+    public boolean trySetMatrix(String name, Matrix4f mat){
+        int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "Matrix"); return false;}
+        try (MemoryStack stack = MemoryStack.stackPush()){
+        	FloatBuffer buf = stack.mallocFloat(16);
+        	mat.store(buf);
+        	buf.flip(); //TODO CHECKME, flip needed, right?
+        	glUniformMatrix4fv(handle, false, buf);
         }
         return true;
     }

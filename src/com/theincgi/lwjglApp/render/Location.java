@@ -105,6 +105,14 @@ public class Location {
         return rot[2];
     }
 
+    public Matrix4f applyTo(Matrix4f mat) {
+    	mat.rotate(getRoll(), Utils.AXIS_OUT);
+    	mat.rotate(getPitch(), Utils.AXIS_RIGHT);
+    	mat.rotate(getYaw(), Utils.AXIS_UP);
+    	mat.translate(new Vector3f(getX(), getY(), getZ()));
+    	return mat;
+    }
+    
     //copy xyz data into given array
     public void putPos(float[] pos){
         pos[0] = this.pos[0];
@@ -112,15 +120,6 @@ public class Location {
         pos[2] = this.pos[2];
         if(pos.length>3)
             pos[3] = 1;
-    }
-
-    public void tellShader(ShaderProgram sp) {
-    	tellShader(sp, "objectPos", "objectRot");
-    }
-    public void tellShader(ShaderProgram sp, String posKey, String rotKey) {
-    	if(sp==null)return;
-    	if(posKey!=null)sp.trySetUniform(posKey, pos);
-    	if(rotKey!=null)sp.trySetUniform(rotKey, rot);
     }
     
 
