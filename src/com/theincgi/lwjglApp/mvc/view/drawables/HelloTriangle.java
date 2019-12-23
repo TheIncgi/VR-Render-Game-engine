@@ -12,7 +12,7 @@ import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;
 
-import static org.lwjgl.opengl.GL40.*;
+import static org.lwjgl.opengl.GL45.*;
 
 public class HelloTriangle implements Drawable {
 	private int vao, vbo;
@@ -51,7 +51,7 @@ public class HelloTriangle implements Drawable {
 				Utils.freeBuffer(vertexBuffer);
 		}
 
-		shader = ShaderManager.get("basic");
+		shader = ShaderManager.INSTANCE.get("basic");
 
 	}
 

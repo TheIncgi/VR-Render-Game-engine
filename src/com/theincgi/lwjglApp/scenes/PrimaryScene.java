@@ -38,7 +38,7 @@ public class PrimaryScene extends Scene{
 		MatrixStack.projection.reset();
 		camera.loadProjectionMatrix();
 		
-		ShaderManager.forLoaded(s->{
+		ShaderManager.INSTANCE.forLoaded(s->{
 			camera.tellShader(s);
 			s.bind();
 			s.trySetUniform("uptime", (System.currentTimeMillis()-startupTime)/1000f); //casted to float

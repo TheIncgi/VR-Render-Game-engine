@@ -11,7 +11,7 @@ uniform float uptime;
 out vec4 vertexColor;
 
 void main(){
-	vec3 tmp = vec3(vPosition.xy, 3 * sin(uptime)+vPosition.z);
+	vec3 tmp = vec3(vPosition.xy, .5 * sin(uptime)+vPosition.z -3);
 
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(tmp, 1.0);
 	float z = .5*sin(uptime)+0.5;

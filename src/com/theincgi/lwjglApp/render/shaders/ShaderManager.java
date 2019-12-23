@@ -5,37 +5,37 @@ import java.util.Optional;
 import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
-public class ShaderManager {
-	private static WeakHashMap<String, ShaderProgram> cache = new WeakHashMap<>();
+import com.theincgi.lwjglApp.misc.AbsManager;
+
+public class ShaderManager extends AbsManager<String, ShaderProgram>{
 	private static File shadersFolder = new File("shaders");
-	
 	public static boolean autoRefreshShaders = true;
+	
+	public static final ShaderManager INSTANCE = new ShaderManager();
+	
 	static{
 		shadersFolder.mkdir();
 	}
 	
-	private ShaderManager() {}
-	
-	
 	/**
 	 * Gets or loads a shader where files are &lt;name&gt;.vs and &lt;name&gt;.fs
 	 * */
-	public static Optional<ShaderProgram> get(String name) {
-		return Optional.ofNullable( cache.computeIfAbsent(name, k->{
-			return loadShader(k).autoRefresh(autoRefreshShaders);
-		}));
+	public Optional<ShaderProgram> get(String name) {
+		Optional<ShaderProgram> x = super.get(name);
+		x.ifPresent(y->y.autoRefresh(autoRefreshShaders));
+		return x;
 	}
 
-	public static void forLoaded(Consumer<ShaderProgram> each) {
-		for (ShaderProgram shader : cache.values()) {
-			each.accept(shader);
-		}
-	}
-	
-	private static ShaderProgram loadShader(String k) {
+	@Override
+	protected ShaderProgram load(String k) {
 		File vs = new File(shadersFolder, k+".vs");
 		File fs = new File(shadersFolder, k+".fs");
 		return new ShaderProgram(vs, fs);
+	}
+
+	@Override
+	protected void onUnload(ShaderProgram sp) {
+		sp.delete();
 	}
 	
 }

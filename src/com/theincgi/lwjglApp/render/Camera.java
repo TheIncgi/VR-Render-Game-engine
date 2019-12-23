@@ -12,13 +12,13 @@ import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 
 public class Camera {
     Location location;
-    public float fov = 110, near = 1, far = 1000;
+    public float fov = 110, near = .5f, far = 100;
     
     public Camera() {
-        this(1f,0,0);
+        this(0,0,0);
     }
     public Camera(float x, float y, float z) {
-        this(x, y, z, 0, -45, 0 );
+        this(x, y, z, 0, 0, 0 );
     }
     public Camera(float x, float y, float z, float yaw, float pitch, float roll) {
         location = new Location(x, y, z, yaw, pitch, roll);

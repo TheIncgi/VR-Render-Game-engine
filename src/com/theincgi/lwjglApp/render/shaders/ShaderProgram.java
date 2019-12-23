@@ -183,7 +183,7 @@ public class ShaderProgram {
      * called on finalization if not by application<br>
      * don't rely on finalize please
      * */
-    private void delete(){
+    public void delete(){
     	if(programHandle!=0)
         glDeleteProgram(programHandle);
         programHandle = 0;
