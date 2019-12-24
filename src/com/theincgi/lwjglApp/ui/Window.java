@@ -10,13 +10,12 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.lwjgl.BufferUtils;
+
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 
@@ -47,7 +46,7 @@ public class Window {
 	private Optional<Scene> scene;
 
 	static {
-		Logger.consoleLogger.i("Window","LWJGL Version:  " + Version.getVersion());
+		Logger.preferedLogger.i("Window","LWJGL Version:  " + Version.getVersion());
 
 		GLFWErrorCallback.createPrint(System.err).set();
 		if ( !glfwInit() )
@@ -112,7 +111,7 @@ public class Window {
 	public void show() {
 		// Make the window visible
 		glfwShowWindow(WINDOW_HANDLE);
-
+		
 		loop();
 	}
 
@@ -134,7 +133,7 @@ public class Window {
 		glfwSetWindowShouldClose(WINDOW_HANDLE, true);
 	}
 
-	private void loop() {
+	void loop() {
 
 
 		// Run the rendering loop until the user has attempted to close
@@ -154,8 +153,6 @@ public class Window {
 
 			glfwSwapBuffers(WINDOW_HANDLE); // swap the color buffers
 
-			// Poll for window events. The key callback above will only be
-			// invoked during this call.
 			glfwPollEvents();
 		}
 	}
