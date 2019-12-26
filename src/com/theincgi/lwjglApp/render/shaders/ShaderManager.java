@@ -28,8 +28,8 @@ public class ShaderManager extends AbsManager<String, ShaderProgram>{
 
 	@Override
 	protected ShaderProgram load(String k) {
-		File vs = new File(shadersFolder, k+".vs");
-		File fs = new File(shadersFolder, k+".fs");
+		File vs = new File(shadersFolder, k+".vert");
+		File fs = new File(shadersFolder, k+".frag");
 		return new ShaderProgram(vs, fs);
 	}
 

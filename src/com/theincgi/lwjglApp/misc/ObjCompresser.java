@@ -123,6 +123,35 @@ public class ObjCompresser {
 					faceGroups.size(),
 					sizes
 				);
+			
+			//Output file:
+			out.writeUTF(objName);
+			
+			out.writeInt(vertex.size());
+			for(Double d : vertex)
+				out.writeDouble(d);
+			
+			out.writeInt(uv.size());
+			for(Double u : uv)
+				out.writeDouble(u);
+			
+			out.writeInt(normal.size());
+			for(Double d : normal)
+				out.writeDouble(d);
+			
+			for (FaceGroup fg : faceGroups) {
+				out.writeUTF(fg.name);
+				out.writeBoolean(fg.smooth);
+				out.writeBoolean(fg.useUV);
+				out.writeBoolean(fg.useNorm);
+				out.writeInt(fg.index.size());
+				for(int i : fg.index)
+					out.writeInt(i);
+			}
+			
+			
+			
+			
 		} catch (IOException e) {
 			Logger.preferedLogger.e("ObjCompressor#compress", e);
 		}catch (Exception e) {
