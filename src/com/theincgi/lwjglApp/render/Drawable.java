@@ -7,7 +7,7 @@ public interface Drawable {
 	
 	
 	public void draw();
-	public void drawAsColor(float[] mvpm, Color color);
+	public void drawAsColor(Color color);
 	
 	public Location getLocation();
 	

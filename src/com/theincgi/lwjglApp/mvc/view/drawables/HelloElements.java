@@ -1,7 +1,10 @@
 package com.theincgi.lwjglApp.mvc.view.drawables;
 
+import static org.lwjgl.opengl.GL45.*;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
@@ -12,25 +15,20 @@ import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;
 
-import static org.lwjgl.opengl.GL45.*;
-
-public class HelloTriangle implements Drawable {
-	private int vao, vbo;
-	Optional<ShaderProgram> shader = Optional.empty();
-	// number of coordinates per vertex in this array
+public class HelloElements implements Drawable{
 	Location location = new Location();
-
-	static final int COORDS_PER_VERTEX = 3;
+	private int vao;
+	private int vbo;
+	private int ibo;
+	private Optional<ShaderProgram> shader;
+	private IntBuffer indices;
 	static float triangleCoords[] = {   // in counterclockwise order:
-			0.0f,  0.622008459f, 0.0f, // top
+			-.5f,  0.622008459f, 0.0f, // top
 			-0.5f, -0.311004243f, 0.0f, // bottom left
 			0.5f, -0.311004243f, 0.0f  // bottom right
 	};
-
-	final String VERTEX_ATTRIB = "vPosition";
-
-
-	public HelloTriangle() {
+	
+	public HelloElements() {
 		FloatBuffer vertexBuffer = null;
 		try {
 			vertexBuffer = Utils.toBuffer(triangleCoords);
@@ -40,8 +38,14 @@ public class HelloTriangle implements Drawable {
 
 			vbo = glGenBuffers();
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
-
+			glBufferData(GL_ARRAY_BUFFER, triangleCoords, GL_STATIC_DRAW);
+//			glBufferData(GL_ARRAY_BUFFER, 9, GL_STATIC_DRAW);
+//			glBufferSubData(GL_ARRAY_BUFFER, 0, triangleCoords);
+			
+			ibo = glGenBuffers();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, new int[]{0,1,2}, GL_STATIC_DRAW);
+			
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -52,22 +56,27 @@ public class HelloTriangle implements Drawable {
 		}
 
 		shader = ShaderManager.INSTANCE.get("basic");
-
 	}
-
+	
 	@Override
 	public void onDestroy() {
-		shader.ifPresent(s->s.disableVertexAttribArray(VERTEX_ATTRIB));
+		shader.ifPresent(s->s.disableVertexAttribArray("vPosition"));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glDeleteBuffers(vbo);
+		glDeleteBuffers(ibo);
 		glBindVertexArray(0);
 		glDeleteVertexArrays(vao);
 	}
 
-	public Color color = new Color(0.63671875f, 0.76953125f, 0.22265625f);
+	@Override
+	public void drawAsColor(Color color) {
+		// TODO Auto-generated method stub
+		
+	}
 
-	public Optional<ShaderProgram> getShader() {
-		return shader;
+	@Override
+	public Location getLocation() {
+		return location;
 	}
 
 	@Override
@@ -77,31 +86,18 @@ public class HelloTriangle implements Drawable {
 
 			shader.ifPresentOrElse(s->{
 				s.bind();
-				s.tryEnableVertexAttribArray(VERTEX_ATTRIB);
+				s.tryEnableVertexAttribArray("vPosition");
 				s.trySetMatrix("modelViewMatrix", stk.get());
 			},()->glEnableVertexAttribArray(0));
 
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glDrawElements(GL_TRIANGLES, 3, GL_INT, 0);
+			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-			glDrawArrays(GL_TRIANGLES, 0, triangleCoords.length / COORDS_PER_VERTEX);
-
-			shader.ifPresentOrElse(s->s.disableVertexAttribArray(VERTEX_ATTRIB),()->glDisableVertexAttribArray(0));
+			shader.ifPresentOrElse(s->s.disableVertexAttribArray("vPosition"),()->glDisableVertexAttribArray(0));
 			glBindVertexArray(0);
 			ShaderProgram.unbind();
 		}
 	}
-
-	@Override
-	public void drawAsColor(Color color) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public Location getLocation() {
-		return location;
-	}
-
-
-
-
+	
 }

@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.file.CopyOption;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,7 +48,7 @@ public class ObjCompresser {
 			FaceGroup(String matName){this.name = matName;}
 		}
 		int lineNumber = 0;
-		ArrayList<Double> vertex = new ArrayList<>(),
+		ArrayList<Float> vertex = new ArrayList<>(),
 		                  uv = new ArrayList<>(),
 		                  normal = new ArrayList<>();
 		String objName = "UNNAMED";	
@@ -68,11 +70,11 @@ public class ObjCompresser {
 					objName = line; 
 					break;
 				case "v":
-					Collections.addAll(vertex, splitDoubles(line)); break;
+					Collections.addAll(vertex, splitFloats(line)); break;
 				case "vt":
-					Collections.addAll(uv, splitDoubles(line)); break;
+					Collections.addAll(uv, splitFloats(line)); break;
 				case "vn":
-					Collections.addAll(normal, splitDoubles(line)); break;
+					Collections.addAll(normal, splitFloats(line)); break;
 				case "g": //group
 					break;
 				case "usemtl":
@@ -128,25 +130,35 @@ public class ObjCompresser {
 			out.writeUTF(objName);
 			
 			out.writeInt(vertex.size());
-			for(Double d : vertex)
-				out.writeDouble(d);
+			for(float d : vertex)
+				out.writeFloat(d);
 			
 			out.writeInt(uv.size());
-			for(Double u : uv)
-				out.writeDouble(u);
+			for(float u : uv)
+				out.writeFloat(u);
 			
 			out.writeInt(normal.size());
-			for(Double d : normal)
-				out.writeDouble(d);
+			for(float d : normal)
+				out.writeFloat(d);
 			
+			int pos = 0;
+			int totalIndex = 0;
+			for (FaceGroup f : faceGroups) 
+				totalIndex+=f.index.size();
+			
+			out.writeInt(totalIndex);
+			out.writeInt(faceGroups.size());
 			for (FaceGroup fg : faceGroups) {
 				out.writeUTF(fg.name);
+				out.writeInt(pos);
+				out.writeInt(pos+fg.index.size()-1); //inclusive according to glDrawRanged javadoc
 				out.writeBoolean(fg.smooth);
 				out.writeBoolean(fg.useUV);
 				out.writeBoolean(fg.useNorm);
-				out.writeInt(fg.index.size());
+//				out.writeInt(fg.index.size());
 				for(int i : fg.index)
 					out.writeInt(i);
+				pos+=fg.index.size();
 			}
 			
 			
@@ -163,12 +175,12 @@ public class ObjCompresser {
 	
 
 
-	private static Double[] splitDoubles(String line) {
+	private static Float[] splitFloats(String line) {
 		line = line.trim();
 		String[] x = line.split(" ");
-		Double[] out = new Double[x.length];
+		Float[] out = new Float[x.length];
 		for (int i = 0; i < out.length; i++) {
-			out[i] = Double.parseDouble(x[i]);
+			out[i] = Float.parseFloat(x[i]);
 		}
 		return out;
 	}
@@ -188,7 +200,28 @@ public class ObjCompresser {
 	}
 
 	
-	public static void main(String[] args) {
-		compress(new File("models/walkyCube/walkyCube_000001.obj"), new File("Compress.test"));
+	public static void compressAll() throws IOException {
+		File folder = new File("models");
+		File out = new File("cmodels");
+		out.mkdir();
+		for (File f : folder.listFiles()) {
+			if(f.isDirectory()) {
+				for(File m : f.listFiles()) {
+					File target = new File(out, f.getName()+File.separatorChar+m.getName());
+					target.getParentFile().mkdirs();
+					if(m.getName().endsWith(".obj")) {
+						compress(m, target);
+					}else {
+						if(target.exists()) target.delete();
+						Files.copy(m.toPath(), target.toPath());
+					}
+					System.out.println("Updated "+target.getParentFile().getName() + "/"+target.getName());
+				}
+			}
+		}
+	}
+	
+	public static void main(String[] args) throws IOException {
+		compressAll();//(new File("models/walkyCube/walkyCube_000001.obj"), new File("Compress.test"));
 	}
 }

@@ -1,6 +1,9 @@
 package com.theincgi.lwjglApp;
 
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vector.Vector3f;
@@ -72,7 +75,14 @@ public class Utils {
 		buf.put(floats).flip();
 		return buf;
 	}
-	public static void freeBuffer(FloatBuffer buf) {
+	public static IntBuffer toBuffer(int... ints) {
+		IntBuffer buf = MemoryUtil.memAllocInt(ints.length);
+		buf.put(ints).flip();
+		return buf;
+	}
+	public static void freeBuffer(Buffer buf) {
 		MemoryUtil.memFree(buf);
 	}
+	
+	
 }

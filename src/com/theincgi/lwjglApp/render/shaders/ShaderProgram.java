@@ -94,6 +94,14 @@ public class ShaderProgram {
 		glDisableVertexAttribArray(posH);
 		return true;
 	}
+	public boolean trySetVertexAttribPointer(String key, int size, int type, int stride, long pointer) {
+		int posH = getAttribLocation(key);
+		if(posH==-1) {
+			//log.w("ShaderProgram#tryEnableVertexAttribArray", "could not enable attribVertArray for '"+key+"'"); 
+		return false;}
+		glVertexAttribPointer(posH, size, type, false, stride, pointer);
+		return true;
+	}
 	
 	@Deprecated
 	public boolean trySetVertexAttribArray(String key, FloatBuffer vCoords) {

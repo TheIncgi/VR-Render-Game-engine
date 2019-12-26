@@ -9,6 +9,7 @@ public abstract class AbsManager<S, T> {
 	public static final Cleaner cleaner = Cleaner.create();
 	
 	private WeakHashMap<S, T> cache = new WeakHashMap<>();
+	
 	public Optional<T> get(S name){
 		return Optional.ofNullable(cache.computeIfAbsent(name, this::_load));
 	}	

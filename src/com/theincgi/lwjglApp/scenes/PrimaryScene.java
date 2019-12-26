@@ -1,13 +1,19 @@
 package com.theincgi.lwjglApp.scenes;
 
+import java.io.File;
 import java.util.Optional;
 
 import org.lwjgl.util.vector.Matrix4f;
 
+import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements;
 import com.theincgi.lwjglApp.mvc.view.drawables.HelloTriangle;
 import com.theincgi.lwjglApp.render.Camera;
+import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Location;
+import com.theincgi.lwjglApp.render.Model;
+import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.CallbackListener;
@@ -19,15 +25,18 @@ import static org.lwjgl.opengl.GL45.*;
 public class PrimaryScene extends Scene{
 	Location sun = new Location(0, 10, 0);
 	Camera camera;
-	HelloTriangle ht;
+	Drawable ht;
+	Optional<Model> cube;
 	long startupTime = System.currentTimeMillis();
 	
 	public PrimaryScene() {
 		sceneListener = Optional.of(new SceneCallbackListener());
 		camera = new Camera();
-		ht = new HelloTriangle();
-		
-		
+		ht = new HelloElements();
+		cube = ObjManager.INSTANCE.get(new File("cmodels/walkyCube/walkyCube_000001.obj"));
+		cube.ifPresent(c->{
+			c.shader = ShaderManager.INSTANCE.get("basic");
+			Logger.preferedLogger.i("PrimaryScene", "Cube loaded");});
 	}
 	
 	@Override
@@ -48,6 +57,7 @@ public class PrimaryScene extends Scene{
 		});
 		ShaderProgram.unbind();
 		ht.draw();
+		cube.ifPresent(c->c.draw());
 	}
 	
 	private class SceneCallbackListener extends CallbackListener
