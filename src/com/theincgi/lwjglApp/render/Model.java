@@ -15,6 +15,8 @@ import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;
 
+import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL45.*;
 
@@ -24,6 +26,7 @@ public class Model implements Drawable{
 	
 	int VAO; //the settings n stuff
 	int vbo; //the data
+	int ibo;
 	int nVerts;
 	int nTex;
 
@@ -84,6 +87,11 @@ public class Model implements Drawable{
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vert);
 			glBufferSubData(GL_ARRAY_BUFFER, vertCount, uv);
 			glBufferSubData(GL_ARRAY_BUFFER, vertCount+uvCount, normal);
+			
+			ibo = glGenBuffers();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW);
+			
 			//				gldrawrange
 			//				
 			//
@@ -95,6 +103,7 @@ public class Model implements Drawable{
 			Utils.freeBuffer(vert);
 			Utils.freeBuffer(uv);
 			Utils.freeBuffer(normal);
+			Utils.freeBuffer(index);
 		}
 	}
 
@@ -130,10 +139,11 @@ public class Model implements Drawable{
 			}, ()->{glEnableVertexAttribArray(0);});
 
 			
-			
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			for(Range r : ranges) {
 				//TODO material to shader
-				glDrawRangeElements(GL_TRIANGLES, r.start, r.end, index);
+				
+				glDrawRangeElements(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0l);
 			}
 
 			shader.ifPresentOrElse(s->{

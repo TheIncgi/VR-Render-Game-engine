@@ -91,8 +91,8 @@ public class HelloElements implements Drawable{
 			},()->glEnableVertexAttribArray(0));
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glDrawElements(GL_TRIANGLES, 3, GL_INT, 0);
-			glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+			//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+			glDrawRangeElementsBaseVertex(GL_TRIANGLES, 0, 2, 3, GL_UNSIGNED_INT, 0l, 0);
 
 			shader.ifPresentOrElse(s->s.disableVertexAttribArray("vPosition"),()->glDisableVertexAttribArray(0));
 			glBindVertexArray(0);
