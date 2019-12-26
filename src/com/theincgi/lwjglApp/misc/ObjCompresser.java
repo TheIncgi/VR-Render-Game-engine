@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Scanner;
 
@@ -44,7 +45,7 @@ public class ObjCompresser {
 			boolean useNorm = false;
 			FaceGroup(String matName){this.name = matName;}
 		}
-		int lineNumber = 1;
+		int lineNumber = 0;
 		ArrayList<Double> vertex = new ArrayList<>(),
 		                  uv = new ArrayList<>(),
 		                  normal = new ArrayList<>();
@@ -52,11 +53,13 @@ public class ObjCompresser {
 		ArrayList<FaceGroup> faceGroups = new ArrayList<>();
 		FaceGroup activeFaceGroup = null;
 		                  
+		String op = null, line = null;
 		try(RandomAccessFile out = new RandomAccessFile(outFile, "rw"); Scanner in = new Scanner(objFile);){
 			
 			while(in.hasNextLine()) {
-				String op = in.next();
-				String line = in.nextLine();
+				op = in.next();
+				line = in.nextLine();
+				lineNumber++;
 				if(op.startsWith("#") || op.isBlank()) continue;
 				switch (op) {
 				case "mtllib":
@@ -69,7 +72,7 @@ public class ObjCompresser {
 				case "vt":
 					Collections.addAll(uv, splitDoubles(line)); break;
 				case "vn":
-					Collections.addAll(uv, splitDoubles(line)); break;
+					Collections.addAll(normal, splitDoubles(line)); break;
 				case "g": //group
 					break;
 				case "usemtl":
@@ -92,24 +95,47 @@ public class ObjCompresser {
 							Logger.preferedLogger.e("ObjCompresser", new RuntimeException("Unexpected number of / ("+count(line,"/")+")"));							
 						}
 					}
+					Collections.addAll(activeFaceGroup.index, splitInt(line));
 					break;
 				default:
 					Logger.preferedLogger.e("ObjCompresser", new RuntimeException("Unexpected line operation: "+op));
 				}
-				lineNumber++;
+				
 			}
-			System.out.printf("Finished parsing %s\n\tVerts: %d\n\tUV: %d\n\tNorm: %d\n\tMaterialGroups: %d\n",
-					objFile.getName(), vertex.size(), uv.size(), normal.size(), faceGroups.size());
+			
+			StringBuilder sizes = new StringBuilder();
+			for (FaceGroup faceGroup : faceGroups) {
+				sizes.append(faceGroup.name)
+				.append(": ")
+				.append(faceGroup.index.size())
+				.append("\n");
+			}
+			System.out.printf("Finished parsing %s\n"
+					+ "\tVerts: %d\n"
+					+ "\tUV: %d\n"
+					+ "\tNorm: %d\n"
+					+ "\tMaterialGroups: %d\n"
+					+ "\tFaces: %s",
+					objFile.getName(),
+					vertex.size(),
+					uv.size(),
+					normal.size(),
+					faceGroups.size(),
+					sizes
+				);
 		} catch (IOException e) {
 			Logger.preferedLogger.e("ObjCompressor#compress", e);
 		}catch (Exception e) {
-			throw new RuntimeException("On line "+lineNumber, e);
+			throw new RuntimeException("On line "+lineNumber+ ": "+op+" "+line, e);
 		}
 	}
 	
 	
+	
+
+
 	private static Double[] splitDoubles(String line) {
-		
+		line = line.trim();
 		String[] x = line.split(" ");
 		Double[] out = new Double[x.length];
 		for (int i = 0; i < out.length; i++) {
@@ -118,6 +144,7 @@ public class ObjCompresser {
 		return out;
 	}
 	private static Integer[] splitInt(String line) {
+		line = line.trim();
 		String[] x = line.split("[ /]");
 		Integer[] out = new Integer[x.length];
 		for (int i = 0; i < out.length; i++) {

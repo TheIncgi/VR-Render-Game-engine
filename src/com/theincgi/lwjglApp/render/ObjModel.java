@@ -1,6 +1,8 @@
 package com.theincgi.lwjglApp.render;
 
 import java.io.File;
+import java.nio.FloatBuffer;
+
 import static org.lwjgl.opengl.GL45.*;
 
 public class ObjModel {
@@ -30,7 +32,8 @@ public class ObjModel {
 	public class Model{
 		int VAO; //the settings n stuff
 		int VBO; //the data
-		
+		FloatBuffer data;
+		int stride = 3;
 		public Model() {
 			VAO = glGenVertexArrays();
 			glBindVertexArray(VAO);
