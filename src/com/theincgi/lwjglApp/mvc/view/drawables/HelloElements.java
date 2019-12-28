@@ -38,9 +38,9 @@ public class HelloElements implements Drawable{
 
 			vbo = glGenBuffers();
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, triangleCoords, GL_STATIC_DRAW);
-//			glBufferData(GL_ARRAY_BUFFER, 9, GL_STATIC_DRAW);
-//			glBufferSubData(GL_ARRAY_BUFFER, 0, triangleCoords);
+			//glBufferData(GL_ARRAY_BUFFER, triangleCoords, GL_STATIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, 9*Float.BYTES, GL_STATIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER, 0, triangleCoords);
 			
 			ibo = glGenBuffers();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
@@ -88,13 +88,16 @@ public class HelloElements implements Drawable{
 				s.bind();
 				s.tryEnableVertexAttribArray("vPosition");
 				s.trySetMatrix("modelViewMatrix", stk.get());
+				s.bind();
 			},()->glEnableVertexAttribArray(0));
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			//glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 			glDrawRangeElementsBaseVertex(GL_TRIANGLES, 0, 2, 3, GL_UNSIGNED_INT, 0l, 0);
 
-			shader.ifPresentOrElse(s->s.disableVertexAttribArray("vPosition"),()->glDisableVertexAttribArray(0));
+			shader.ifPresentOrElse(s->{
+				s.disableVertexAttribArray("vPosition");
+				ShaderProgram.unbind();
+			},()->glDisableVertexAttribArray(0));
 			glBindVertexArray(0);
 			ShaderProgram.unbind();
 		}

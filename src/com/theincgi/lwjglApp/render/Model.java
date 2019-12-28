@@ -58,14 +58,10 @@ public class Model implements Drawable{
 			uv   = Utils.toBuffer(uvData);
 			normal=Utils.toBuffer(normData);
 
-			vbo = glGenBuffers();
+//			vbo = glGenBuffers();
 
 			int totalIndex = in.readInt();
 			int nMaterialGroups = in.readInt();
-
-
-			int VAO = glGenVertexArrays();
-			glBindVertexArray(VAO);
 
 
 			int[] indexData = new int[totalIndex];
@@ -80,10 +76,12 @@ public class Model implements Drawable{
 
 			index = Utils.toBuffer(indexData);
 
-
+			VAO = glGenVertexArrays();
+			glBindVertexArray(VAO);
+			
+			vbo = glGenBuffers();
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			glBufferData(GL_ARRAY_BUFFER, vertCount + uvCount + normCount, GL_STATIC_READ);
-
+			glBufferData(GL_ARRAY_BUFFER, Float.BYTES*(vertCount + uvCount + normCount), GL_STATIC_DRAW);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vert);
 			glBufferSubData(GL_ARRAY_BUFFER, vertCount, uv);
 			glBufferSubData(GL_ARRAY_BUFFER, vertCount+uvCount, normal);
@@ -91,6 +89,21 @@ public class Model implements Drawable{
 			ibo = glGenBuffers();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW);
+			
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+			glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, vertCount);
+			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, vertCount + uvCount);
+
+//			glBindBuffer(GL_ARRAY_BUFFER, vbo);
+//			glBufferData(GL_ARRAY_BUFFER, vertCount + uvCount + normCount, GL_STATIC_READ);
+//
+//			glBufferSubData(GL_ARRAY_BUFFER, 0, vert);
+//			glBufferSubData(GL_ARRAY_BUFFER, vertCount, uv);
+//			glBufferSubData(GL_ARRAY_BUFFER, vertCount+uvCount, normal);
+//			
+//			ibo = glGenBuffers();
+//			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+//			glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW);
 			
 			//				gldrawrange
 			//				
@@ -115,6 +128,7 @@ public class Model implements Drawable{
 		});
 		Utils.freeBuffer(index);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glDeleteBuffers(ibo);
 		glDeleteBuffers(vbo);
 		glBindVertexArray(0);
 		glDeleteVertexArrays(VAO);
@@ -135,21 +149,20 @@ public class Model implements Drawable{
 				s.trySetVertexAttribPointer("vPosition",    3, GL_FLOAT, 0, 0l);
 				s.trySetVertexAttribPointer("texPosition",  3, GL_FLOAT, 0, nVerts);
 				s.trySetVertexAttribPointer("normPosition", 2, GL_FLOAT, 0, nVerts+nTex);
-				
+				s.bind();
 			}, ()->{glEnableVertexAttribArray(0);});
 
 			
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			for(Range r : ranges) {
-				//TODO material to shader
-				
-				glDrawRangeElements(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0l);
+				glDrawRangeElementsBaseVertex(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0l, 0);
 			}
 
 			shader.ifPresentOrElse(s->{
 				s.disableVertexAttribArray("vPosition");
 				s.disableVertexAttribArray("texPosition");
 				s.disableVertexAttribArray("normPosition");
+				ShaderProgram.unbind();
 			},()->glDisableVertexAttribArray(0));
 
 			glBindVertexArray(0);

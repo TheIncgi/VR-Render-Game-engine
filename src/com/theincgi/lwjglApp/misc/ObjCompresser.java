@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 
 import javax.management.RuntimeErrorException;
@@ -16,6 +18,15 @@ import javax.management.RuntimeErrorException;
 //Plain text is cool and all, but it loads so much slower
 public class ObjCompresser {
 	
+	
+	private class FaceGroup{
+		String name;
+		ArrayList<Integer> index = new ArrayList<>();
+		boolean smooth = false;
+		boolean useUV = false;
+		boolean useNorm = false;
+		FaceGroup(String matName){this.name = matName;}
+	}
 	/**
 	 * Header:
 	 * UTF-String name
@@ -37,16 +48,8 @@ public class ObjCompresser {
 	 * 		...
 	 * }
 	 * */
-	
 	public static void compress(File objFile, File outFile) {
-		class FaceGroup{
-			String name;
-			ArrayList<Integer> index = new ArrayList<>();
-			boolean smooth = false;
-			boolean useUV = false;
-			boolean useNorm = false;
-			FaceGroup(String matName){this.name = matName;}
-		}
+		
 		int lineNumber = 0;
 		ArrayList<Float> vertex = new ArrayList<>(),
 		                  uv = new ArrayList<>(),
@@ -126,40 +129,51 @@ public class ObjCompresser {
 					sizes
 				);
 			
-			//Output file:
-			out.writeUTF(objName);
+			//abc hash equals
+			class Triplet{int a,b,c;Triplet(int a,int b, int c){this.a=a;this.b=b;this.c=c;} public boolean equals(Triplet obj) {
+					return this==obj || (a==obj.a && b==obj.b && c==obj.c);}
+			@Override public int hashCode() {	final int prime = 31;int result = 1;result = prime * result + a;result = prime * result + b;result = prime * result + c;
+				return result;	}
+			@Override public boolean equals(Object obj) {
+				if (this == obj)return true;if (obj == null)return false;if (getClass() != obj.getClass())return false;
+				Triplet other = (Triplet) obj;	return equals(other);}}
 			
-			out.writeInt(vertex.size());
-			for(float d : vertex)
-				out.writeFloat(d);
-			
-			out.writeInt(uv.size());
-			for(float u : uv)
-				out.writeFloat(u);
-			
-			out.writeInt(normal.size());
-			for(float d : normal)
-				out.writeFloat(d);
-			
-			int pos = 0;
-			int totalIndex = 0;
-			for (FaceGroup f : faceGroups) 
-				totalIndex+=f.index.size();
-			
-			out.writeInt(totalIndex);
-			out.writeInt(faceGroups.size());
-			for (FaceGroup fg : faceGroups) {
-				out.writeUTF(fg.name);
-				out.writeInt(pos);
-				out.writeInt(pos+fg.index.size()-1); //inclusive according to glDrawRanged javadoc
-				out.writeBoolean(fg.smooth);
-				out.writeBoolean(fg.useUV);
-				out.writeBoolean(fg.useNorm);
-//				out.writeInt(fg.index.size());
-				for(int i : fg.index)
-					out.writeInt(i);
-				pos+=fg.index.size();
+			HashMap<Triplet, Integer> recorded = new HashMap<>();
+			ArrayList<Triplet> allTripplets = new ArrayList<>();
+			ArrayList<Float> finalVertex = new ArrayList<>(), finalUV = new ArrayList<>(), finalNormal = new ArrayList<>();
+			ArrayList<FaceGroup> finalFaceGroups = new ArrayList<>();
+			int pos = 1;
+			for (FaceGroup faceGroup : faceGroups) {
+				FaceGroup ffg = new FaceGroup(faceGroup.name);
+				ffg.smooth = faceGroup.smooth;
+				ffg.useNorm = faceGroup.useNorm;
+				ffg.useUV = faceGroup.useUV;
+				finalFaceGroups.add(ffg);
+				for (int i = 0; i < faceGroup.index.size(); i+=3) {
+					int a = faceGroup.index.get(i);
+					int b = faceGroup.index.get(i+1);
+					int c = faceGroup.index.get(i+2);
+					Triplet x = new Triplet(a, b, c);
+					ffg.index.add(pos);
+					if(!recorded.containsKey(x)) {
+						allTripplets.add(x);
+						recorded.put(x, pos++);
+					}
+					ffg.index.add(recorded.get(x));
+				}
 			}
+			
+			for (int i = 0; i < allTripplets.size(); i++) {
+				Triplet t = allTripplets.get(i);
+				finalVertex.add( vertex.get(t.a-1) );
+				finalUV.add(         uv.get(t.b-1) );
+				finalNormal.add( normal.get(t.c-1) );
+				
+			}
+			
+			
+			
+			writeFile(finalVertex, finalUV, finalNormal, objName, finalFaceGroups, out);
 			
 			
 			
@@ -168,6 +182,48 @@ public class ObjCompresser {
 			Logger.preferedLogger.e("ObjCompressor#compress", e);
 		}catch (Exception e) {
 			throw new RuntimeException("On line "+lineNumber+ ": "+op+" "+line, e);
+		}
+	}
+
+
+
+
+
+	private static void writeFile(ArrayList<Float> vertex, ArrayList<Float> uv, ArrayList<Float> normal, String objName,
+			ArrayList<FaceGroup> faceGroups, RandomAccessFile out) throws IOException {
+		//Output file:
+		out.writeUTF(objName);
+		
+		out.writeInt(vertex.size());
+		for(float d : vertex)
+			out.writeFloat(d);
+		
+		out.writeInt(uv.size());
+		for(float u : uv)
+			out.writeFloat(u);
+		
+		out.writeInt(normal.size());
+		for(float d : normal)
+			out.writeFloat(d);
+		
+		int pos = 0;
+		int totalIndex = 0;
+		for (FaceGroup f : faceGroups) 
+			totalIndex+=f.index.size();
+		
+		out.writeInt(totalIndex);
+		out.writeInt(faceGroups.size());
+		for (FaceGroup fg : faceGroups) {
+			out.writeUTF(fg.name);
+			out.writeInt(pos);
+			out.writeInt(pos+fg.index.size()-1); //inclusive according to glDrawRanged javadoc
+			out.writeBoolean(fg.smooth);
+			out.writeBoolean(fg.useUV);
+			out.writeBoolean(fg.useNorm);
+//				out.writeInt(fg.index.size());
+			for(int i : fg.index)
+				out.writeInt(i);
+			pos+=fg.index.size();
 		}
 	}
 	
@@ -200,7 +256,7 @@ public class ObjCompresser {
 	}
 
 	
-	public static void compressAll() throws IOException {
+	public static void compressAll(boolean overwrite) throws IOException {
 		File folder = new File("models");
 		File out = new File("cmodels");
 		out.mkdir();
@@ -208,6 +264,7 @@ public class ObjCompresser {
 			if(f.isDirectory()) {
 				for(File m : f.listFiles()) {
 					File target = new File(out, f.getName()+File.separatorChar+m.getName());
+					if(target.exists() && !overwrite) continue;
 					target.getParentFile().mkdirs();
 					if(m.getName().endsWith(".obj")) {
 						compress(m, target);
@@ -222,6 +279,6 @@ public class ObjCompresser {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		compressAll();//(new File("models/walkyCube/walkyCube_000001.obj"), new File("Compress.test"));
+		compressAll(false);//(new File("models/walkyCube/walkyCube_000001.obj"), new File("Compress.test"));
 	}
 }

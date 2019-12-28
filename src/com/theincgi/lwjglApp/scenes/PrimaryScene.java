@@ -33,7 +33,7 @@ public class PrimaryScene extends Scene{
 		sceneListener = Optional.of(new SceneCallbackListener());
 		camera = new Camera();
 		ht = new HelloElements();
-		cube = ObjManager.INSTANCE.get(new File("cmodels/walkyCube/walkyCube_000001.obj"));
+		cube = ObjManager.INSTANCE.get(new File("cmodels/cube/cube.obj"));
 		cube.ifPresent(c->{
 			c.shader = ShaderManager.INSTANCE.get("basic");
 			Logger.preferedLogger.i("PrimaryScene", "Cube loaded");});

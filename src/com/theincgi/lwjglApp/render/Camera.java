@@ -15,7 +15,7 @@ public class Camera {
     public float fov = 110, near = .5f, far = 100;
     
     public Camera() {
-        this(0,0,0);
+        this(0,0,80);
     }
     public Camera(float x, float y, float z) {
         this(x, y, z, 0, 0, 0 );
