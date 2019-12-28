@@ -47,9 +47,11 @@ public class HelloElements implements Drawable{
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, new int[]{0,1,2}, GL_STATIC_DRAW);
 			
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			
 			glBindVertexArray(0);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			
 		}finally{
 			if(vertexBuffer!=null)
 				Utils.freeBuffer(vertexBuffer);
@@ -93,6 +95,7 @@ public class HelloElements implements Drawable{
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glDrawRangeElementsBaseVertex(GL_TRIANGLES, 0, 2, 3, GL_UNSIGNED_INT, 0l, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			shader.ifPresentOrElse(s->{
 				s.disableVertexAttribArray("vPosition");

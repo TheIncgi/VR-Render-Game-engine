@@ -12,12 +12,15 @@ import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Pair;
+import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;
 
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.GL_ELEMENT_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL45.*;
 
 public class Model implements Drawable{
@@ -94,6 +97,8 @@ public class Model implements Drawable{
 			glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, vertCount);
 			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, vertCount + uvCount);
 
+			
+			
 //			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 //			glBufferData(GL_ARRAY_BUFFER, vertCount + uvCount + normCount, GL_STATIC_READ);
 //
@@ -118,6 +123,7 @@ public class Model implements Drawable{
 			Utils.freeBuffer(normal);
 			Utils.freeBuffer(index);
 		}
+		shader = ShaderManager.INSTANCE.get("basic");
 	}
 
 	private void delete() {
@@ -143,19 +149,19 @@ public class Model implements Drawable{
 				s.bind();
 				s.tryEnableVertexAttribArray("vPosition");
 				//TODO conditional based on range
-				s.tryEnableVertexAttribArray("texPosition");
-				s.tryEnableVertexAttribArray("normPosition");
+				//s.tryEnableVertexAttribArray("texPosition");
+				//s.tryEnableVertexAttribArray("normPosition");
 				
-				s.trySetVertexAttribPointer("vPosition",    3, GL_FLOAT, 0, 0l);
-				s.trySetVertexAttribPointer("texPosition",  3, GL_FLOAT, 0, nVerts);
-				s.trySetVertexAttribPointer("normPosition", 2, GL_FLOAT, 0, nVerts+nTex);
+//				s.trySetVertexAttribPointer("vPosition",    3, GL_FLOAT, 0, 0l);
+//				s.trySetVertexAttribPointer("texPosition",  3, GL_FLOAT, 0, nVerts);
+//				s.trySetVertexAttribPointer("normPosition", 2, GL_FLOAT, 0, nVerts+nTex);
 				s.bind();
 			}, ()->{glEnableVertexAttribArray(0);});
 
 			
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			for(Range r : ranges) {
-				glDrawRangeElementsBaseVertex(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0l, 0);
+				glDrawRangeElementsBaseVertex(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0, 0);
 			}
 
 			shader.ifPresentOrElse(s->{

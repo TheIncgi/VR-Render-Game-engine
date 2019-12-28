@@ -19,7 +19,7 @@ import javax.management.RuntimeErrorException;
 public class ObjCompresser {
 	
 	
-	private class FaceGroup{
+	private static class FaceGroup{
 		String name;
 		ArrayList<Integer> index = new ArrayList<>();
 		boolean smooth = false;
@@ -142,7 +142,7 @@ public class ObjCompresser {
 			ArrayList<Triplet> allTripplets = new ArrayList<>();
 			ArrayList<Float> finalVertex = new ArrayList<>(), finalUV = new ArrayList<>(), finalNormal = new ArrayList<>();
 			ArrayList<FaceGroup> finalFaceGroups = new ArrayList<>();
-			int pos = 1;
+			int pos = 0;
 			for (FaceGroup faceGroup : faceGroups) {
 				FaceGroup ffg = new FaceGroup(faceGroup.name);
 				ffg.smooth = faceGroup.smooth;
@@ -154,7 +154,6 @@ public class ObjCompresser {
 					int b = faceGroup.index.get(i+1);
 					int c = faceGroup.index.get(i+2);
 					Triplet x = new Triplet(a, b, c);
-					ffg.index.add(pos);
 					if(!recorded.containsKey(x)) {
 						allTripplets.add(x);
 						recorded.put(x, pos++);
@@ -165,10 +164,9 @@ public class ObjCompresser {
 			
 			for (int i = 0; i < allTripplets.size(); i++) {
 				Triplet t = allTripplets.get(i);
-				finalVertex.add( vertex.get(t.a-1) );
-				finalUV.add(         uv.get(t.b-1) );
-				finalNormal.add( normal.get(t.c-1) );
-				
+				finalVertex.add( vertex.get(t.a) );
+				finalUV.add(         t.b==-1?-1:    uv.get(t.b) );
+				finalNormal.add(     t.c==-1?-1:normal.get(t.c) );
 			}
 			
 			
