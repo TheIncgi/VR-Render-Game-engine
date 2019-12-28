@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.Arrays;
 import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
@@ -39,7 +40,8 @@ public class Model implements Drawable{
 
 	public Model(File source) throws FileNotFoundException, IOException {
 		FloatBuffer vert = null, uv = null, normal = null;
-		try(RandomAccessFile in = new RandomAccessFile(source, "rw")){
+		RandomAccessFile in = new RandomAccessFile(source, "rw");
+		try{
 			String modelName = in.readUTF();
 
 			int vertCount = nVerts = in.readInt();
@@ -97,7 +99,8 @@ public class Model implements Drawable{
 			glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, vertCount);
 			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, vertCount + uvCount);
 
-			
+			System.out.println(Arrays.toString(vertexData));
+			System.out.println(Arrays.toString(indexData));
 			
 //			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 //			glBufferData(GL_ARRAY_BUFFER, vertCount + uvCount + normCount, GL_STATIC_READ);
@@ -122,6 +125,8 @@ public class Model implements Drawable{
 			Utils.freeBuffer(uv);
 			Utils.freeBuffer(normal);
 			Utils.freeBuffer(index);
+			glBindVertexArray(0);
+			in.close();
 		}
 		shader = ShaderManager.INSTANCE.get("basic");
 	}
@@ -161,9 +166,10 @@ public class Model implements Drawable{
 			
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			for(Range r : ranges) {
-				glDrawRangeElementsBaseVertex(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0, 0);
+				glDrawRangeElements(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0);
 			}
-
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			
 			shader.ifPresentOrElse(s->{
 				s.disableVertexAttribArray("vPosition");
 				s.disableVertexAttribArray("texPosition");

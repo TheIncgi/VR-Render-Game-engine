@@ -164,9 +164,15 @@ public class ObjCompresser {
 			
 			for (int i = 0; i < allTripplets.size(); i++) {
 				Triplet t = allTripplets.get(i);
-				finalVertex.add( vertex.get(t.a) );
-				finalUV.add(         t.b==-1?-1:    uv.get(t.b) );
-				finalNormal.add(     t.c==-1?-1:normal.get(t.c) );
+				finalVertex.add( vertex.get(t.a*3) );
+				finalVertex.add( vertex.get(t.a*3+1) );
+				finalVertex.add( vertex.get(t.a*3+2) );
+				finalUV.add(         t.b==-1?-1:    uv.get(t.b*3) );
+				finalUV.add(         t.b==-1?-1:    uv.get(t.b*3+1) );
+				finalUV.add(         t.b==-1?-1:    uv.get(t.b*3+2) );
+				finalNormal.add(     t.c==-1?-1:normal.get(t.c*3) );
+				finalNormal.add(     t.c==-1?-1:normal.get(t.c*3+1) );
+				finalNormal.add(     t.c==-1?-1:normal.get(t.c*3+2) );
 			}
 			
 			
