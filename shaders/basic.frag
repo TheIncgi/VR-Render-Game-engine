@@ -6,6 +6,7 @@ in vec2 texturePosition;
 in vec3 normalPosition;
 
 uniform vec3 sunPos;
+uniform vec3 sunColor;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 cameraPos;

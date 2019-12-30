@@ -5,6 +5,7 @@ import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
 
 import com.theincgi.lwjglApp.Utils;
+import com.theincgi.lwjglApp.misc.Logger;
 
 public class Color implements Cloneable{
 	public static final Color WHITE = new Color(1, 1, 1).lock(),
@@ -20,19 +21,19 @@ public class Color implements Cloneable{
 							  DARK_GRAY  = fromHSV(0, 0, .25f);
 	
 	
-	private float r,g,b,a;
+	private float[] rgba = new float[4];
 	private boolean isMutable = true;
 	
 	public Color(double r, double g, double b) {
 		this(r,g,b, 1.0);
 	}
 
-
+	
 	public Color(double r, double g, double b, double a) {
-		this.r = (float) r;
-		this.g = (float) g;
-		this.b = (float) b;
-		this.a = (float) a;
+		this.rgba[0] = (float) r;
+		this.rgba[1] = (float) g;
+		this.rgba[2] = (float) b;
+		this.rgba[3] = (float) a;
 		check();
 	}
 	
@@ -54,138 +55,129 @@ public class Color implements Cloneable{
 		float m = v-c;
 		
 		if(inRangeE(h, 0f, 60f)) {
-			r = (float) c;
-			g = (float) x;
-			b = 0;
+			rgba[0] = c;
+			rgba[1] = x;
+			rgba[2] = 0;
 		}else if(inRangeE(h, 0f, 120f)) {
-			r = (float) x;
-			g = (float) c;
-			b = 0;
+			rgba[0] = x;
+			rgba[1] = c;
+			rgba[2] = 0;
 		}else if(inRangeE(h, 120f, 180f)) {
-			r = 0;
-			g = (float) c;
-			b = (float) x;
+			rgba[0] = 0;
+			rgba[1] = c;
+			rgba[2] = x;
 		}else if(inRangeE(h, 180f, 240f)) {
-			r = 0;
-			g = (float) x;
-			b = (float) c;
+			rgba[0] = 0;
+			rgba[1] = x;
+			rgba[2] = c;
 		}else if(inRangeE(h, 240f, 300f)) {
-			r = (float) x;
-			g = 0;
-			b = (float) c;
+			rgba[0] = x;
+			rgba[1] = 0;
+			rgba[2] = c;
 		}else{ //300 to 360 
-			r = (float) c;
-			g = 0;
-			b = (float) x;
+			rgba[0] = c;
+			rgba[1] = 0;
+			rgba[2] = x;
 		}
-		r += m;
-		g += m;
-		b += m;
+		rgba[0] += m;
+		rgba[1] += m;
+		rgba[2] += m;
 		check();
 	}
 	
 	public void setRGB(float r, float g, float b) {
 		if(!isMutable) throw new ImmutableColorException();
-		this.r = r; this.g = g; this.b = b;
+		this.rgba[0] = r; this.rgba[1] = g; this.rgba[2] = b;
 		check();
 	}
 	public void setRGBA(float r, float g, float b, float a) {
 		if(!isMutable) throw new ImmutableColorException();
-		setRGB(r, g, b); this.a = a;
+		setRGB(r, g, b); this.rgba[3] = a;
 		check();
 	}
 	
 	public float getHue() {
-		float cmax = Utils.max(r, g, b);
-		float cmin = Utils.min(r, g, b);
+		float cmax = Utils.max(rgba[0], rgba[1], rgba[2]);
+		float cmin = Utils.min(rgba[0], rgba[1], rgba[2]);
 		float delta = cmax-cmin;
 		if(delta == 0)
 			return 0;
-		else if(cmax==r)
-			return 60*( (g-b)/delta %6 );
-		else if(cmax==g)
-			return 60*( (b-r)/delta + 2 );
+		else if(cmax==r())
+			return 60*( (rgba[1]-rgba[2])/delta %6 );
+		else if(cmax==g())
+			return 60*( (rgba[2]-r())/delta + 2 );
 		else // cmax==b
-			return 60*( (r-g)/delta + 4 );
+			return 60*( (r()-rgba[1])/delta + 4 );
 	}
 	public float getSaturation() {
-		float cmax = Utils.max(r, g, b);
+		float cmax = Utils.max(rgba[0], rgba[1], rgba[2]);
 		if(cmax == 0) return 0;
-		float cmin = Utils.min(r, g, b);
+		float cmin = Utils.min(rgba[0], rgba[1], rgba[2]);
 		float delta = cmax-cmin;
 		return delta / cmax;
 	}
 	public float getValue() {
-		return Utils.max(r, g, b);
+		return Utils.max(rgba[0], rgba[1], rgba[2]);
 	}
 	
 	
-	public float getR() {
-		return r;
-	}
+	
 	public float r() {
-		return r;
+		return rgba[0];
 	}
 
 
 	public void setR(float r) {
 		if(!isMutable) throw new ImmutableColorException();
-		this.r = r;
+		this.rgba[0] = r;
 	}
 
 
-	public float getG() {
-		return g;
-	}
+	
 	public float g() {
-		return g;
+		return rgba[1];
 	}
 
 
 	public void setG(float g) {
 		if(!isMutable) throw new ImmutableColorException();
-		this.g = g;
+		this.rgba[1] = g;
 	}
 
 
-	public float getB() {
-		return b;
-	}
+	
 	public float b() {
-		return b;
+		return rgba[2];
 	}
 
 
 	public void setB(float b) {
 		if(!isMutable) throw new ImmutableColorException();
-		this.b = b;
+		this.rgba[2] = b;
 	}
 
 
-	public float getA() {
-		return a;
-	}
 	public float a() {
-		return a;
+		return rgba[3];
 	}
 
 
 	public void setA(float a) {
 		if(!isMutable) throw new ImmutableColorException();
-		this.a = a;
+		this.rgba[3] = a;
 	}
 
 
 	private final void check() {
-		if(!inRangeI(r, 0f, 1f)) throw new InvalidColorException(this);
-		if(!inRangeI(g, 0f, 1f)) throw new InvalidColorException(this);
-		if(!inRangeI(b, 0f, 1f)) throw new InvalidColorException(this);
-		if(!inRangeI(a, 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(r(), 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(g(), 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(b(), 0f, 1f)) throw new InvalidColorException(this);
+		if(!inRangeI(a(), 0f, 1f)) throw new InvalidColorException(this);
 	}
 	
 	@Override
 	public Color clone(){
-		return new Color(r, g, b, a);
+		return new Color(r(), g(), b(), a());
 	}
 	public Color lock() {
 		isMutable = false; //not cloned intentionaly
@@ -198,7 +190,7 @@ public class Color implements Cloneable{
 	public static class InvalidColorException extends RuntimeException {
 		private static final long serialVersionUID = 5288139105423209314L;
 		public InvalidColorException(Color c) {
-			super(String.format("Color range exceeded (%9.4f, %9.4f, %9.4f, %9.4f)[RGBA]", c.r,c.g,c.b,c.a));
+			super(String.format("Color range exceeded (%9.4f, %9.4f, %9.4f, %9.4f)[RGBA]", c.r(),c.g(),c.b(),c.a()));
 		}
 	}
 	public static class ImmutableColorException extends RuntimeException {
@@ -207,4 +199,12 @@ public class Color implements Cloneable{
 			super("Color is marked immutable");
 		}
 	}
+	public float[] vec() {
+		return rgba;
+	}
+
+	public int getARGB() {
+		return (((int)(a()*255))<<24) | (((int)(r()*255))<<16) | (((int)(g()*255))<<8) | (((int)(b()*255)));
+	}
+
 }

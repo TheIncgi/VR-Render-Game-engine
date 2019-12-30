@@ -35,10 +35,10 @@ public class Camera {
     		sp.trySetUniform("cameraPos", location.pos);
     }
     
+    /**Does FOV and translation, applies on top of existing MatrixStack.projection top*/
     public void loadProjectionMatrix(){
-		Pair<Integer, Integer> bufferSize = Launcher.getMainWindow().getBufferSize();
-		float width =bufferSize.x;
-		float height = bufferSize.y;
+		float width = Launcher.getMainWindow().getBufferWidth();
+		float height = Launcher.getMainWindow().getBufferHeight();
 		float aspectRatio = width / height;
 		float yScale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))) * aspectRatio);
 		float xScale = yScale / aspectRatio;

@@ -44,6 +44,8 @@ public class Window {
 	public final long WINDOW_HANDLE;
 	ArrayList<CallbackListener> callbackListeners = new ArrayList<>();
 	private Optional<Scene> scene;
+	private int viewportX=0, viewportY=0, viewportWidth, viewportHeight;
+	private int width, height;
 
 	static {
 		Logger.preferedLogger.i("Window","LWJGL Version:  " + Version.getVersion());
@@ -106,6 +108,9 @@ public class Window {
 		// bindings available for use.
 		GL.createCapabilities();
 
+		
+		Pair<Integer, Integer> buf = getBufferSize();
+		this.width = buf.x; this.height = buf.y;
 	}
 
 	public void show() {
@@ -139,6 +144,7 @@ public class Window {
 		// Run the rendering loop until the user has attempted to close
 		// the window
 		while ( !glfwWindowShouldClose(WINDOW_HANDLE) ) {
+			setViewport(0, 0, width, height);
 			scene.ifPresentOrElse(value->{
 				Color cc = value.clearColor;
 				glClearColor(cc.r(), cc.g(), cc.b(), cc.a());
@@ -156,7 +162,10 @@ public class Window {
 			glfwPollEvents();
 		}
 	}
-
+	
+	public void setViewport(int x, int y, int width, int height) {
+		glViewport(this.viewportX = x, this.viewportY = y, this.viewportWidth=width, viewportHeight= height);
+	}
 
 
 	private void setupCallbacks() {
@@ -203,6 +212,8 @@ public class Window {
 			}
 		});
 		glfwSetFramebufferSizeCallback(WINDOW_HANDLE, (window, wid, hei)->{
+			this.width = wid;
+			this.height = hei;
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnResize)
 					((OnResize)callbackListener).onResize(this, wid, hei);
@@ -260,13 +271,20 @@ public class Window {
 			return new Pair<>(xBuffer.get(0), yBuffer.get(0));
 		}
 	}
-	public Pair<Integer, Integer> getBufferSize() {
+	
+	private Pair<Integer, Integer> getBufferSize() {
 		try ( MemoryStack stack = stackPush() ) {
 			IntBuffer pWidth = stack.mallocInt(1); // int*
 			IntBuffer pHeight = stack.mallocInt(1); // int*
 			glfwGetWindowSize(WINDOW_HANDLE, pWidth, pHeight);
 			return new Pair<Integer, Integer>(pWidth.get(0), pHeight.get(0));		
 		}
+	}
+	public int getBufferWidth() {
+		return width;
+	}
+	public int getBufferHeight() {
+		return height;
 	}
 	public Pair<Integer, Integer> getWindowPos() {
 		try ( MemoryStack stack = stackPush() ) {
@@ -275,6 +293,18 @@ public class Window {
 			glfwGetWindowPos(WINDOW_HANDLE, px, py);
 			return new Pair<Integer, Integer>(px.get(0), py.get(0));		
 		}
+	}
+	public int getViewportX() {
+		return viewportX;
+	}
+	public int getViewportY() {
+		return viewportY;
+	}
+	public int getViewportWidth() {
+		return viewportWidth;
+	}
+	public int getViewportHeight() {
+		return viewportHeight;
 	}
 
 	@Override

@@ -23,49 +23,29 @@ import com.theincgi.lwjglApp.ui.Window;
 import static org.lwjgl.opengl.GL45.*;
 
 public class DemoScene extends Scene{
-	Location sun = new Location(3, 10, 4);
-	Camera camera;
+	
 	Drawable ht;
 	Optional<Model> cube;
-	long startupTime = System.currentTimeMillis();
 	
-	public DemoScene() {
+	
+	public DemoScene(Window window) {
+		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
-		camera = new Camera();
-		ht = new HelloElements();
 		cube = ObjManager.INSTANCE.get(new File("cmodels/softCube/softCube.obj"));
 		cube.ifPresent(c->{
 			c.shader = ShaderManager.INSTANCE.get("basic");
-			Logger.preferedLogger.i("PrimaryScene", "Cube loaded");});
+			Logger.preferedLogger.i("PrimaryScene", "Cube loaded");
+			addDrawable(c);
+		});
 	}
 	
 	@Override
 	public void render(double mouseX, double mouseY) {
 		super.render(mouseX, mouseY);
 		
-		
-		
-		glEnable(GL_DEPTH_TEST);
-		MatrixStack.modelViewStack.reset();
-		MatrixStack.projection.reset();
-		camera.loadProjectionMatrix();
-		
-		ShaderManager.INSTANCE.forLoaded(s->{
-			camera.tellShader(s);
-			s.bind();
-			s.trySetUniform("uptime", (System.currentTimeMillis()-startupTime)/1000f); //casted to float
-			s.trySetUniform("sunPos", sun.pos);
-			s.trySetUniform("cameraPos", camera.getLocation().pos);
-			s.trySetMatrix("projectionMatrix", MatrixStack.projection.get());
-			
-		});
-		ShaderProgram.unbind();
-		//ht.draw();
 		cube.ifPresent(c->{
 			c.getLocation().rotate(.0052f, .0053334f, .0002f);
-			//c.getLocation().setRotation(398.3f,979.4f, 29.3f);
 			c.getLocation().setZ(-3);
-			c.draw();
 		});
 	}
 	

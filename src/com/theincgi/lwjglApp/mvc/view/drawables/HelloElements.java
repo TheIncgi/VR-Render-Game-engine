@@ -106,5 +106,4 @@ public class HelloElements implements Drawable{
 			ShaderProgram.unbind();
 		}
 	}
-	
 }

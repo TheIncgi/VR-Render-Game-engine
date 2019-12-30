@@ -100,11 +100,6 @@ public class Model implements Drawable{
 			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, (vertCount + uvCount)*Float.BYTES); //normal
 			//not mentioned in the javadoc, offset pointer is in bytes
 
-			System.out.println(Arrays.toString(normData));
-			System.out.println(Arrays.toString(indexData));
-			
-			
-			
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
@@ -169,16 +164,18 @@ public class Model implements Drawable{
 	public void drawAsColor(Color color) {
 		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
 			glBindVertexArray(VAO);
-
-			shader.ifPresentOrElse(s->{
+			Optional<ShaderProgram> flat = ShaderManager.INSTANCE.get("flat");
+			flat.ifPresentOrElse(s->{
 				s.bind();
 				s.tryEnableVertexAttribArray("vPosition");
+				s.trySetMatrix("modelViewMatrix", stk.get());
+				s.trySetUniform("color", color.vec());
 			}, ()->{glEnableVertexAttribArray(0);});
 
 
 			glDrawRangeElements(GL_TRIANGLES, 0, ranges[ranges.length-1].end, index);
 
-			shader.ifPresentOrElse(s->{
+			flat.ifPresentOrElse(s->{
 				s.disableVertexAttribArray("vPosition");
 			},()->glDisableVertexAttribArray(0));
 

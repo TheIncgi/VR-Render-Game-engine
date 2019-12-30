@@ -17,6 +17,7 @@ import com.theincgi.lwjglApp.misc.Logger;
 
 public class ShaderProgram {
 	static Logger log = Logger.preferedLogger;
+	private static ShaderProgram activeShader = null;
 	
 	private int programHandle;
 	private String label;
@@ -226,13 +227,17 @@ public class ShaderProgram {
 			fragmentLastModified = fragmentSrc.lastModified();
 			log.i("ShaderProgram#bind", "Auto-reloading shader due to file changes");
 			reload();
+			glUseProgram(programHandle);
+			activeShader = this;
+			return;
 		}
-//		if(programHandle==0)
-//			log.w("ShaderProgram#bind", "No program handle exists for '"+label+"'");
-		glUseProgram(programHandle);
+		if(activeShader!=this)
+			glUseProgram(programHandle);
+		activeShader = this;
 	}
 	public static void unbind() {
 		glUseProgram(0);
+		activeShader = null;
 	}
 	
 	public static int loadShader( int type, File srcFile ) {

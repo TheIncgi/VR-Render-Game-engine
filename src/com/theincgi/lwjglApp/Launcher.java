@@ -16,7 +16,7 @@ public class Launcher {
 	public static void main(String[] args) {
 		log.i("#main", "Main thread: "+Thread.currentThread().getId());
 		mainWindow = new Window(720, 440, APPLICATION_NAME, null);
-		mainWindow.setScene(new DemoScene());
+		mainWindow.setScene(new DemoScene(mainWindow));
 		GLFW.glfwSetErrorCallback((err, desc)->{
 			log.w("GL_ERROR", "["+Integer.toHexString(err)+ "]: "+ GLFWErrorCallback.getDescription(desc));
 		});

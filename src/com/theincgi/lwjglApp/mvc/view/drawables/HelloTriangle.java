@@ -100,8 +100,4 @@ public class HelloTriangle implements Drawable {
 	public Location getLocation() {
 		return location;
 	}
-
-
-
-
 }
