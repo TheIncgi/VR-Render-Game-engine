@@ -90,7 +90,7 @@ public class Location {
     }
 
     public float getZ() {
-        return pos[1];
+        return pos[2];
     }
 
     public float getYaw() {
@@ -106,10 +106,10 @@ public class Location {
     }
 
     public Matrix4f applyTo(Matrix4f mat) {
+    	mat.translate(new Vector3f(getX(), getY(), getZ()));
     	mat.rotate(getRoll(), Utils.AXIS_OUT);
     	mat.rotate(getPitch(), Utils.AXIS_RIGHT);
     	mat.rotate(getYaw(), Utils.AXIS_UP);
-    	mat.translate(new Vector3f(getX(), getY(), getZ()));
     	return mat;
     }
     

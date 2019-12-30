@@ -23,7 +23,8 @@ public class ShaderProgram {
 	
 	File vertexSrc, fragmentSrc;
 	long vertexLastModified, fragmentLastModified;
-
+	
+	//TODO cache handle names
 	private boolean autoRefresh = false;
 	
 	public ShaderProgram(File vertex, File fragment) {

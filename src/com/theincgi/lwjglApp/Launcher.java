@@ -5,7 +5,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 
 import com.theincgi.lwjglApp.misc.Logger;
-import com.theincgi.lwjglApp.scenes.PrimaryScene;
+import com.theincgi.lwjglApp.scenes.DemoScene;
 import com.theincgi.lwjglApp.ui.Window;
 
 public class Launcher {
@@ -16,7 +16,7 @@ public class Launcher {
 	public static void main(String[] args) {
 		log.i("#main", "Main thread: "+Thread.currentThread().getId());
 		mainWindow = new Window(720, 440, APPLICATION_NAME, null);
-		mainWindow.setScene(new PrimaryScene());
+		mainWindow.setScene(new DemoScene());
 		GLFW.glfwSetErrorCallback((err, desc)->{
 			log.w("GL_ERROR", "["+Integer.toHexString(err)+ "]: "+ GLFWErrorCallback.getDescription(desc));
 		});

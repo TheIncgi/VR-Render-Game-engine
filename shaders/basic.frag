@@ -1,6 +1,5 @@
 #version 450
 out vec4 FragColor;
-in vec4 vertexColor;
 
 in vec3 vertexPosition;
 in vec2 texturePosition;
@@ -14,13 +13,19 @@ uniform float uptime;
 
 void main() {
 	vec3 worldPos = ( modelViewMatrix * vec4(vertexPosition, 1.0)).xyz;
-	vec3 worldNormal = normalize((modelViewMatrix * vec4(normalPosition, 0.0)).xyz); //1.0?
+	vec3 worldNormal = normalize(vec3(modelViewMatrix * ( vec4(normalPosition, 0.0))));
+	vec3 cameraNormal = cameraPos - worldPos;
 	vec3 lightVector = normalize( sunPos - worldPos );
 	vec3 lightReflect = reflect( lightVector,  worldNormal);
 
-	float brightness = dot(worldNormal, vec3(1,0,0));//, lightVector);//worldNormal, lightVector);
+	float brightness = dot(worldNormal, lightVector);//, lightVector);//worldNormal, lightVector);
 	brightness = ((brightness-1) *.5) +1;
-	FragColor = vertexColor * brightness;
 
-	FragColor = vec4(normalize(worldPos)/2+.5, 1);
+	float specular = clamp(-dot(cameraNormal, lightReflect), 0.0, 1.0);
+	brightness *= 1+specular;
+
+	FragColor = vec4(normalize(vertexPosition)/2+.5, 1) * brightness;
+	//FragColor = vec4(normalize(normalPosition)*.5+.5, 1);//* brightness;
+	//FragColor = vec4(brightness, brightness, brightness, 1);
+	
 }

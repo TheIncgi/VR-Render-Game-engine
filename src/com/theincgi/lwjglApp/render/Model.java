@@ -95,11 +95,12 @@ public class Model implements Drawable{
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW);
 			
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, false, 0, vertCount);
-			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, vertCount + uvCount);
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0); //vertex
+			glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, (vertCount)*Float.BYTES); //uv
+			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, (vertCount + uvCount)*Float.BYTES); //normal
+			//not mentioned in the javadoc, offset pointer is in bytes
 
-			System.out.println(Arrays.toString(vertexData));
+			System.out.println(Arrays.toString(normData));
 			System.out.println(Arrays.toString(indexData));
 			
 			
@@ -107,24 +108,6 @@ public class Model implements Drawable{
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
-//			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-//			glBufferData(GL_ARRAY_BUFFER, vertCount + uvCount + normCount, GL_STATIC_READ);
-//
-//			glBufferSubData(GL_ARRAY_BUFFER, 0, vert);
-//			glBufferSubData(GL_ARRAY_BUFFER, vertCount, uv);
-//			glBufferSubData(GL_ARRAY_BUFFER, vertCount+uvCount, normal);
-//			
-//			ibo = glGenBuffers();
-//			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-//			glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW);
-			
-			//				gldrawrange
-			//				
-			//
-			//				glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0); 
-			//
-			//				glBindBuffer(GL_ARRAY_BUFFER, 0);
-			//				glBindVertexArray(0);
 		}finally {
 			Utils.freeBuffer(vert);
 			Utils.freeBuffer(uv);
