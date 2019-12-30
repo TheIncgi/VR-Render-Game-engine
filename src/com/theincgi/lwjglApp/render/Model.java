@@ -102,6 +102,11 @@ public class Model implements Drawable{
 			System.out.println(Arrays.toString(vertexData));
 			System.out.println(Arrays.toString(indexData));
 			
+			
+			
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
 //			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 //			glBufferData(GL_ARRAY_BUFFER, vertCount + uvCount + normCount, GL_STATIC_READ);
 //

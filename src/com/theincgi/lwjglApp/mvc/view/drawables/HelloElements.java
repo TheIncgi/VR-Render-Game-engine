@@ -48,9 +48,10 @@ public class HelloElements implements Drawable{
 			
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
 			
-			glBindVertexArray(0);
+			
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
 			
 		}finally{
 			if(vertexBuffer!=null)

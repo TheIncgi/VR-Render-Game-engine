@@ -56,7 +56,7 @@ public class PrimaryScene extends Scene{
 			
 		});
 		ShaderProgram.unbind();
-		ht.draw();
+		//ht.draw();
 		cube.ifPresent(c->c.draw());
 	}
 	
