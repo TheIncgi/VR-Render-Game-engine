@@ -11,7 +11,11 @@ uniform vec3 cameraPos;
 uniform float uptime;
 
 out vec4 vertexColor;
+out vec3 vertexPosition;
+out vec2 texturePosition;
+out vec3 normalPosition; 
 
+//http://www.neilmendoza.com/glsl-rotation-about-an-arbitrary-axis/
 mat4 rotationMatrix(vec3 axis, float angle)
 {
     axis = normalize(axis);
@@ -28,12 +32,15 @@ mat4 rotationMatrix(vec3 axis, float angle)
 
 
 void main(){
-	vec4 tmp = rotationMatrix(vec3(0,1,0), uptime) * vec4(vPosition,1);
+	vec4 tmp = rotationMatrix(vec3(1,0,0),uptime/3.1415) * rotationMatrix(vec3(0,1,0), uptime) * vec4(vPosition,1);
 	tmp = vec4(tmp.xy,tmp.z-3, 1);//, .5 * sin(uptime)+vPosition.z -3);
 
 	gl_Position = projectionMatrix  * modelViewMatrix * tmp;
-	float z = .5*sin(uptime)+0.5;
-	vertexColor = vec4(z,z,z, 1.0);
+	float z = .2*sin(uptime)+0.5;
+	vertexColor = vec4(1,1,0, 1.0);
+	vertexPosition = vPosition; //(projectionMatrix * modelViewMatrix * tmp).xyz;
+	texturePosition = texturePosition;
+	normalPosition = normPosition;
 }
 
 

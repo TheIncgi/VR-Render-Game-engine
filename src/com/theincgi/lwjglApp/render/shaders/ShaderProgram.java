@@ -48,7 +48,8 @@ public class ShaderProgram {
 			IntBuffer link = stack.mallocInt(1);
 			glGetProgramiv(programHandle, GL_LINK_STATUS, link);
 			if(link.get(0) == GL_FALSE) {
-				log.w("ShaderProgram#new", "Unable to create shader with source files: "+vertexSrc.getName()+" and "+fragmentSrc.getName());
+				log.w("ShaderProgram#new", "Unable to create shader with source files: "+vertexSrc.getName()+" and "+fragmentSrc.getName()
+				+" Reason: "+glGetProgramInfoLog(programHandle));
 				glDeleteProgram(programHandle);
 				programHandle = 0;
 			}else {
@@ -225,8 +226,8 @@ public class ShaderProgram {
 			log.i("ShaderProgram#bind", "Auto-reloading shader due to file changes");
 			reload();
 		}
-		if(programHandle==0)
-			log.w("ShaderProgram#use", "No program handle exists for '"+label+"'");
+//		if(programHandle==0)
+//			log.w("ShaderProgram#bind", "No program handle exists for '"+label+"'");
 		glUseProgram(programHandle);
 	}
 	public static void unbind() {

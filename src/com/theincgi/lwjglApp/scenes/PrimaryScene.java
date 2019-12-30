@@ -23,7 +23,7 @@ import com.theincgi.lwjglApp.ui.Window;
 import static org.lwjgl.opengl.GL45.*;
 
 public class PrimaryScene extends Scene{
-	Location sun = new Location(0, 10, 0);
+	Location sun = new Location(3, 10, 4);
 	Camera camera;
 	Drawable ht;
 	Optional<Model> cube;
@@ -43,6 +43,7 @@ public class PrimaryScene extends Scene{
 	public void render(double mouseX, double mouseY) {
 		super.render(mouseX, mouseY);
 		
+		glEnable(GL_DEPTH_TEST);
 		MatrixStack.modelViewStack.reset();
 		MatrixStack.projection.reset();
 		camera.loadProjectionMatrix();
@@ -52,6 +53,7 @@ public class PrimaryScene extends Scene{
 			s.bind();
 			s.trySetUniform("uptime", (System.currentTimeMillis()-startupTime)/1000f); //casted to float
 			s.trySetUniform("sunPos", sun.pos);
+			s.trySetUniform("cameraPos", camera.getLocation().pos);
 			s.trySetMatrix("projectionMatrix", MatrixStack.projection.get());
 			
 		});

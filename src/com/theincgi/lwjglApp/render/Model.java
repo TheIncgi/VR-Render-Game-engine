@@ -160,12 +160,8 @@ public class Model implements Drawable{
 				s.tryEnableVertexAttribArray("vPosition");
 				s.trySetMatrix("modelViewMatrix", stk.get());
 				//TODO conditional based on range
-				//s.tryEnableVertexAttribArray("texPosition");
-				//s.tryEnableVertexAttribArray("normPosition");
-				
-//				s.trySetVertexAttribPointer("vPosition",    3, GL_FLOAT, 0, 0l);
-//				s.trySetVertexAttribPointer("texPosition",  3, GL_FLOAT, 0, nVerts);
-//				s.trySetVertexAttribPointer("normPosition", 2, GL_FLOAT, 0, nVerts+nTex);
+				s.tryEnableVertexAttribArray("texPosition");
+				s.tryEnableVertexAttribArray("normPosition");
 				s.bind();
 			}, ()->{glEnableVertexAttribArray(0);});
 
