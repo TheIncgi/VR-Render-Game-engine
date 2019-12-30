@@ -88,8 +88,8 @@ public class Model implements Drawable{
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glBufferData(GL_ARRAY_BUFFER, Float.BYTES*(vertCount + uvCount + normCount), GL_STATIC_DRAW);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vert);
-//			glBufferSubData(GL_ARRAY_BUFFER, vertCount, uv);
-//			glBufferSubData(GL_ARRAY_BUFFER, vertCount+uvCount, normal);
+			glBufferSubData(GL_ARRAY_BUFFER, vertCount*Float.BYTES, uv);
+			glBufferSubData(GL_ARRAY_BUFFER, (vertCount+uvCount)*Float.BYTES, normal);
 			
 			ibo = glGenBuffers();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
