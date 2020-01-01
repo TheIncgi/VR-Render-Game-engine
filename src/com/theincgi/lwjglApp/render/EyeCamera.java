@@ -8,18 +8,20 @@ import org.lwjgl.util.vector.Matrix4f;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 
 public class EyeCamera extends Camera {
-	private static Location localEyePosL = new Location(-.5f, 0, 0), 
-					        localEyePosR = new Location( .5f, 0, 0);
+	private static Location localEyePosL = new Location(-.3f, 0, 0), 
+					        localEyePosR = new Location( .3f, 0, 0);
 	EyeSide side = EyeSide.LEFT;
 	public EyeCamera() {
-		super();
+		this(0,0,0);
 	}
 	public EyeCamera(float x, float y, float z) {
-		super(x, y, z);
+		this(x, y, z,0,0,0);
 	}
 
 	public EyeCamera(float x, float y, float z, float yaw, float pitch, float roll) {
 		super(x, y, z, yaw, pitch, roll);
+		near = 1.5f;
+		far = 500;
 	}
 	
 	public EyeCamera setSide(EyeSide side) {
@@ -65,7 +67,15 @@ public class EyeCamera extends Camera {
 		//}
 		return hmdProjectionEye;
 	}
-
+	
+	public void setEyeSeperation(float sep) {
+		localEyePosL.setX(-sep/2);
+		localEyePosR.setX(-localEyePosL.getX());
+	}
+	public float getEyeSeperation() {
+		return localEyePosR.getX()-localEyePosL.getX();
+	}
+	
 	/**
 	 * Convert specific OpenVR {@link org.lwjgl.openvr.HmdMatrix34 HmdMatrix34_t} into org.lwjgl.util.vector {@link Matrix4f Matrix4f}
 	 * @param hmdMatrix the input matrix

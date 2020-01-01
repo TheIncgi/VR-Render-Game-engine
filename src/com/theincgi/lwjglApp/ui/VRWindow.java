@@ -32,14 +32,20 @@ public class VRWindow extends AWindow{
 	@Override
 	void loop() {
 		while ( !glfwWindowShouldClose(WINDOW_HANDLE) ) {
-			setViewport(0, 0, width, height);
+			
 			scene.ifPresentOrElse(value->{
+				setViewport(0, 0, width, height);
 				Color cc = value.clearColor;
 				glClearColor(cc.r(), cc.g(), cc.b(), cc.a());
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				Pair<Double, Double> mousePos = getMousePos();
-				value.render(leftEye, mousePos.x, mousePos.y);
+				
+				setViewport(0, 0, width/2, height);
+				value.render(leftEye, -1, -1);
+				setViewport(width/2, 0, width/2, height);
+				value.render(rightEye, -1, -1);
+				
 			}, /*else*/()->{
+				setViewport(0, 0, width, height);
 				glClearColor(0,0,0,0);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			});

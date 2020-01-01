@@ -37,7 +37,7 @@ public class DemoScene extends Scene{
 		
 		cube.ifPresent(c->{
 			c.getLocation().rotate(.0052f, .0053334f, .0002f);
-			c.getLocation().setZ(-3);
+			c.getLocation().setZ(-3.2f);
 		});
 	}
 	
