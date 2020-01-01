@@ -6,13 +6,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.util.Arrays;
 import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
-import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
-import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;

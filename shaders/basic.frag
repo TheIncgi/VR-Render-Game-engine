@@ -25,7 +25,7 @@ void main() {
 	float specular = clamp(-dot(cameraNormal, lightReflect), 0.0, 1.0);
 	brightness *= 1+specular;
 
-	FragColor = vec4(normalize(vertexPosition)/2+.5, 1) * brightness;
+	FragColor = vec4(normalize(vertexPosition)/2+.5, 1) / brightness;
 	//FragColor = vec4(normalize(normalPosition)*.5+.5, 1);//* brightness;
 	//FragColor = vec4(brightness, brightness, brightness, 1);
 	

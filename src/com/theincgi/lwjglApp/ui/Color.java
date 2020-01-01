@@ -5,7 +5,6 @@ import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
 
 import com.theincgi.lwjglApp.Utils;
-import com.theincgi.lwjglApp.misc.Logger;
 
 public class Color implements Cloneable{
 	public static final Color WHITE = new Color(1, 1, 1).lock(),

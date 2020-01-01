@@ -1,13 +1,10 @@
 package com.theincgi.lwjglApp.render;
 
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL45;
 import org.lwjgl.util.vector.Matrix4f;
 
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.MatrixStack;
-import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 
 public class Camera {
