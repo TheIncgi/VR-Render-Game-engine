@@ -8,8 +8,9 @@ import org.lwjgl.util.vector.Matrix4f;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 
 public class EyeCamera extends Camera {
-	private EyeSide eyeSide = EyeSide.LEFT;
-	
+	private static Location localEyePosL = new Location(-.5f, 0, 0), 
+					        localEyePosR = new Location( .5f, 0, 0);
+	EyeSide side = EyeSide.LEFT;
 	public EyeCamera() {
 		super();
 	}
@@ -21,28 +22,43 @@ public class EyeCamera extends Camera {
 		super(x, y, z, yaw, pitch, roll);
 	}
 	
-	/**Defaults to left if not set*/
-	public EyeCamera setEyeSide(EyeSide side){
-		this.eyeSide  = side;
+	public EyeCamera setSide(EyeSide side) {
+		this.side = side;
 		return this;
 	}
-	public EyeSide getEyeSide() {
-		return eyeSide;
+	public EyeSide getSide() {
+		return side;
 	}
-
+	
 	@Override
 	public void loadProjectionMatrix() {
-		MatrixStack.projection.get().load(getHMDMatrixProjectionLeftEye());
+		switch (side) {
+		case LEFT:
+			loadLeftProjectionMatrix();
+			break;
+		case RIGHT:
+			loadRightProjectionMatrix();
+			break;
+		}
+	}
+	public void loadLeftProjectionMatrix() {
+		MatrixStack.projection.get().load(getHMDMatrixProjectionEye(EyeSide.LEFT));
 		location.applyTo(MatrixStack.projection.get());
+		localEyePosL.applyTo(MatrixStack.projection.get());
+	}
+	public void loadRightProjectionMatrix() {
+		MatrixStack.projection.get().load(getHMDMatrixProjectionEye(EyeSide.RIGHT));
+		location.applyTo(MatrixStack.projection.get());
+		localEyePosR.applyTo(MatrixStack.projection.get()); //TODO check order
 	}
 
 	private Matrix4f hmdProjectionEye;
 	@SuppressWarnings("resource") //closing the resource causes an EXCEPTION_ACCESS_VIOLATION shortly after running
-	public Matrix4f getHMDMatrixProjectionLeftEye(){
+	public Matrix4f getHMDMatrixProjectionEye(EyeSide es){
 		//try(HmdMatrix44 mat = HmdMatrix44.create()) {
 		HmdMatrix44 mat = HmdMatrix44.create();
 			if( hmdProjectionEye == null ) {
-				VRSystem.VRSystem_GetProjectionMatrix(eyeSide.getVal(), near, far, mat);
+				VRSystem.VRSystem_GetProjectionMatrix(es.getVal(), near, far, mat);
 				hmdProjectionEye = new Matrix4f();
 				convertSteamVRMatrix4ToMatrix4f(mat, hmdProjectionEye);
 			}

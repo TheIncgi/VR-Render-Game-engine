@@ -34,8 +34,8 @@ public class Camera {
     
     /**Does FOV and translation, applies on top of existing MatrixStack.projection top*/
     public void loadProjectionMatrix(){
-		float width = Launcher.getMainWindow().getBufferWidth();
-		float height = Launcher.getMainWindow().getBufferHeight();
+		float width = Launcher.getMainWindow().getViewportWidth();
+		float height = Launcher.getMainWindow().getViewportHeight();
 		float aspectRatio = width / height;
 		float yScale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))) * aspectRatio);
 		float xScale = yScale / aspectRatio;

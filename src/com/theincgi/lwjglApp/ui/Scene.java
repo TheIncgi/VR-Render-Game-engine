@@ -7,19 +7,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Optional;
 
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
-import org.lwjgl.util.vector.Matrix4f;
-
-import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.glClear;
 import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL45.*;
 
-import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Drawable;
@@ -31,21 +21,19 @@ import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 public class Scene {
 	public Color clearColor = Color.SKY.clone();
 	protected Optional<CallbackListener> sceneListener = Optional.empty(); 
-	Location sun = new Location(3, 10, 4);
-	Color sunColor = Color.WHITE.clone();
-	public Camera camera;
+	protected Location sun = new Location(3, 10, 4);
+	protected Color sunColor = Color.WHITE.clone();
+	
 	long startupTime = System.currentTimeMillis();
-	private Window window;
+	private AWindow window;
 
-	private final LinkedList<Drawable> drawables = new LinkedList<>();
+	protected final LinkedList<Drawable> drawables = new LinkedList<>();
 
-	public Scene(Window window) {
+	public Scene(AWindow window) {
 		this.window = window;
-		camera = new Camera();
-
 	}
 
-	public void render(double mouseX, double mouseY) {
+	public void render(Camera camera, double mouseX, double mouseY) {
 		MatrixStack.modelViewStack.reset();
 		MatrixStack.projection.reset();
 		
@@ -100,7 +88,5 @@ public class Scene {
 		
 		return Optional.empty();
 	}
-
-
 
 }

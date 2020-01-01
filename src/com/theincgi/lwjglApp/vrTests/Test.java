@@ -7,7 +7,7 @@ import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VRApplications;
 import org.lwjgl.system.MemoryStack;
-import static
+
 
 public class Test {
 	

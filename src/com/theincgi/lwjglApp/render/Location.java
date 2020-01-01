@@ -113,6 +113,7 @@ public class Location {
     	return mat;
     }
     
+    
     //copy xyz data into given array
     public void putPos(float[] pos){
         pos[0] = this.pos[0];

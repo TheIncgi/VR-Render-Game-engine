@@ -8,70 +8,70 @@ public class CallbackListener {
 
 	@FunctionalInterface
 	public interface OnKey {
-		public boolean onKey(Window window, int key, int scan, int action, int mods);
+		public boolean onKey(AWindow window, int key, int scan, int action, int mods);
 	}
 	@FunctionalInterface
 	public interface OnChar{
-		public boolean onChar(Window window, int codepoint);
+		public boolean onChar(AWindow window, int codepoint);
 	}
 	@FunctionalInterface
 	public interface OnMouseEnter {
-		public boolean onMouseEnter(Window window);
+		public boolean onMouseEnter(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnMouseExit{
-		public boolean onMouseExit(Window window);
+		public boolean onMouseExit(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnMousePos {
-		public void onMousePos(Window window, double mouseX, double mouseY);
+		public void onMousePos(AWindow window, double mouseX, double mouseY);
 	}
 	@FunctionalInterface
 	public interface OnFilesDrop {
-		public boolean onFilesDrop(Window window, File[] files);
+		public boolean onFilesDrop(AWindow window, File[] files);
 	}
 	@FunctionalInterface
 	public interface OnResize {
-		public void onResize(Window window, int width, int height);
+		public void onResize(AWindow window, int width, int height);
 	}
 	@FunctionalInterface
 	public interface OnJoystick {
-		public boolean onJoystick(Window window, int jid, Object event); //TODO make specific
+		public boolean onJoystick(AWindow window, int jid, Object event); //TODO make specific
 	}
 	@FunctionalInterface
 	public interface OnMouseButton {
-		public boolean onMouseButton(Window window, double x, double y, int button, int action, int mods);
+		public boolean onMouseButton(AWindow window, double x, double y, int button, int action, int mods);
 	}
 	@FunctionalInterface
 	public interface OnScroll {
-		public boolean onScroll(Window window, double scrollX, double scrollY);
+		public boolean onScroll(AWindow window, double scrollX, double scrollY);
 	}
 	@FunctionalInterface
 	public interface OnWindowClosed{
-		public void onWindowClosed(Window window);
+		public void onWindowClosed(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnWindowFocus{
-		public void onWindowFocus(Window window, boolean isFocused);
+		public void onWindowFocus(AWindow window, boolean isFocused);
 	}
 	@FunctionalInterface
 	public interface OnWindowIconified{
-		public void onWindowIconified(Window window);
+		public void onWindowIconified(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnWindowRestored{
-		public void onWindowNormalize(Window window);
+		public void onWindowNormalize(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnWindowMaximized{
-		public void onWindowNormalized(Window window);
+		public void onWindowNormalized(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnWindowNormalized{
-		public void onWindowNormalized(Window window);
+		public void onWindowNormalized(AWindow window);
 	}
 	@FunctionalInterface
 	public interface OnWindowMoved{
-		public void onWindowMoved(Window window, int windowX, int windowY);
+		public void onWindowMoved(AWindow window, int windowX, int windowY);
 	}
 }
