@@ -181,8 +181,32 @@ public class ShaderProgram {
         }
         return true;
     }
-    public boolean trySetUniformTexture( String name ){
-        throw new RuntimeException("Unimplemented!");
+    
+    /**
+     * @param name Name of the sampler2D in GLSL shader
+     * @param textureID id of the texture generated
+     * @param textureTarget number 0 thru 31. Seems to be the max textures used is 32
+     * */
+    public boolean trySetUniformTexture( String name, int textureID, int textureTarget ){
+    	if(textureTarget < 0 || 31 < textureTarget) throw new IndexOutOfBoundsException(textureTarget+" is outside the range 0 to 31");
+    	int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "float"); return false;}
+        glUniform1i(handle, textureTarget);
+        glActiveTexture(GL_TEXTURE0 + textureTarget);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        return true;
+    }
+    /**
+     *  * @param textureTarget number 0 thru 31. Seems to be the max textures used is 32
+     */
+    public boolean disableTexture(String name, int textureTarget) {
+    	if(textureTarget < 0 || 31 < textureTarget) throw new IndexOutOfBoundsException(textureTarget+" is outside the range 0 to 31");
+    	int handle = getUniformLocation( name );
+        if(handle == -1){warnMissingKey(name, "float"); return false;}
+        glUniform1i(handle, 0);
+        glActiveTexture(GL_TEXTURE0 + textureTarget);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        return true;
     }
 
     private void warnMissingKey(String key, String type){

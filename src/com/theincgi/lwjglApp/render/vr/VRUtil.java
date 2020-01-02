@@ -18,6 +18,8 @@ import java.io.Closeable;
 import java.nio.IntBuffer;
 
 import org.lwjgl.openvr.OpenVR;
+import org.lwjgl.openvr.Texture;
+import org.lwjgl.openvr.VRCompositor;
 import org.lwjgl.system.MemoryStack;
 
 import com.theincgi.lwjglApp.misc.Logger;
@@ -40,6 +42,7 @@ public class VRUtil implements AutoCloseable, Closeable {
 
 			vrToken = VR_InitInternal(peError, 0);
 			if (peError.get(0) == 0) {
+				Logger.preferedLogger.i("VRUtil#initVR", "VR Token: "+vrToken);
 				OpenVR.create(vrToken);
 				MODEL = VRSystem_GetStringTrackedDeviceProperty(
 						k_unTrackedDeviceIndex_Hmd,
@@ -56,10 +59,35 @@ public class VRUtil implements AutoCloseable, Closeable {
 				VRSystem_GetRecommendedRenderTargetSize(w, h);
 				width = w.get(0);
 				height = h.get(0);
+				Logger.preferedLogger.i("VRUtil#initVR", String.format("Recommended render target size: <%d, %d>", width, height));
 			} else {
 				Logger.preferedLogger.e("VRUtil#initVR", new VRException(peError.get(0)));
 			}
 		}
+	}
+	
+	
+	
+	public void submitFrame() {
+		Texture tex;
+		
+		//VRCompositor.VRCompositor_Submit(eEye, pTexture, pBounds, nSubmitFlags)
+	
+		/* C++
+		 *  Call immediately before OpenGL swap buffers 
+			void submitToHMD(GLint ltEyeTexture, GLint rtEyeTexture, bool isGammaEncoded) {
+		    const vr::EColorSpace colorSpace = isGammaEncoded ? vr::ColorSpace_Gamma : vr::ColorSpace_Linear;
+		
+		    const vr::Texture_t lt = { reinterpret_cast<void*>(intptr_t(ltEyeTexture)), vr::TextureType_OpenGL, colorSpace };
+		    vr::VRCompositor()->Submit(vr::Eye_Left, &lt);
+		
+		    const vr::Texture_t rt = { reinterpret_cast<void*>(intptr_t(rtEyeTexture)), vr::TextureType_OpenGL, colorSpace };
+		    vr::VRCompositor()->Submit(vr::Eye_Right, &rt);
+		
+		    // Tell the compositor to begin work immediately instead of waiting for the next WaitGetPoses() call
+		    vr::VRCompositor()->PostPresentHandoff();
+}
+		 * */
 	}
 	
 	public int getWidth() {
