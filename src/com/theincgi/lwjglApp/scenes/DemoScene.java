@@ -23,7 +23,7 @@ public class DemoScene extends Scene{
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
-		cube = ObjManager.INSTANCE.get(new File("cmodels/softCube/softCube.obj"));
+		cube = ObjManager.INSTANCE.get(new File("cmodels/monkey/monkey.obj"));
 		cube.ifPresent(c->{
 			c.shader = ShaderManager.INSTANCE.get("basic");
 			Logger.preferedLogger.i("PrimaryScene", "Cube loaded");

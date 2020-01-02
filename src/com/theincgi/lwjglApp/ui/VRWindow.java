@@ -48,7 +48,7 @@ public class VRWindow extends AWindow{
 		
 		leftEyeTexture = glGenTextures();
 		glBindTexture(GL_TEXTURE_2D, leftEyeTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		
@@ -106,18 +106,18 @@ public class VRWindow extends AWindow{
 		glClearColor(cc.r(), cc.g(), cc.b(), cc.a());
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		//glBindFramebuffer(GL_FRAMEBUFFER, leftFrameBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, leftFrameBuffer);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		setViewport(0, 0, width, height);
-		//value.render(leftEye, -1, -1);
-		setShaderUniforms();
-		quad.draw();
-		//setViewport(width/2, 0, width/2, height);
-		//value.render(rightEye, -1, -1);
+		value.render(leftEye, -1, -1);
+		
+		
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		setViewport(0, 0, width, height);
+		//setViewport(0, 0, width, height);
 				
-				//quad.draw();
+		setShaderUniforms();
+		quad.draw();
 	}
 
 	
