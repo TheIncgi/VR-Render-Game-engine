@@ -134,8 +134,6 @@ public class VRWindow extends AWindow{
 			s.trySetUniform("sunPos", rightEye.getLocation().pos);
 			ShaderProgram.unbind();
 		});
-		quad.getLocation().setZ(0);
-		quad.getLocation().setRotation(0, 0, 0);
 	}
 	
 	@Override
