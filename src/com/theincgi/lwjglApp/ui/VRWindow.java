@@ -134,7 +134,7 @@ public class VRWindow extends AWindow{
 	
 	protected void cleanup() {
 		quad.onDestroy();
-		pGamePoseArray.free();
+		//pGamePoseArray.free();
 		pRenderPoseArray.free();
 	}
 	
@@ -172,6 +172,8 @@ public class VRWindow extends AWindow{
 		
 		VRCompositor.VRCompositor_WaitGetPoses(pRenderPoseArray, null);
 		TrackedDevicePose hmdPose = pRenderPoseArray.get(VR.k_unTrackedDeviceIndex_Hmd);
+		
+		
 		
 		leftEye.setHmdPose(hmdPose);
 		rightEye.setHmdPose(hmdPose);

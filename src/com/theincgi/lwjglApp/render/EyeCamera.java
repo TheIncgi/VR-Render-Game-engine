@@ -4,6 +4,8 @@ import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.HmdMatrix44;
 import org.lwjgl.openvr.TrackedDevicePose;
 import org.lwjgl.openvr.VR;
+import org.lwjgl.openvr.VRChaperone;
+import org.lwjgl.openvr.VREventSpatialAnchor;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
@@ -62,6 +64,8 @@ public class EyeCamera extends Camera {
 		Matrix4f out = new Matrix4f();
 		out.setIdentity();
 		Matrix4f hmd = getHmdPose();
+		HmdMatrix34 adj34 = HmdMatrix34.create(); //VRChaperone.VRChaperone_ForceBoundsVisible(true); VRe
+		Matrix4f adj = Utils.fromT(adj34);
 		Matrix4f prj, eye;
 		switch (side) {
 		default:
@@ -77,6 +81,7 @@ public class EyeCamera extends Camera {
 		Matrix4f.mul(out, prj, out);
 		Matrix4f.mul(out, eye, out);
 		Matrix4f.mul(out, hmd, out);
+//		System.out.println(hmd);
 		MatrixStack.projection.get().load(out);
 	}
 	
@@ -115,7 +120,7 @@ public class EyeCamera extends Camera {
 	}
 	
 	private Matrix4f getHmdPose() {
-		return Utils.from(hmdPos.mDeviceToAbsoluteTracking());
+		return Utils.fromT(hmdPos.mDeviceToAbsoluteTracking());
 	}
 	
 	

@@ -37,8 +37,8 @@ public class DemoScene extends Scene{
 		super.render(camera, mouseX, mouseY);
 		
 		cube.ifPresent(c->{
-			c.getLocation().rotate(.0052f, .0053334f, .0002f);
-			c.getLocation().setRotation(0,0,90);
+			//c.getLocation().rotate(.0052f, .0053334f, .0002f);
+			//c.getLocation().setRotation(0,0,90);
 			c.getLocation().setZ(-3);
 			c.getLocation().setY(0);
 		});

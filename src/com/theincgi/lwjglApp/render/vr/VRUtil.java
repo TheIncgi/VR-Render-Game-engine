@@ -20,6 +20,7 @@ import java.nio.IntBuffer;
 import java.util.StringJoiner;
 import java.util.WeakHashMap;
 
+import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.Texture;
 import org.lwjgl.openvr.VR;
@@ -29,6 +30,8 @@ import org.lwjgl.openvr.VRInput;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.openvr.VRTextureBounds;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.misc.Logger;
 
@@ -199,4 +202,24 @@ This flag can be combined with EVRSubmit_TextureWithPose to pass a VRTextureWith
 			super(String.format("VR Err: [%s] %s", VR_GetVRInitErrorAsSymbol(code), VR_GetVRInitErrorAsEnglishDescription(code)));
 		}
 	}
+	
+	//https://github.com/osudrl/OpenVR-Tracking-Example/blob/a6753ba7bf77715372a60bcf2bc0232e0d9542e3/LighthouseTracking.cpp#L277-L286
+	static Vector3f getPos(HmdMatrix34 matrix) 
+	{
+		return new Vector3f(matrix.m(3), matrix.m(7), matrix.m(11));
+	}
+
+//	Vector4f LighthouseTracking::GetRotation(HmdMatrix34 matrix)
+//	{
+//		Vector4f q;
+//
+//		q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
+//		q.x = sqrt(fmax(0, 1 + matrix.m[0][0] - matrix.m[1][1] - matrix.m[2][2])) / 2;
+//		q.y = sqrt(fmax(0, 1 - matrix.m[0][0] + matrix.m[1][1] - matrix.m[2][2])) / 2;
+//		q.z = sqrt(fmax(0, 1 - matrix.m[0][0] - matrix.m[1][1] + matrix.m[2][2])) / 2;
+//		q.x = copysign(q.x, matrix.m[2][1] - matrix.m[1][2]);
+//		q.y = copysign(q.y, matrix.m[0][2] - matrix.m[2][0]);
+//		q.z = copysign(q.z, matrix.m[1][0] - matrix.m[0][1]);
+//		return q;
+//	}
 }
