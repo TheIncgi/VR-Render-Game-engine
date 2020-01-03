@@ -34,6 +34,8 @@ package org.lwjgl.util.vector;
 import java.io.Serializable;
 import java.nio.FloatBuffer;
 
+import org.lwjgl.openvr.HmdMatrix34;
+
 /**
  * Holds a 4x4 float matrix.
  *

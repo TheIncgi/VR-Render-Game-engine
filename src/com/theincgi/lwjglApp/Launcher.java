@@ -16,13 +16,13 @@ public class Launcher {
 	private static AWindow mainWindow;
 	static Logger log = Logger.preferedLogger;
 
-	static VRUtil vrUtil;
+	private static VRUtil vrUtil;
 	public static void main(String[] args) {
 		try(VRUtil util = new VRUtil()){
 			vrUtil = util;
 			util.initVR();
 			log.i("#main", "Main thread: "+Thread.currentThread().getId());
-			mainWindow = new VRWindow(util.getWidth(), util.getHeight(), APPLICATION_NAME, null);
+			mainWindow = new VRWindow(600, 300, APPLICATION_NAME, null);
 			mainWindow.setScene(new DemoScene(mainWindow));
 			GLFW.glfwSetErrorCallback((err, desc)->{
 				log.w("GL_ERROR", "["+Integer.toHexString(err)+ "]: "+ GLFWErrorCallback.getDescription(desc));
@@ -34,6 +34,9 @@ public class Launcher {
 
 	public static AWindow getMainWindow() {
 		return mainWindow;
+	}
+	public static VRUtil getVrUtil() {
+		return vrUtil;
 	}
 }
 

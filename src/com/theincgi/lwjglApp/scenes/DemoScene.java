@@ -2,16 +2,17 @@ package com.theincgi.lwjglApp.scenes;
 
 import java.io.File;
 import java.util.Optional;
+
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Drawable;
+import com.theincgi.lwjglApp.render.EyeCamera;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.ui.AWindow;
 import com.theincgi.lwjglApp.ui.CallbackListener;
 import com.theincgi.lwjglApp.ui.Scene;
-import com.theincgi.lwjglApp.ui.Window;
 
 
 public class DemoScene extends Scene{
@@ -37,8 +38,10 @@ public class DemoScene extends Scene{
 		
 		cube.ifPresent(c->{
 			c.getLocation().rotate(.0052f, .0053334f, .0002f);
-			c.getLocation().setZ(-3.2f);
+//			c.getLocation().setRotation(0,0,0);
+			c.getLocation().setZ(-5.2f);
 		});
+		
 	}
 	
 	private class SceneCallbackListener extends CallbackListener

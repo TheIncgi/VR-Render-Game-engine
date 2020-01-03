@@ -11,7 +11,7 @@ void main() {
 
 	}else{
 		FragColor = texture( renderedTexture, UV + 0.0025*vec2( sin(uptime+1024.0*UV.x),cos(uptime+768.0*UV.y)) );
-		//FragColor = texture( renderedTexture, UV);
+		FragColor = texture( renderedTexture, UV);
 
 	}
 	//FragColor = vec4(UV.x,UV.y,0,1);

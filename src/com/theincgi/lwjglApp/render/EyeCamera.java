@@ -1,15 +1,19 @@
 package com.theincgi.lwjglApp.render;
 
+import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.HmdMatrix44;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
+import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 
 public class EyeCamera extends Camera {
-	private static Location localEyePosL = new Location(-.3f, 0, 0), 
-					        localEyePosR = new Location( .3f, 0, 0);
+	private static float eyeAngle = (float) Math.toRadians(20); 
+	private Matrix4f eyeOffsetLeft, eyeOffsetRight;
+	
 	EyeSide side = EyeSide.LEFT;
 	public EyeCamera() {
 		this(0,0,0);
@@ -28,7 +32,7 @@ public class EyeCamera extends Camera {
 		this.side = side;
 		return this;
 	}
-	public EyeSide getSide() {
+	public EyeSide getSide() { 
 		return side;
 	}
 	
@@ -44,37 +48,56 @@ public class EyeCamera extends Camera {
 		}
 	}
 	public void loadLeftProjectionMatrix() {
+		if(eyeOffsetLeft==null) {
+			HmdMatrix34 tmp = HmdMatrix34.create();
+			VRSystem.VRSystem_GetEyeToHeadTransform(EyeSide.LEFT.getVal(), tmp);
+			eyeOffsetLeft = Utils.fromT(tmp);
+			tmp.close();
+		}
+		
+		
 		MatrixStack.projection.get().load(getHMDMatrixProjectionEye(EyeSide.LEFT));
-		location.applyTo(MatrixStack.projection.get());
-		localEyePosL.applyTo(MatrixStack.projection.get());
+		//location.applyTo(MatrixStack.projection.get());
+		
+		Matrix4f.mul( MatrixStack.projection.get(),eyeOffsetLeft, MatrixStack.projection.get());
+		
+		
 	}
 	public void loadRightProjectionMatrix() {
+		if(eyeOffsetRight==null) {
+			HmdMatrix34 tmp = HmdMatrix34.create();
+			VRSystem.VRSystem_GetEyeToHeadTransform(EyeSide.RIGHT.getVal(), tmp);
+			eyeOffsetRight = Utils.fromT(tmp);
+			tmp.close();
+		}
+		
 		MatrixStack.projection.get().load(getHMDMatrixProjectionEye(EyeSide.RIGHT));
-		location.applyTo(MatrixStack.projection.get());
-		localEyePosR.applyTo(MatrixStack.projection.get()); //TODO check order
+		//location.applyTo(MatrixStack.projection.get());
+		//Matrix4f.mul(MatrixStack.projection.get(), eyeOffsetRight, MatrixStack.projection.get());
 	}
 
 	private Matrix4f hmdProjectionEye;
 	@SuppressWarnings("resource") //closing the resource causes an EXCEPTION_ACCESS_VIOLATION shortly after running
-	public Matrix4f getHMDMatrixProjectionEye(EyeSide es){
+	public Matrix4f getHMDMatrixProjectionEye(EyeSide es){ 
+		//Normally View and Eye^-1 will be multiplied
+		//together and treated as View in your application.
+		
 		//try(HmdMatrix44 mat = HmdMatrix44.create()) {
 		HmdMatrix44 mat = HmdMatrix44.create();
+		
 			if( hmdProjectionEye == null ) {
 				VRSystem.VRSystem_GetProjectionMatrix(es.getVal(), near, far, mat);
+				
 				hmdProjectionEye = new Matrix4f();
+				
+	
 				convertSteamVRMatrix4ToMatrix4f(mat, hmdProjectionEye);
 			}
 		//}
 		return hmdProjectionEye;
 	}
 	
-	public void setEyeSeperation(float sep) {
-		localEyePosL.setX(-sep/2);
-		localEyePosR.setX(-localEyePosL.getX());
-	}
-	public float getEyeSeperation() {
-		return localEyePosR.getX()-localEyePosL.getX();
-	}
+	
 	
 	/**
 	 * Convert specific OpenVR {@link org.lwjgl.openvr.HmdMatrix34 HmdMatrix34_t} into org.lwjgl.util.vector {@link Matrix4f Matrix4f}

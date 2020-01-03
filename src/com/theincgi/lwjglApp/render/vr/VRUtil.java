@@ -15,17 +15,26 @@ import static org.lwjgl.openvr.VRSystem.VRSystem_GetStringTrackedDeviceProperty;
 import static org.lwjgl.system.MemoryStack.stackPush;
 
 import java.io.Closeable;
+import java.lang.reflect.Field;
 import java.nio.IntBuffer;
+import java.util.StringJoiner;
+import java.util.WeakHashMap;
 
 import org.lwjgl.openvr.OpenVR;
 import org.lwjgl.openvr.Texture;
+import org.lwjgl.openvr.VR;
+import org.lwjgl.openvr.VRApplications;
 import org.lwjgl.openvr.VRCompositor;
+import org.lwjgl.openvr.VRInput;
+import org.lwjgl.openvr.VRSystem;
+import org.lwjgl.openvr.VRTextureBounds;
 import org.lwjgl.system.MemoryStack;
 
 import com.theincgi.lwjglApp.misc.Logger;
 
 public class VRUtil implements AutoCloseable, Closeable {
-
+	private Texture leftTexture, rightTexture;
+	int colorSpace = VR.EColorSpace_ColorSpace_Linear;
 	
 	public VRUtil() {
 	}
@@ -40,7 +49,7 @@ public class VRUtil implements AutoCloseable, Closeable {
 		try (MemoryStack stack = stackPush()) {
 			IntBuffer peError = stack.mallocInt(1);
 
-			vrToken = VR_InitInternal(peError, 0);
+			vrToken = VR_InitInternal(peError, VR.EVRApplicationType_VRApplication_Scene);
 			if (peError.get(0) == 0) {
 				Logger.preferedLogger.i("VRUtil#initVR", "VR Token: "+vrToken);
 				OpenVR.create(vrToken);
@@ -60,20 +69,93 @@ public class VRUtil implements AutoCloseable, Closeable {
 				width = w.get(0);
 				height = h.get(0);
 				Logger.preferedLogger.i("VRUtil#initVR", String.format("Recommended render target size: <%d, %d>", width, height));
+				
 			} else {
 				Logger.preferedLogger.e("VRUtil#initVR", new VRException(peError.get(0)));
 			}
 		}
+		
+//		VRCompositor.VRCompositor_ShowMirrorWindow();
+		
 	}
 	
-	
+	public void bindEyeTextures(long left, long right, Boolean isGammaEncoded) {
+		leftTexture = Texture.create();
+		leftTexture.set(left, VR.ETextureType_TextureType_OpenGL, isGammaEncoded?VR.EColorSpace_ColorSpace_Auto : isGammaEncoded?VR.EColorSpace_ColorSpace_Gamma:VR.EColorSpace_ColorSpace_Linear);
+		
+		rightTexture = Texture.create();
+		rightTexture.set(right,VR.ETextureType_TextureType_OpenGL, isGammaEncoded?VR.EColorSpace_ColorSpace_Auto :  isGammaEncoded?VR.EColorSpace_ColorSpace_Gamma : VR.EColorSpace_ColorSpace_Linear);
+	}
 	
 	public void submitFrame() {
-		Texture tex;
+		int flags = VR.EVRSubmitFlags_Submit_Default ;//| VR.EVRSubmitFlags_Submit_GlRenderBuffer; TextureUsesUnsupportedFormat caused by this if using a texture an not a render buffer, oops
+		int code = 0;
+		code = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left,  leftTexture,  null, flags);
+		switch (code) {
+		case VR.EVRCompositorError_VRCompositorError_IsNotSceneApplication:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "IsNotSceneApplication");
+			break;
+		case VR.EVRCompositorError_VRCompositorError_AlreadySubmitted:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "AlreadySubmitted"); break;
+		case VR.EVRCompositorError_VRCompositorError_DoNotHaveFocus:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "DoNotHaveFocus"); break;
+		case VR.EVRCompositorError_VRCompositorError_IncompatibleVersion:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "IncompatibleVersion"); break;
+		case VR.EVRCompositorError_VRCompositorError_IndexOutOfRange:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "IndexOutOfRange"); break;
+		case VR.EVRCompositorError_VRCompositorError_InvalidBounds:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "InvalidBounds"); break;
+		case VR.EVRCompositorError_VRCompositorError_InvalidTexture:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "InvalidTexture"); break;
+		case VR.EVRCompositorError_VRCompositorError_None:
+			break;
+		case VR.EVRCompositorError_VRCompositorError_RequestFailed:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "RequestFailed"); break;
+		case VR.EVRCompositorError_VRCompositorError_SharedTexturesNotSupported:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "SharedTexturesNotSupported"); break;
+		case VR.EVRCompositorError_VRCompositorError_TextureIsOnWrongDevice:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "TextureIsOnWrongDevice"); break;
+		case VR.EVRCompositorError_VRCompositorError_TextureUsesUnsupportedFormat:
+			Logger.preferedLogger.w("VRUtil#submitFrame", "TextureUsesUnsupportedFormat"); break;
+		default:
+			break;
+		}
+		code = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Right, rightTexture, null, flags);
 		
-		//VRCompositor.VRCompositor_Submit(eEye, pTexture, pBounds, nSubmitFlags)
+		VRCompositor.VRCompositor_PostPresentHandoff();
+		
+	}
 	
-		/* C++
+	private static WeakHashMap<Integer, String> eventNameLookup = new WeakHashMap<>();
+	public static String getEventName(int ecode) {
+		return eventNameLookup.computeIfAbsent(ecode, (k)->{
+			try {
+				StringJoiner out = new StringJoiner(" | ");
+				for(Field f : VR.class.getFields()) {
+					if(java.lang.reflect.Modifier.isStatic(f.getModifiers()))
+						if(f.getType().equals(Integer.TYPE))
+							if(f.getInt(null) == ecode && f.getName().startsWith("EVREventType_VREvent_")) out.add(f.getName());
+				}
+				return out.length()==0?"NOT FOUND ("+ecode+")" : out.toString().replace("EVREventType_VREvent_", "");
+			} catch (Exception ex ) {
+				return "?";
+			}
+		});
+	}
+	
+		/* Enum values:
+•EVRSubmitFlags_Submit_Default                       Simple render path. App submits rendered left and right eye images with no lens distortion correction applied.
+•EVRSubmitFlags_Submit_LensDistortionAlreadyApplied  App submits final left and right eye images with lens distortion already applied (lens distortion makes the images appear barrel distorted withchromatic aberration correction applied). The app would have used the data returned by ComputeDistortion to apply the correct distortion to therendered images before calling Submit. 
+•EVRSubmitFlags_Submit_GlRenderBuffer                If the texture pointer passed in is actually a renderbuffer (e.g. for MSAA in OpenGL) then set this flag.
+•EVRSubmit_TextureWithPose                           Set to indicate that pTexture is a pointer to a VRTextureWithPose. 
+                                                     This flag can be combined with EVRSubmitFlags_Submit_TextureWithDepth to pass a VRTextureWithPoseAndDepth.
+
+•EVRSubmitFlags_Submit_TextureWithDepth -Set to indicate that pTexture is a pointer to a VRTextureWithDepth. 
+This flag can be combined with EVRSubmit_TextureWithPose to pass a VRTextureWithPoseAndDepth.
+
+
+		 * 
+		 * C++
 		 *  Call immediately before OpenGL swap buffers 
 			void submitToHMD(GLint ltEyeTexture, GLint rtEyeTexture, bool isGammaEncoded) {
 		    const vr::EColorSpace colorSpace = isGammaEncoded ? vr::ColorSpace_Gamma : vr::ColorSpace_Linear;
@@ -88,7 +170,7 @@ public class VRUtil implements AutoCloseable, Closeable {
 		    vr::VRCompositor()->PostPresentHandoff();
 }
 		 * */
-	}
+	
 	
 	public int getWidth() {
 		return width;
@@ -106,6 +188,8 @@ public class VRUtil implements AutoCloseable, Closeable {
 	/**Calls VR_Shutd*/
 	@Override public void close() {
 		VR_ShutdownInternal();
+		if(leftTexture!=null)leftTexture.close();
+		if(rightTexture!=null)rightTexture.close();
 	}
 
 
