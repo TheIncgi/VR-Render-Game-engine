@@ -107,9 +107,9 @@ public class Location {
 
     public Matrix4f applyTo(Matrix4f mat) {
     	mat.translate(new Vector3f(getX(), getY(), getZ()));
-    	mat.rotate(getRoll(), Utils.AXIS_OUT);
-    	mat.rotate(getPitch(), Utils.AXIS_RIGHT);
-    	mat.rotate(getYaw(), Utils.AXIS_UP);
+    	mat.rotate((float) Math.toRadians(getRoll()), Utils.AXIS_OUT);
+    	mat.rotate((float) Math.toRadians(getPitch()), Utils.AXIS_RIGHT);
+    	mat.rotate((float) Math.toRadians(getYaw()), Utils.AXIS_UP);
     	return mat;
     }
     

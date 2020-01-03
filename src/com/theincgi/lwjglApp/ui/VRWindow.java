@@ -47,6 +47,7 @@ public class VRWindow extends AWindow{
 	private long startTime = System.currentTimeMillis();
 	private VRUtil vrUtil;
 	TrackedDevicePose.Buffer pRenderPoseArray, pGamePoseArray;
+	boolean flipEyes = true; //TODO allow preview to be sterio mode
 	
 	
 	/**Width and height should now be separate from window resolution*/
@@ -124,9 +125,10 @@ public class VRWindow extends AWindow{
 		//quad = ObjManager.INSTANCE.get(new File("cmodels/plane/plane.obj")).get(); //critical
 		quad = ObjManager.INSTANCE.get(new File("cmodels/plane/plane.obj")).get(); //critical
 		quad.shader = ShaderManager.INSTANCE.get("textureDisplay");
+		quad.getLocation().setRotation(0, 0, -90);
 		
 		vrUtil().bindEyeTextures(leftEyeTexture, rightEyeTexture, false);
-		pGamePoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
+		//pGamePoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount); optional predicted frame
 		pRenderPoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
 	}
 	
@@ -159,6 +161,7 @@ public class VRWindow extends AWindow{
 		cleanup();
 	}
 	
+	
 	private void _render(Scene value) {
 		glEnable(GL_DEPTH_TEST);
 		setViewport(0, 0, width, height);
@@ -167,21 +170,23 @@ public class VRWindow extends AWindow{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		
-		VRCompositor.VRCompositor_WaitGetPoses(pRenderPoseArray, pGamePoseArray);
-		for (int i = 0; i < pRenderPoseArray.limit(); i++) {
-			pRenderPoseArray.get(i).
-		}
+		VRCompositor.VRCompositor_WaitGetPoses(pRenderPoseArray, null);
+		TrackedDevicePose hmdPose = pRenderPoseArray.get(VR.k_unTrackedDeviceIndex_Hmd);
+		
+		leftEye.setHmdPose(hmdPose);
+		rightEye.setHmdPose(hmdPose);
+		
 		//left eye
 		glBindFramebuffer(GL_FRAMEBUFFER, leftFrameBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
 		setViewport(0, 0, vrUtil().getWidth(), vrUtil().getHeight());
-		value.render(leftEye, -1, -1);
+		value.render(flipEyes?rightEye:leftEye, -1, -1);
 		
 		//right eye
 		glBindFramebuffer(GL_FRAMEBUFFER, rightFrameBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
 		//setViewport(0, 0, vrUtil().getWidth(), vrUtil().getHeight()); still set
-		value.render(rightEye, -1, -1);
+		value.render(flipEyes?leftEye:rightEye, -1, -1);
 		
 		
 		vrUtil().submitFrame();

@@ -9,7 +9,7 @@ import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 
 public class Camera {
     Location location;
-    public float fov = 110, near = .5f, far = 100;
+    public float fov = 110, near = .1f, far = 35;
     
     public Camera() {
         this(0,0,0);
