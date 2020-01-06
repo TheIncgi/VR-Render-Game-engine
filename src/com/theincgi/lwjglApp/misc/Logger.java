@@ -92,4 +92,8 @@ public class Logger {
 	public boolean outputsToConsole() {
 		return true;
 	}
+
+	public void fi(String tag, String format, Object...objects) {
+		i(tag, String.format(format, objects));
+	}
 }

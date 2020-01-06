@@ -63,7 +63,6 @@ public class Scene {
 	}
 
 	public void onUnload(){
-
 	}
 
 	public void addDrawable(Drawable obj) {

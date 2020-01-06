@@ -13,7 +13,7 @@ import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.ui.Color;
 
 import static org.lwjgl.opengl.GL45.*;
-
+@Deprecated
 public class Quad implements Drawable {
 	private int vao, vbo;
 	Optional<ShaderProgram> shader = Optional.empty();
@@ -40,7 +40,7 @@ public class Quad implements Drawable {
 
 	final String VERTEX_ATTRIB = "vPosition";
 
-
+	@Deprecated
 	public Quad() {
 		FloatBuffer vertexBuffer = null;
 		FloatBuffer uvBuffer = null;
@@ -75,7 +75,6 @@ public class Quad implements Drawable {
 
 	}
 
-	@Override
 	public void onDestroy() {
 		shader.ifPresent(s->s.disableVertexAttribArray(VERTEX_ATTRIB));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -90,7 +89,6 @@ public class Quad implements Drawable {
 		return shader;
 	}
 
-	@Override
 	public void draw() {
 		try (MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
 			glBindVertexArray(vao);
@@ -110,7 +108,6 @@ public class Quad implements Drawable {
 		}
 	}
 
-	@Override
 	public void drawAsColor(Color color) {
 		// TODO Auto-generated method stub
 

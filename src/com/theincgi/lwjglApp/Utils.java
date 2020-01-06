@@ -10,6 +10,8 @@ import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.theincgi.lwjglApp.render.vr.VRUtil;
+
 public class Utils {
 	public static final Vector3f 
 		AXIS_UP = new Vector3f(0, 1, 0),

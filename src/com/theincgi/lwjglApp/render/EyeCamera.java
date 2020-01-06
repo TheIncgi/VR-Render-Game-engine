@@ -3,19 +3,18 @@ package com.theincgi.lwjglApp.render;
 import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.HmdMatrix44;
 import org.lwjgl.openvr.TrackedDevicePose;
-import org.lwjgl.openvr.VR;
-import org.lwjgl.openvr.VRChaperone;
-import org.lwjgl.openvr.VREventSpatialAnchor;
 import org.lwjgl.openvr.VRSystem;
+import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
-import org.lwjgl.util.vector.Vector3f;
 
-import com.theincgi.lwjglApp.Launcher;
+import org.lwjgl.util.vector.Vector4f;
+
+
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 
+
 public class EyeCamera extends Camera {
-	private static float eyeAngle = (float) Math.toRadians(20); 
 	private Matrix4f eyeOffsetLeft, eyeOffsetRight;
 	
 	EyeSide side = EyeSide.LEFT;
@@ -31,7 +30,7 @@ public class EyeCamera extends Camera {
 	public EyeCamera(float x, float y, float z, float yaw, float pitch, float roll) {
 		super(x, y, z, yaw, pitch, roll);
 		near = 1.5f;
-		far = 500;
+		far = 40;
 	}
 	
 	public EyeCamera setSide(EyeSide side) {
@@ -64,8 +63,8 @@ public class EyeCamera extends Camera {
 		Matrix4f out = new Matrix4f();
 		out.setIdentity();
 		Matrix4f hmd = getHmdPose();
-		HmdMatrix34 adj34 = HmdMatrix34.create(); //VRChaperone.VRChaperone_ForceBoundsVisible(true); VRe
-		Matrix4f adj = Utils.fromT(adj34);
+		
+//VRChaperone.VRChaperone_ForceBoundsVisible(true);
 		Matrix4f prj, eye;
 		switch (side) {
 		default:
@@ -78,10 +77,14 @@ public class EyeCamera extends Camera {
 			eye = eyeOffsetRight;
 			break;
 		}
-		Matrix4f.mul(out, prj, out);
-		Matrix4f.mul(out, eye, out);
-		Matrix4f.mul(out, hmd, out);
-//		System.out.println(hmd);
+
+		Matrix4f.mul(hmd, eye, out);
+		out.invert(); //cam should do reverse rotation location compared to things like model view
+		Matrix4f.mul(prj, out, out);
+		
+		Vector4f test = new Vector4f(0,0,-3, 1);
+		Matrix4f.transform(out, test, test);
+	
 		MatrixStack.projection.get().load(out);
 	}
 	
@@ -90,12 +93,7 @@ public class EyeCamera extends Camera {
 	private Matrix4f hmdProjectionEyeLeft, hmdProjectEyeRight;
 	@SuppressWarnings("resource") //closing the resource causes an EXCEPTION_ACCESS_VIOLATION shortly after running
 	protected Matrix4f getHMDMatrixProjectionEye(EyeSide es){ 
-		//Normally View and Eye^-1 will be multiplied
-		//together and treated as View in your application.
-		
 		//try(HmdMatrix44 mat = HmdMatrix44.create()) {
-		
-		
 			if( hmdProjectionEyeLeft == null  && es.equals(EyeSide.LEFT) ) {
 				HmdMatrix44 mat = HmdMatrix44.create();
 				VRSystem.VRSystem_GetProjectionMatrix(es.getVal(), near, far, mat);
@@ -123,13 +121,6 @@ public class EyeCamera extends Camera {
 		return Utils.fromT(hmdPos.mDeviceToAbsoluteTracking());
 	}
 	
-	
-	/**
-	 * Convert specific OpenVR {@link org.lwjgl.openvr.HmdMatrix34 HmdMatrix34_t} into org.lwjgl.util.vector {@link Matrix4f Matrix4f}
-	 * @param hmdMatrix the input matrix
-	 * @param mat the converted matrix
-	 * @return Matrix4f matrix
-	 */
 	public static Matrix4f convertSteamVRMatrix4ToMatrix4f(org.lwjgl.openvr.HmdMatrix44 hmdMatrix, Matrix4f mat){
 		mat.load(hmdMatrix.m());
 		return mat;

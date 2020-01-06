@@ -13,6 +13,9 @@ import static org.lwjgl.openvr.VR.k_unTrackedDeviceIndex_Hmd;
 import static org.lwjgl.openvr.VRSystem.VRSystem_GetRecommendedRenderTargetSize;
 import static org.lwjgl.openvr.VRSystem.VRSystem_GetStringTrackedDeviceProperty;
 import static org.lwjgl.system.MemoryStack.stackPush;
+import static java.lang.Math.max;
+import static java.lang.Math.copySign;
+import static java.lang.Math.sqrt;
 
 import java.io.Closeable;
 import java.lang.reflect.Field;
@@ -88,10 +91,19 @@ public class VRUtil implements AutoCloseable, Closeable {
 		
 		rightTexture = Texture.create();
 		rightTexture.set(right,VR.ETextureType_TextureType_OpenGL, isGammaEncoded?VR.EColorSpace_ColorSpace_Auto :  isGammaEncoded?VR.EColorSpace_ColorSpace_Gamma : VR.EColorSpace_ColorSpace_Linear);
+		flags = VR.EVRSubmitFlags_Submit_Default;
 	}
-	
+	public void bindEyeBuffers(long left, long right, Boolean isGammaEncoded) {
+		leftTexture = Texture.create();
+		leftTexture.set(left, VR.ETextureType_TextureType_OpenGL, isGammaEncoded?VR.EColorSpace_ColorSpace_Auto : isGammaEncoded?VR.EColorSpace_ColorSpace_Gamma:VR.EColorSpace_ColorSpace_Linear);
+		
+		rightTexture = Texture.create();
+		rightTexture.set(right,VR.ETextureType_TextureType_OpenGL, isGammaEncoded?VR.EColorSpace_ColorSpace_Auto :  isGammaEncoded?VR.EColorSpace_ColorSpace_Gamma : VR.EColorSpace_ColorSpace_Linear);
+		flags = VR.EVRSubmitFlags_Submit_GlRenderBuffer;
+	}
+	private int flags = 0; //==default
 	public void submitFrame() {
-		int flags = VR.EVRSubmitFlags_Submit_Default ;//| VR.EVRSubmitFlags_Submit_GlRenderBuffer; TextureUsesUnsupportedFormat caused by this if using a texture an not a render buffer, oops
+		//int flags = VR.EVRSubmitFlags_Submit_Default ;//| VR.EVRSubmitFlags_Submit_GlRenderBuffer; TextureUsesUnsupportedFormat caused by this if using a texture an not a render buffer, oops
 		int code = 0;
 		code = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left,  leftTexture,  null, flags);
 		switch (code) {
@@ -209,17 +221,27 @@ This flag can be combined with EVRSubmit_TextureWithPose to pass a VRTextureWith
 		return new Vector3f(matrix.m(3), matrix.m(7), matrix.m(11));
 	}
 
-//	Vector4f LighthouseTracking::GetRotation(HmdMatrix34 matrix)
-//	{
-//		Vector4f q;
-//
-//		q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
-//		q.x = sqrt(fmax(0, 1 + matrix.m[0][0] - matrix.m[1][1] - matrix.m[2][2])) / 2;
-//		q.y = sqrt(fmax(0, 1 - matrix.m[0][0] + matrix.m[1][1] - matrix.m[2][2])) / 2;
-//		q.z = sqrt(fmax(0, 1 - matrix.m[0][0] - matrix.m[1][1] + matrix.m[2][2])) / 2;
-//		q.x = copysign(q.x, matrix.m[2][1] - matrix.m[1][2]);
-//		q.y = copysign(q.y, matrix.m[0][2] - matrix.m[2][0]);
-//		q.z = copysign(q.z, matrix.m[1][0] - matrix.m[0][1]);
-//		return q;
-//	}
+	public static Vector4f getRotation(HmdMatrix34 matrix)
+	{
+		Vector4f q = new Vector4f();
+		float m00 = matrix.m(0);
+		float m11 = matrix.m(5);
+		float m22 = matrix.m(10);
+		float m21 = matrix.m(6);
+		float m02 = matrix.m(8);
+		float m10 = matrix.m(1);
+		float m12 = matrix.m(9);
+		float m20 = matrix.m(2);
+		float m01 = matrix.m(4);
+		q.w = (float) (sqrt(max(0, 1 + m00 + m11 + m22)) / 2);
+		q.x = (float) (sqrt(max(0, 1 + m00 - m11 - m22)) / 2);
+		q.y = (float) (sqrt(max(0, 1 - m00 + m11 - m22)) / 2);
+		q.z = (float) (sqrt(max(0, 1 - m00 - m11 + m22)) / 2);
+		
+		q.x = copySign(q.x, m21 - m12); //left gets sign of right
+		q.y = copySign(q.y, m02 - m20);
+		q.z = copySign(q.z, m10 - m01);
+		return q;
+	}
+	
 }

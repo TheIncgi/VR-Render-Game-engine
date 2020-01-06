@@ -12,7 +12,6 @@ import java.io.File;
 
 import org.lwjgl.*;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.openvr.OpenVR.IVRCompositor;
 import org.lwjgl.openvr.TrackedDevicePose;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VRCompositor;
@@ -20,16 +19,13 @@ import org.lwjgl.openvr.VREvent;
 import org.lwjgl.openvr.VREventData;
 import org.lwjgl.openvr.VREventProperty;
 import org.lwjgl.openvr.VRSystem;
-import org.lwjgl.util.vector.Matrix;
 
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
-import com.theincgi.lwjglApp.misc.Pair;
-import com.theincgi.lwjglApp.mvc.view.drawables.Quad;
-import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.EyeCamera;
 import com.theincgi.lwjglApp.render.EyeSide;
+import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
@@ -44,10 +40,11 @@ public class VRWindow extends AWindow{
 	private int leftDepth, rightDepth;
 	private int leftFrameBuffer, rightFrameBuffer;
 	private Model quad;
+	private Location quadLocation = new Location(0, 0, 0, 0, 0, -90);
 	private long startTime = System.currentTimeMillis();
 	private VRUtil vrUtil;
 	TrackedDevicePose.Buffer pRenderPoseArray, pGamePoseArray;
-	boolean flipEyes = true; //TODO allow preview to be sterio mode
+	boolean flipEyes = false; //TODO allow preview to be sterio mode
 	
 	
 	/**Width and height should now be separate from window resolution*/
@@ -125,9 +122,9 @@ public class VRWindow extends AWindow{
 		//quad = ObjManager.INSTANCE.get(new File("cmodels/plane/plane.obj")).get(); //critical
 		quad = ObjManager.INSTANCE.get(new File("cmodels/plane/plane.obj")).get(); //critical
 		quad.shader = ShaderManager.INSTANCE.get("textureDisplay");
-		quad.getLocation().setRotation(0, 0, -90);
 		
 		vrUtil().bindEyeTextures(leftEyeTexture, rightEyeTexture, false);
+		//vrUtil().bindEyeBuffers(leftFrameBuffer, rightFrameBuffer, false);
 		//pGamePoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount); optional predicted frame
 		pRenderPoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
 	}
@@ -187,7 +184,6 @@ public class VRWindow extends AWindow{
 		//right eye
 		glBindFramebuffer(GL_FRAMEBUFFER, rightFrameBuffer);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
-		//setViewport(0, 0, vrUtil().getWidth(), vrUtil().getHeight()); still set
 		value.render(flipEyes?leftEye:rightEye, -1, -1);
 		
 		
@@ -197,11 +193,11 @@ public class VRWindow extends AWindow{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		setViewport(0, 0, width/2, height);
 		setShaderUniforms(leftEyeTexture);
-		quad.draw();
+		quad.drawAt(quadLocation);
 		
 		setViewport(width/2, 0, width/2, height);
 		setShaderUniforms(rightEyeTexture);
-		quad.draw();
+		quad.drawAt(quadLocation);
 		GL11.glFlush();
 		
 		VREvent vrEvent = VREvent.create();
@@ -261,8 +257,4 @@ public class VRWindow extends AWindow{
 		return vrUtil;
 	}
 	
-	void fullscreenTexture(int textureID) {
-		
-		quad.draw();
-	}
 }

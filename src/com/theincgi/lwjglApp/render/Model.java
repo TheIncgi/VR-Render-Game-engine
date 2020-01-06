@@ -21,9 +21,9 @@ import static org.lwjgl.opengl.GL20.glDisableVertexAttribArray;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
 import static org.lwjgl.opengl.GL45.*;
 
-public class Model implements Drawable{
+public class Model {
 
-	Location location = new Location();
+	//Location location = new Location();
 	
 	int VAO; //the settings n stuff
 	int vbo; //the data
@@ -125,7 +125,7 @@ public class Model implements Drawable{
 		glDeleteVertexArrays(VAO);
 	}
 
-	public void draw() {
+	public void drawAt(Location location) {
 		
 		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
 			glBindVertexArray(VAO);
@@ -158,36 +158,34 @@ public class Model implements Drawable{
 		}
 	}
 
-	public void drawAsColor(Color color) {
-		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
-			glBindVertexArray(VAO);
-			Optional<ShaderProgram> flat = ShaderManager.INSTANCE.get("flat");
-			flat.ifPresentOrElse(s->{
-				s.bind();
-				s.tryEnableVertexAttribArray("vPosition");
-				s.trySetMatrix("modelViewMatrix", stk.get());
-				s.trySetUniform("color", color.vec());
-			}, ()->{glEnableVertexAttribArray(0);});
+//	public void drawAsColor(Color color, Location locaiton) {
+//		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
+//			glBindVertexArray(VAO);
+//			Optional<ShaderProgram> flat = ShaderManager.INSTANCE.get("flat");
+//			flat.ifPresentOrElse(s->{
+//				s.bind();
+//				s.tryEnableVertexAttribArray("vPosition");
+//				s.trySetMatrix("modelViewMatrix", stk.get());
+//				s.trySetUniform("color", color.vec());
+//			}, ()->{glEnableVertexAttribArray(0);});
+//
+//
+//			glDrawRangeElements(GL_TRIANGLES, 0, ranges[ranges.length-1].end, index);
+//
+//			flat.ifPresentOrElse(s->{
+//				s.disableVertexAttribArray("vPosition");
+//			},()->glDisableVertexAttribArray(0));
+//
+//			glBindVertexArray(0);
+//		}
+//	}
 
-
-			glDrawRangeElements(GL_TRIANGLES, 0, ranges[ranges.length-1].end, index);
-
-			flat.ifPresentOrElse(s->{
-				s.disableVertexAttribArray("vPosition");
-			},()->glDisableVertexAttribArray(0));
-
-			glBindVertexArray(0);
-		}
-	}
-
-	@Override
+	
 	public void onDestroy() {
 		delete();
 	}
 
-	public Location getLocation() {
-		return location;
-	}
+	
 
 	private static class Range{
 		String material;

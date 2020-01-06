@@ -61,7 +61,6 @@ public class HelloElements implements Drawable{
 		shader = ShaderManager.INSTANCE.get("basic");
 	}
 	
-	@Override
 	public void onDestroy() {
 		shader.ifPresent(s->s.disableVertexAttribArray("vPosition"));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -71,7 +70,6 @@ public class HelloElements implements Drawable{
 		glDeleteVertexArrays(vao);
 	}
 
-	@Override
 	public void drawAsColor(Color color) {
 		// TODO Auto-generated method stub
 		

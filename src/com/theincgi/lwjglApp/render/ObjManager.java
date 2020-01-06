@@ -2,6 +2,7 @@ package com.theincgi.lwjglApp.render;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import com.theincgi.lwjglApp.misc.AbsManager;
 import com.theincgi.lwjglApp.misc.Logger;
@@ -23,7 +24,10 @@ public class ObjManager extends AbsManager<File, Model>{
 	protected void onUnload(Model t) {
 		t.onDestroy();
 	}
-
+	
+	public Optional<Model> get(String fileName){
+		return get(new File(fileName));
+	}
 	
 	
 }

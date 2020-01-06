@@ -55,7 +55,6 @@ public class HelloTriangle implements Drawable {
 
 	}
 
-	@Override
 	public void onDestroy() {
 		shader.ifPresent(s->s.disableVertexAttribArray(VERTEX_ATTRIB));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -90,7 +89,6 @@ public class HelloTriangle implements Drawable {
 		}
 	}
 
-	@Override
 	public void drawAsColor(Color color) {
 		// TODO Auto-generated method stub
 
