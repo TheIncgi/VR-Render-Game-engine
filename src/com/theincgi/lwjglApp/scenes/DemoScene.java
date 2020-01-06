@@ -21,12 +21,12 @@ public class DemoScene extends Scene{
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
-		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -3);
+		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 1, -5);
 		addDrawable(monkey);
 		for(int x = -4; x<=4; x+=2) {
 			for(int y = -4; y<=4; y+=2) {
 				final int X = x*2, Y = y*2;
-				Object3D cube =  new Object3D("cmodels/softcube/softcube.obj", X, -6, Y);
+				Object3D cube =  new Object3D("cmodels/softcube/softcube.obj", X, -1, Y);
 				addDrawable(cube);
 			}
 		}

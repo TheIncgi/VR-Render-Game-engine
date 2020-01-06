@@ -1,12 +1,15 @@
 package com.theincgi.lwjglApp.render;
 
+import java.nio.FloatBuffer;
+
 import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.openvr.HmdMatrix44;
 import org.lwjgl.openvr.TrackedDevicePose;
 import org.lwjgl.openvr.VRSystem;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
-
+import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 
@@ -15,7 +18,7 @@ import com.theincgi.lwjglApp.misc.MatrixStack;
 
 
 public class EyeCamera extends Camera {
-	private Matrix4f eyeOffsetLeft, eyeOffsetRight;
+	private Matrix4f eyeOffset;
 	
 	EyeSide side = EyeSide.LEFT;
 	private TrackedDevicePose hmdPos;
@@ -29,12 +32,14 @@ public class EyeCamera extends Camera {
 
 	public EyeCamera(float x, float y, float z, float yaw, float pitch, float roll) {
 		super(x, y, z, yaw, pitch, roll);
-		near = 1.5f;
-		far = 40;
+		near = .1f;
+		far = 1000.1f;
 	}
 	
 	public EyeCamera setSide(EyeSide side) {
 		this.side = side;
+		hmdProjection = null;
+		eyeOffset = null;
 		return this;
 	}
 	public EyeSide getSide() { 
@@ -48,37 +53,20 @@ public class EyeCamera extends Camera {
 	
 	@Override
 	public void loadProjectionMatrix() {
-		if(eyeOffsetLeft==null) {
-			HmdMatrix34 tmp = HmdMatrix34.create();
-			VRSystem.VRSystem_GetEyeToHeadTransform(EyeSide.LEFT.getVal(), tmp);
-			eyeOffsetLeft = Utils.fromT(tmp);
-			tmp.close();
-		}
-		if(eyeOffsetRight==null) {
-			HmdMatrix34 tmp = HmdMatrix34.create();
-			VRSystem.VRSystem_GetEyeToHeadTransform(EyeSide.RIGHT.getVal(), tmp);
-			eyeOffsetRight = Utils.fromT(tmp);
-			tmp.close();
-		}
+		HmdMatrix34 tmp = HmdMatrix34.create();
+		VRSystem.VRSystem_GetEyeToHeadTransform(side.getVal(), tmp);
+		eyeOffset = Utils.fromT(tmp);
+		//tmp.close();
+	
 		Matrix4f out = new Matrix4f();
 		out.setIdentity();
 		Matrix4f hmd = getHmdPose();
 		
 //VRChaperone.VRChaperone_ForceBoundsVisible(true);
-		Matrix4f prj, eye;
-		switch (side) {
-		default:
-		case LEFT:
-			prj = getHMDMatrixProjectionEye(EyeSide.LEFT);
-			eye = eyeOffsetLeft;
-			break;
-		case RIGHT:
-			prj = getHMDMatrixProjectionEye(EyeSide.RIGHT);
-			eye = eyeOffsetRight;
-			break;
-		}
-
-		Matrix4f.mul(hmd, eye, out);
+		Matrix4f prj;
+		prj = getHMDMatrixProjectionEye();
+		
+		Matrix4f.mul(hmd, eyeOffset, out);
 		out.invert(); //cam should do reverse rotation location compared to things like model view
 		Matrix4f.mul(prj, out, out);
 		
@@ -90,32 +78,42 @@ public class EyeCamera extends Camera {
 	
 	
 
-	private Matrix4f hmdProjectionEyeLeft, hmdProjectEyeRight;
+	private Matrix4f hmdProjection;
 	@SuppressWarnings("resource") //closing the resource causes an EXCEPTION_ACCESS_VIOLATION shortly after running
-	protected Matrix4f getHMDMatrixProjectionEye(EyeSide es){ 
-		//try(HmdMatrix44 mat = HmdMatrix44.create()) {
-			if( hmdProjectionEyeLeft == null  && es.equals(EyeSide.LEFT) ) {
-				HmdMatrix44 mat = HmdMatrix44.create();
-				VRSystem.VRSystem_GetProjectionMatrix(es.getVal(), near, far, mat);
+	protected Matrix4f getHMDMatrixProjectionEye(){ 
+		//TODO Special thanks to this poster
+		//https://github.com/ValveSoftware/openvr/issues/1052
+		//saved my project
+		if(hmdProjection == null)
+			try(MemoryStack ms = MemoryStack.stackPush()){
+				FloatBuffer left, right, top, bottom;
+				left   = ms.mallocFloat(1);
+				right  = ms.mallocFloat(1);
+				top    = ms.mallocFloat(1);
+				bottom = ms.mallocFloat(1);
+				VRSystem.VRSystem_GetProjectionRaw(side.getVal(), left, right, top, bottom);
 				
-				hmdProjectionEyeLeft = new Matrix4f();
-				
-	
-				convertSteamVRMatrix4ToMatrix4f(mat, hmdProjectionEyeLeft);
+				hmdProjection = ComposeProjection(left.get(0), right.get(0), top.get(0), bottom.get(0), near, far);
 			}
-			if( hmdProjectEyeRight == null  && es.equals(EyeSide.RIGHT) ) {
-				HmdMatrix44 mat = HmdMatrix44.create();
-				VRSystem.VRSystem_GetProjectionMatrix(es.getVal(), near, far, mat);
-				
-				hmdProjectEyeRight = new Matrix4f();
-				
-	
-				convertSteamVRMatrix4ToMatrix4f(mat, hmdProjectEyeRight);
-			}
-		//}
-		
-		return es.equals(EyeSide.LEFT)? hmdProjectionEyeLeft : hmdProjectEyeRight;
+		return hmdProjection;
 	}
+	
+	protected static Matrix4f ComposeProjection(float fLeft, float fRight, float fTop, float fBottom, float zNear, float zFar)
+	{
+	    float idx = 1.0f / (fRight - fLeft);
+	    float idy = 1.0f / (fBottom - fTop);
+	    float idz = 1.0f / (zFar - zNear);
+	    float sx = fRight + fLeft;
+	    float sy = fBottom + fTop;
+
+	    Matrix4f p = new Matrix4f();
+	    p.m00 = 2*idx;   p.m10  = 0;     p.m20 = sx*idx;    			p.m30 = 0;
+	    p.m01 = 0;       p.m11  = 2*idy; p.m21 = sy*idy;    			p.m31 = 0;
+	    p.m02 = 0;       p.m12  = 0;     p.m22 = -(zFar + zNear)*idz;	p.m32 = -2*zFar*zNear*idz;
+	    p.m03 = 0;       p.m13 = 0;      p.m23 = -1.0f;     			p.m33 = 0;
+	    return p;
+	}
+	
 	
 	private Matrix4f getHmdPose() {
 		return Utils.fromT(hmdPos.mDeviceToAbsoluteTracking());
