@@ -65,8 +65,9 @@ public class TouchControllers implements VRController {
 		leftLocation.setPos(VRUtil.getPos(transform));
 		
 		VRControllerAxis axis = state.rAxis(0);
-		leftAnalogVal.x = axis.x() * ANALOG_CONST;
-		leftAnalogVal.y = axis.y() * ANALOG_CONST;
+		leftAnalogVal.x = axis.x();
+		leftAnalogVal.y = axis.y();
+
 		leftValid = tdp.bPoseIsValid();
 		//state.free();
 	}
@@ -88,7 +89,8 @@ public class TouchControllers implements VRController {
 	public void draw() {
 		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(leftLocation)){
 			leftBase.ifPresent(lb->lb.drawAtOrigin());
-			try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(leftAnalogVal)){
+			try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(new Vector3f(0f, .05f, .1f))){ //.05 .01
+				try {MatrixStack stk3 = MatrixStack.modelViewStack.push
 				leftAnalog.ifPresent(la->la.drawAtOrigin());
 			}
 		}

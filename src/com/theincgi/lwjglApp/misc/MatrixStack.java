@@ -40,6 +40,19 @@ public class MatrixStack implements AutoCloseable{
 		get().translate(vec);
 		return this;
 	}
+	public MatrixStack pushRotate(float angle, Vector3f axis) {
+		push();
+		get().rotate(angle, axis);
+		return this;
+	}
+	public MatrixStack pushLocalRotate(float angle, Vector3f axis, Vector3f axisOffset) {
+		push();
+		Vector3f naxisOffset = axisOffset.negate(new Vector3f());
+		get().translate(axisOffset);
+		get().rotate(angle, axis);
+		get().translate(naxisOffset);
+		return this;
+	}
 	public Matrix4f get() {
 		return stack.get(top);
 	}
