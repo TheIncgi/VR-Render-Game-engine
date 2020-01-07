@@ -31,6 +31,10 @@ public class Scene {
 
 	public Scene(AWindow window) {
 		this.window = window;
+		if(window instanceof VRWindow) {
+			VRWindow v = (VRWindow) window;
+			addDrawable(v.vrControllers);
+		}
 	}
 
 	public void render(Camera camera, double mouseX, double mouseY) {

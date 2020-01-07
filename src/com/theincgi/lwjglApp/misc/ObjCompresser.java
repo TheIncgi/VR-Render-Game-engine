@@ -184,7 +184,7 @@ public class ObjCompresser {
 		} catch (IOException e) {
 			Logger.preferedLogger.e("ObjCompressor#compress", e);
 		}catch (Exception e) {
-			throw new RuntimeException("On line "+lineNumber+ ": "+op+" "+line, e);
+			throw new RuntimeException("On line "+lineNumber+ ": "+op+" "+line + " in file "+objFile, e);
 		}
 	}
 

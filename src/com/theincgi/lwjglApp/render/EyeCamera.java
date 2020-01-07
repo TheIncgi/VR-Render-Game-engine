@@ -20,7 +20,7 @@ import com.theincgi.lwjglApp.misc.MatrixStack;
 public class EyeCamera extends Camera {
 	private Matrix4f eyeOffset;
 	
-	EyeSide side = EyeSide.LEFT;
+	Side side = Side.LEFT;
 	private TrackedDevicePose hmdPos;
 	
 	public EyeCamera() {
@@ -36,13 +36,13 @@ public class EyeCamera extends Camera {
 		far = 1000.1f;
 	}
 	
-	public EyeCamera setSide(EyeSide side) {
+	public EyeCamera setSide(Side side) {
 		this.side = side;
 		hmdProjection = null;
 		eyeOffset = null;
 		return this;
 	}
-	public EyeSide getSide() { 
+	public Side getSide() { 
 		return side;
 	}
 	

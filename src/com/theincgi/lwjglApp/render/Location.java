@@ -1,6 +1,7 @@
 package com.theincgi.lwjglApp.render;
 
 import java.nio.FloatBuffer;
+import java.util.Arrays;
 
 import org.lwjgl.opengl.GL45;
 import org.lwjgl.system.MemoryStack;
@@ -51,6 +52,11 @@ public class Location {
         pos[2] = z;
 
     }
+    public void setPos(Vector3f v) {
+    	pos[0] = v.x;
+    	pos[1] = v.y;
+    	pos[2] = v.z;
+	}
     public void setRotation(float yaw, float pitch, float roll){
         rot[0] = yaw;
         rot[1] = pitch;
@@ -115,13 +121,14 @@ public class Location {
     
     
     //copy xyz data into given array
-    public void putPos(float[] pos){
+    public void setPos(float[] pos){
         pos[0] = this.pos[0];
         pos[1] = this.pos[1];
         pos[2] = this.pos[2];
         if(pos.length>3)
             pos[3] = 1;
     }
+    
     
 
     private static float interpolate(float a, float b, float f){
@@ -148,7 +155,18 @@ public class Location {
         location.rot[1] = rot[1];
         location.rot[2] = rot[2];
     }
-    
+
+	
+    @Override
+    public String toString() {
+    	StringBuilder b = new StringBuilder();
+    	b.append("Location: <Pos: ");
+    	b.append(Arrays.toString(pos));
+    	b.append("> <Rot: ");
+    	b.append(Arrays.toString(rot));
+    	b.append(">");
+    	return b.toString();
+    }
 
 
 }

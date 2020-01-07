@@ -3,6 +3,7 @@ package com.theincgi.lwjglApp.misc;
 import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
 
 import com.theincgi.lwjglApp.render.Location;
 
@@ -34,6 +35,11 @@ public class MatrixStack implements AutoCloseable{
 		transform.applyTo(get());
 		return this;
 	}
+	public MatrixStack pushTranslate(Vector3f vec) {
+		push();
+		get().translate(vec);
+		return this;
+	}
 	public Matrix4f get() {
 		return stack.get(top);
 	}
@@ -54,4 +60,6 @@ public class MatrixStack implements AutoCloseable{
 	public void close() {
 		pop();
 	}
+
+	
 }

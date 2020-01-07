@@ -126,36 +126,40 @@ public class Model {
 	}
 
 	public void drawAt(Location location) {
-		
 		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
-			glBindVertexArray(VAO);
-
-			shader.ifPresentOrElse(s->{
-				s.bind();
-				s.tryEnableVertexAttribArray("vPosition");
-				s.trySetMatrix("modelViewMatrix", stk.get());
-				//TODO conditional based on range
-				s.tryEnableVertexAttribArray("texPosition");
-				s.tryEnableVertexAttribArray("normPosition");
-				s.bind();
-			}, ()->{glEnableVertexAttribArray(0);});
-
-			
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			for(Range r : ranges) {
-				glDrawRangeElements(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0);
-			}
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-			
-			shader.ifPresentOrElse(s->{
-				s.disableVertexAttribArray("vPosition");
-				s.disableVertexAttribArray("texPosition");
-				s.disableVertexAttribArray("normPosition");
-				ShaderProgram.unbind();
-			},()->glDisableVertexAttribArray(0));
-
-			glBindVertexArray(0);
+			drawAtOrigin();
 		}
+	}
+
+	public void drawAtOrigin() {
+		MatrixStack stk = MatrixStack.modelViewStack;
+		glBindVertexArray(VAO);
+
+		shader.ifPresentOrElse(s->{
+			s.bind();
+			s.tryEnableVertexAttribArray("vPosition");
+			s.trySetMatrix("modelViewMatrix", stk.get());
+			//TODO conditional based on range
+			s.tryEnableVertexAttribArray("texPosition");
+			s.tryEnableVertexAttribArray("normPosition");
+			s.bind();
+		}, ()->{glEnableVertexAttribArray(0);});
+
+		
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+		for(Range r : ranges) {
+			glDrawRangeElements(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0);
+		}
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		
+		shader.ifPresentOrElse(s->{
+			s.disableVertexAttribArray("vPosition");
+			s.disableVertexAttribArray("texPosition");
+			s.disableVertexAttribArray("normPosition");
+			ShaderProgram.unbind();
+		},()->glDisableVertexAttribArray(0));
+
+		glBindVertexArray(0);
 	}
 
 //	public void drawAsColor(Color color, Location locaiton) {

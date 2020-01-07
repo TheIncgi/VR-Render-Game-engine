@@ -2,18 +2,18 @@ package com.theincgi.lwjglApp.render;
 
 import org.lwjgl.openvr.VR;
 
-public enum EyeSide {
+public enum Side {
 	LEFT(VR.EVREye_Eye_Left), RIGHT(VR.EVREye_Eye_Right);
 	
 	private final int val;
-	private EyeSide(int j) {
+	private Side(int j) {
 		this.val = j;
 	}
 	
 	public int getVal() {
 		return val;
 	}
-	public EyeSide other() {
+	public Side other() {
 		switch (this) {
 		case LEFT:
 			return RIGHT;
