@@ -22,7 +22,7 @@ public class Object3D implements Drawable{
 		this(new File(model),x,y,z);
 	}
 	public Object3D(File model, float x, float y, float z) {
-		this.model = ObjManager.INSTANCE.get(model);
+		this.model = ObjManager.INSTANCE.get(model, "full");
 		this.location = new Location(x, y, z);
 	}
 	

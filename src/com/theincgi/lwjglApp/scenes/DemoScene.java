@@ -22,7 +22,8 @@ public class DemoScene extends Scene{
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
 		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 1, -5);
-		addDrawable(monkey);
+		Object3D lantern = new Object3D("cmodels/emissionTest/lantern.obj", 2, 1, -3);
+		addDrawables(monkey, lantern);
 		for(int x = -4; x<=4; x+=2) {
 			for(int y = -4; y<=4; y+=2) {
 				final int X = x*2, Y = y*2;

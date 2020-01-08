@@ -33,6 +33,8 @@ public class TouchControllers implements VRController {
 	boolean isAPressed, isBPressed, isXPressed, isYPressed, isLeftAnalogPressed, isRightAnalogPressed, isLeftGripPressed, isRightGripPressed, isLeftTriggerPressed, isRightTriggerPressed;
 	boolean isATouch, 	isBTouch, 	isXTouch, 	isYTouch, 	isLeftAnalogTouch, 	 isRightAnalogTouch,                                          isLeftTriggerTouch,   isRightTriggerTouch;
 	
+	public static final String shaderName = "full";
+	
 	float leftTriggerAmount, rightTriggerAmount,
 	      leftGripAmount, rightGripAmount;
 	
@@ -46,20 +48,20 @@ public class TouchControllers implements VRController {
 		leftTransform = new Matrix4f();
 		rightTransform = new Matrix4f();
 		
-		leftBase 		= ObjManager.INSTANCE.get(LEFT +"body.obj");
-		rightBase 		= ObjManager.INSTANCE.get(RIGHT+"body.obj");
-		leftAnalog 		= ObjManager.INSTANCE.get(LEFT +"thumbstick.obj");
-		rightAnalog 	= ObjManager.INSTANCE.get(RIGHT+"thumbstick.obj");
-		leftTrigger 	= ObjManager.INSTANCE.get(LEFT +"trigger.obj");
-		rightTrigger 	= ObjManager.INSTANCE.get(RIGHT+"trigger.obj");
-		leftGrip 		= ObjManager.INSTANCE.get(LEFT +"grip.obj");
-		rightGrip 		= ObjManager.INSTANCE.get(RIGHT+"grip.obj");
-		xButton 		= ObjManager.INSTANCE.get(LEFT +"button_x.obj");
-		yButton 		= ObjManager.INSTANCE.get(LEFT +"button_y.obj");
-		aButton 		= ObjManager.INSTANCE.get(RIGHT+"button_a.obj");
-		bButton 		= ObjManager.INSTANCE.get(RIGHT+"button_b.obj");
-		enter 			= ObjManager.INSTANCE.get(LEFT+ "button_enter.obj");
-		home 			= ObjManager.INSTANCE.get(RIGHT+ "button_home.obj");
+		leftBase 		= ObjManager.INSTANCE.get(LEFT +"body.obj", 		shaderName);
+		rightBase 		= ObjManager.INSTANCE.get(RIGHT+"body.obj", 		shaderName);
+		leftAnalog 		= ObjManager.INSTANCE.get(LEFT +"thumbstick.obj", 	shaderName);
+		rightAnalog 	= ObjManager.INSTANCE.get(RIGHT+"thumbstick.obj", 	shaderName);
+		leftTrigger 	= ObjManager.INSTANCE.get(LEFT +"trigger.obj", 		shaderName);
+		rightTrigger 	= ObjManager.INSTANCE.get(RIGHT+"trigger.obj", 		shaderName);
+		leftGrip 		= ObjManager.INSTANCE.get(LEFT +"grip.obj", 		shaderName);
+		rightGrip 		= ObjManager.INSTANCE.get(RIGHT+"grip.obj", 		shaderName);
+		xButton 		= ObjManager.INSTANCE.get(LEFT +"button_x.obj", 	shaderName);
+		yButton 		= ObjManager.INSTANCE.get(LEFT +"button_y.obj", 	shaderName);
+		aButton 		= ObjManager.INSTANCE.get(RIGHT+"button_a.obj", 	shaderName);
+		bButton 		= ObjManager.INSTANCE.get(RIGHT+"button_b.obj", 	shaderName);
+		enter 			= ObjManager.INSTANCE.get(LEFT+ "button_enter.obj", shaderName);
+		home 			= ObjManager.INSTANCE.get(RIGHT+ "button_home.obj", shaderName);
 	}
 	
 	@Override

@@ -223,6 +223,8 @@ public class Model {
 	//	}
 
 
+	/**Called by ObjManager only*/
+	@Deprecated
 	public void onDestroy() {
 		delete();
 	}

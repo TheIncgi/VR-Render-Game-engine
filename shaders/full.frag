@@ -1,5 +1,6 @@
 #version 450
 layout(location=0)out vec4 FragColor;
+layout(location=1)out vec4 EmissionColor;
 
 
 in vec3 vertexPosition;
@@ -96,6 +97,7 @@ void main() {
 	brightnessScalar *= 1+specular;
 
 	FragColor = kd *  brightnessScalar;
+	EmissionColor = material_ke;
 	//FragColor = vec4(normalize(normalPosition)*.5+.5, 1);//* brightness;
 	//FragColor = vec4(brightness, brightness, brightness, 1);
 	
