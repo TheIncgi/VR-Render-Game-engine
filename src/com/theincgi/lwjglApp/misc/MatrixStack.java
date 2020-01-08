@@ -35,6 +35,11 @@ public class MatrixStack implements AutoCloseable{
 		transform.applyTo(get());
 		return this;
 	}
+	public MatrixStack pushTransform(Matrix4f transform) {
+		push();
+		Matrix4f.mul(transform, get(), get());  //CHECK ME
+		return this;
+	}
 	public MatrixStack pushTranslate(Vector3f vec) {
 		push();
 		get().translate(vec);

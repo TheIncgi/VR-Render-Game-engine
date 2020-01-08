@@ -29,6 +29,7 @@ import org.lwjgl.openvr.Texture;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VRCompositor;
 import org.lwjgl.system.MemoryStack;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
@@ -215,6 +216,10 @@ This flag can be combined with EVRSubmit_TextureWithPose to pass a VRTextureWith
 	static Vector3f getPos(HmdMatrix34 matrix) 
 	{
 		return new Vector3f(matrix.m(3), matrix.m(7), matrix.m(11));
+	}
+	static Vector3f getPos(Matrix4f matrix) 
+	{
+		return new Vector3f(matrix.m30, matrix.m31, matrix.m32);
 	}
 
 	public static Vector4f getRotation(HmdMatrix34 matrix)

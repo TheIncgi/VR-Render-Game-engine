@@ -214,7 +214,7 @@ public class Vector3f extends Vector implements Serializable, ReadableVector3f, 
 	 * @param dest The destination vector, or null if a new vector is to be created
 	 * @return the normalised vector
 	 */
-	public Vector3f normalise(Vector3f dest) {
+	public Vector3f normalize(Vector3f dest) {
 		float l = length();
 
 		if (dest == null)

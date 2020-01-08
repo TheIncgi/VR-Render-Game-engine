@@ -22,7 +22,7 @@ public class Launcher {
 			vrUtil = util;
 			util.initVR();
 			log.i("#main", "Main thread: "+Thread.currentThread().getId());
-			mainWindow = new VRWindow(600, 300, APPLICATION_NAME, null);
+			mainWindow = new VRWindow(600, 500, APPLICATION_NAME, null);
 			mainWindow.setScene(new DemoScene(mainWindow));
 			GLFW.glfwSetErrorCallback((err, desc)->{
 				log.w("GL_ERROR", "["+Integer.toHexString(err)+ "]: "+ GLFWErrorCallback.getDescription(desc));

@@ -88,9 +88,12 @@ public class Utils {
 		MemoryUtil.memFree(buf);
 	}
 	
-	/**adds an extra row with identity and transposes*/
 	public static Matrix4f fromT(HmdMatrix34 h) {
-		Matrix4f out = new Matrix4f();
+		return fromT(h, new Matrix4f());
+	}
+	/**adds an extra row with identity and transposes*/
+	public static Matrix4f fromT(HmdMatrix34 h, Matrix4f dest) {
+		Matrix4f out = dest ==null? new Matrix4f() : dest;
 		out.m00 = h.m(0);  out.m10 = h.m(1);   out.m20 = h.m(2); out.m30 = h.m(3);
 		out.m01 = h.m(4);  out.m11 = h.m(5);   out.m21 = h.m(6); out.m31 = h.m(7);
 		out.m02 = h.m(8);  out.m12 = h.m(9);   out.m22 = h.m(10);out.m32 = h.m(11);

@@ -512,6 +512,15 @@ public class Matrix4f extends Matrix implements Serializable {
 	 * Rotates the matrix around the given axis the specified angle
 	 * @param angle the angle, in radians.
 	 * @param axis The vector representing the rotation axis. Must be normalized.
+	 * @return this
+	 */
+	public Matrix4f rotateDeg(float degrees, Vector3f axis) {
+		return rotate((float) Math.toRadians(degrees), axis, this);
+	}
+	/**
+	 * Rotates the matrix around the given axis the specified angle
+	 * @param angle the angle, in radians.
+	 * @param axis The vector representing the rotation axis. Must be normalized.
 	 * @param dest The matrix to put the result, or null if a new matrix is to be created
 	 * @return The rotated matrix
 	 */
