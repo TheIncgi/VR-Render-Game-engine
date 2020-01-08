@@ -187,12 +187,10 @@ public class TouchControllers implements VRController {
 			}else {
 				yButton.ifPresent(x->x.drawAtOrigin());
 			}
-			if(isLeftGripPressed) {
-				try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(AXIS_GRIP_LEFT)){
+			
+			try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate((Vector3f) new Vector3f(AXIS_GRIP_LEFT).scale(leftGripAmount))){
 					leftGrip.ifPresent(x->x.drawAtOrigin());}
-			}else {
-				leftGrip.ifPresent(x->x.drawAtOrigin());
-			}
+			
 			enter.ifPresent(e->e.drawAtOrigin());
 		}
 		
@@ -230,12 +228,10 @@ public class TouchControllers implements VRController {
 			}else {
 				bButton.ifPresent(x->x.drawAtOrigin());
 			}
-			if(isRightGripPressed) {
-				try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(AXIS_GRIP_RIGHT)){
-					rightGrip.ifPresent(x->x.drawAtOrigin());}
-			}else {
-				rightGrip.ifPresent(x->x.drawAtOrigin());
-			}
+			
+			try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate((Vector3f) new Vector3f(AXIS_GRIP_RIGHT).scale(rightGripAmount))){
+				rightGrip.ifPresent(x->x.drawAtOrigin());}
+			
 			home.ifPresent(h->h.drawAtOrigin());
 		}
 		

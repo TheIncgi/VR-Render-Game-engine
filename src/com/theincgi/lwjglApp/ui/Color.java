@@ -4,6 +4,8 @@ import static com.theincgi.lwjglApp.Utils.inRangeI;
 import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
 
+import java.util.Arrays;
+
 import com.theincgi.lwjglApp.Utils;
 
 public class Color implements Cloneable{
@@ -23,16 +25,16 @@ public class Color implements Cloneable{
 	private float[] rgba = new float[4];
 	private boolean isMutable = true;
 	
-	public Color(double r, double g, double b) {
-		this(r,g,b, 1.0);
+	public Color(float r, float g, float b) {
+		this(r,g,b, 1.0f);
 	}
 
 	
-	public Color(double r, double g, double b, double a) {
-		this.rgba[0] = (float) r;
-		this.rgba[1] = (float) g;
-		this.rgba[2] = (float) b;
-		this.rgba[3] = (float) a;
+	public Color(float r, float g, float b, float a) {
+		this.rgba[0] = r;
+		this.rgba[1] = g;
+		this.rgba[2] = b;
+		this.rgba[3] = a;
 		check();
 	}
 	
@@ -204,6 +206,11 @@ public class Color implements Cloneable{
 
 	public int getARGB() {
 		return (((int)(a()*255))<<24) | (((int)(r()*255))<<16) | (((int)(g()*255))<<8) | (((int)(b()*255)));
+	}
+	
+	@Override
+	public String toString() {
+		return "Color: "+Arrays.toString(rgba);
 	}
 
 }

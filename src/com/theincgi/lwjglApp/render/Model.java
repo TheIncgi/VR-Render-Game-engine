@@ -24,7 +24,7 @@ import static org.lwjgl.opengl.GL45.*;
 public class Model {
 
 	//Location location = new Location();
-	
+
 	int VAO; //the settings n stuff
 	int vbo; //the data
 	int ibo;
@@ -34,8 +34,13 @@ public class Model {
 	IntBuffer index;
 	Range[] ranges;
 	public Optional<ShaderProgram> shader = Optional.empty();
+	public Optional<MaterialGroup> material = Optional.empty();
 
 	public Model(File source) throws FileNotFoundException, IOException {
+		File material = new File(source.getParentFile(), source.getName().substring(0, source.getName().lastIndexOf("."))+".mtl");
+		if(material.exists())
+			this.material = MaterialManager.INSTANCE.get(material);
+
 		FloatBuffer vert = null, uv = null, normal = null;
 		RandomAccessFile in = new RandomAccessFile(source, "rw");
 		try{
@@ -60,7 +65,7 @@ public class Model {
 			uv   = Utils.toBuffer(uvData);
 			normal=Utils.toBuffer(normData);
 
-//			vbo = glGenBuffers();
+			//			vbo = glGenBuffers();
 
 			int totalIndex = in.readInt();
 			int nMaterialGroups = in.readInt();
@@ -69,7 +74,7 @@ public class Model {
 			int[] indexData = new int[totalIndex];
 			ranges = new Range[nMaterialGroups];
 			for (int i = 0; i < nMaterialGroups; i++) {
-				ranges[i] = new Range(in.readUTF(), in.readInt(), in.readInt(), in.readBoolean(), in.readBoolean(), in.readBoolean());
+				ranges[i] = new Range(in.readUTF().trim(), in.readInt(), in.readInt(), in.readBoolean(), in.readBoolean(), in.readBoolean());
 
 				for (int j = ranges[i].start; j <= ranges[i].end; j++) { // <=
 					indexData[j] = in.readInt();
@@ -80,18 +85,18 @@ public class Model {
 
 			VAO = glGenVertexArrays();
 			glBindVertexArray(VAO);
-			
+
 			vbo = glGenBuffers();
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glBufferData(GL_ARRAY_BUFFER, Float.BYTES*(vertCount + uvCount + normCount), GL_STATIC_DRAW);
 			glBufferSubData(GL_ARRAY_BUFFER, 0, vert);
 			glBufferSubData(GL_ARRAY_BUFFER, vertCount*Float.BYTES, uv);
 			glBufferSubData(GL_ARRAY_BUFFER, (vertCount+uvCount)*Float.BYTES, normal);
-			
+
 			ibo = glGenBuffers();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, index, GL_STATIC_DRAW);
-			
+
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0); //vertex
 			glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, (vertCount)*Float.BYTES); //uv
 			glVertexAttribPointer(2, 3, GL_FLOAT, false, 0, (vertCount + uvCount)*Float.BYTES); //normal
@@ -108,7 +113,7 @@ public class Model {
 			glBindVertexArray(0);
 			in.close();
 		}
-		shader = ShaderManager.INSTANCE.get("basic");
+		shader = ShaderManager.INSTANCE.get("full");
 	}
 
 	private void delete() {
@@ -142,16 +147,40 @@ public class Model {
 			//TODO conditional based on range
 			s.tryEnableVertexAttribArray("texPosition");
 			s.tryEnableVertexAttribArray("normPosition");
-			s.bind();
 		}, ()->{glEnableVertexAttribArray(0);});
 
-		
+
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		for(Range r : ranges) {
+			if(shader.isPresent() && material.isPresent()) {
+				ShaderProgram s = shader.get();
+				MaterialGroup mg = material.get();
+				Material m = mg.materials.get(r.material);
+				if(m!=null) {
+					s.trySetUniform("material_kd",      m.kd.vec());
+					s.trySetUniform("material_illum",   m.illum);
+					s.trySetUniform("material_ka", 		m.ka.isPresent()? m.ka.get().vec() : Color.WHITE.vec());
+					s.trySetUniform("material_ks", 		m.ks.isPresent()? m.ks.get().vec() : Color.WHITE.vec());
+					s.trySetUniform("material_ke", 		m.ke.isPresent()? m.ke.get().vec() : Color.BLACK.vec());
+					s.trySetUniform("material_tf", 		m.tf.isPresent()? m.tf.get().vec() : Color.WHITE.vec());
+					s.trySetUniform("material_d", 		m.d .isPresent()? m.d.get()        : 1);
+					s.trySetUniform("material_halo", 	(m.halo.isPresent() && m.halo.get())?  1 : 0);
+					s.trySetUniform("material_ns",      m.ns.isPresent()? m.ns.get() 	   : 1);
+					s.trySetUniform("material_ni",      m.ni.isPresent()? m.ni.get()       : 1);
+					s.trySetUniform("map_ka",           m.map_ka.isPresent()? m.map_ka.get().getHandle() : 0);
+					s.trySetUniform("map_kd",           m.map_kd.isPresent()? m.map_kd.get().getHandle() : 0);
+					s.trySetUniform("map_ks",           m.map_ks.isPresent()? m.map_ks.get().getHandle() : 0);
+					s.trySetUniform("map_ns",           m.map_ns.isPresent()? m.map_ns.get().getHandle() : 0);
+					s.trySetUniform("map_d",            m.map_d .isPresent()? m.map_d .get().getHandle() : 0);
+					s.trySetUniform("map_disp",         m.map_disp.isPresent()? m.map_disp.get().getHandle() : 0);
+					s.trySetUniform("map_bump",         m.map_bump.isPresent()? m.map_bump.get().getHandle() : 0);
+				}
+
+			}
 			glDrawRangeElements(GL_TRIANGLES, r.start, r.end, r.end-r.start+1, GL_UNSIGNED_INT, 0);
 		}
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-		
+
 		shader.ifPresentOrElse(s->{
 			s.disableVertexAttribArray("vPosition");
 			s.disableVertexAttribArray("texPosition");
@@ -162,34 +191,34 @@ public class Model {
 		glBindVertexArray(0);
 	}
 
-//	public void drawAsColor(Color color, Location locaiton) {
-//		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
-//			glBindVertexArray(VAO);
-//			Optional<ShaderProgram> flat = ShaderManager.INSTANCE.get("flat");
-//			flat.ifPresentOrElse(s->{
-//				s.bind();
-//				s.tryEnableVertexAttribArray("vPosition");
-//				s.trySetMatrix("modelViewMatrix", stk.get());
-//				s.trySetUniform("color", color.vec());
-//			}, ()->{glEnableVertexAttribArray(0);});
-//
-//
-//			glDrawRangeElements(GL_TRIANGLES, 0, ranges[ranges.length-1].end, index);
-//
-//			flat.ifPresentOrElse(s->{
-//				s.disableVertexAttribArray("vPosition");
-//			},()->glDisableVertexAttribArray(0));
-//
-//			glBindVertexArray(0);
-//		}
-//	}
+	//	public void drawAsColor(Color color, Location locaiton) {
+	//		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
+	//			glBindVertexArray(VAO);
+	//			Optional<ShaderProgram> flat = ShaderManager.INSTANCE.get("flat");
+	//			flat.ifPresentOrElse(s->{
+	//				s.bind();
+	//				s.tryEnableVertexAttribArray("vPosition");
+	//				s.trySetMatrix("modelViewMatrix", stk.get());
+	//				s.trySetUniform("color", color.vec());
+	//			}, ()->{glEnableVertexAttribArray(0);});
+	//
+	//
+	//			glDrawRangeElements(GL_TRIANGLES, 0, ranges[ranges.length-1].end, index);
+	//
+	//			flat.ifPresentOrElse(s->{
+	//				s.disableVertexAttribArray("vPosition");
+	//			},()->glDisableVertexAttribArray(0));
+	//
+	//			glBindVertexArray(0);
+	//		}
+	//	}
 
-	
+
 	public void onDestroy() {
 		delete();
 	}
 
-	
+
 
 	private static class Range{
 		String material;

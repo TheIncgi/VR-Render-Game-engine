@@ -9,7 +9,7 @@ import com.theincgi.lwjglApp.misc.AbsManager;
 
 public class ShaderManager extends AbsManager<String, ShaderProgram>{
 	private static File shadersFolder = new File("shaders");
-	public static boolean autoRefreshShaders = false;
+	public static boolean autoRefreshShaders = true;
 	
 	public static final ShaderManager INSTANCE = new ShaderManager();
 	
