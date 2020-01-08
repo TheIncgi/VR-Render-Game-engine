@@ -200,6 +200,8 @@ public class Color implements Cloneable{
 			super("Color is marked immutable");
 		}
 	}
+	
+	/**vec4*/
 	public float[] vec() {
 		return rgba;
 	}

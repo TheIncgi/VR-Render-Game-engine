@@ -51,7 +51,7 @@ public class Logger {
 		if(matchesLast("ER", tag, msg, er))
 			incrementLast();
 		else {
-			System.err.printf("[ERROR] %30s | %s | ",msg,  tag);
+			System.err.printf("[ERROR] %30s | %s | ",tag,  msg);
 			er.printStackTrace();
 		}
 	}

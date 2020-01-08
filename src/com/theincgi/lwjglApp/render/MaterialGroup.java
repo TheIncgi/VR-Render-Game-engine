@@ -93,6 +93,6 @@ public class MaterialGroup {
 	private static Optional<ImgTexture> nextImage(File file, Scanner s){
 		String line = s.nextLine();
 		int x = line.lastIndexOf(" ");
-		return TextureManager.INSTANCE.get(new File(file.getParentFile(), line.substring(x)));
+		return TextureManager.INSTANCE.get(new File(file.getParentFile(), line.substring(x+1)));
 	}
 }

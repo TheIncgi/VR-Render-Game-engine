@@ -157,23 +157,32 @@ public class Model {
 				MaterialGroup mg = material.get();
 				Material m = mg.materials.get(r.material);
 				if(m!=null) {
-					s.trySetUniform("material_kd",      m.kd.vec());
-					s.trySetUniform("material_illum",   m.illum);
-					s.trySetUniform("material_ka", 		m.ka.isPresent()? m.ka.get().vec() : Color.WHITE.vec());
-					s.trySetUniform("material_ks", 		m.ks.isPresent()? m.ks.get().vec() : Color.WHITE.vec());
-					s.trySetUniform("material_ke", 		m.ke.isPresent()? m.ke.get().vec() : Color.BLACK.vec());
-					s.trySetUniform("material_tf", 		m.tf.isPresent()? m.tf.get().vec() : Color.WHITE.vec());
-					s.trySetUniform("material_d", 		m.d .isPresent()? m.d.get()        : 1);
-					s.trySetUniform("material_halo", 	(m.halo.isPresent() && m.halo.get())?  1 : 0);
-					s.trySetUniform("material_ns",      m.ns.isPresent()? m.ns.get() 	   : 1);
-					s.trySetUniform("material_ni",      m.ni.isPresent()? m.ni.get()       : 1);
-					s.trySetUniform("map_ka",           m.map_ka.isPresent()? m.map_ka.get().getHandle() : 0);
-					s.trySetUniform("map_kd",           m.map_kd.isPresent()? m.map_kd.get().getHandle() : 0);
-					s.trySetUniform("map_ks",           m.map_ks.isPresent()? m.map_ks.get().getHandle() : 0);
-					s.trySetUniform("map_ns",           m.map_ns.isPresent()? m.map_ns.get().getHandle() : 0);
-					s.trySetUniform("map_d",            m.map_d .isPresent()? m.map_d .get().getHandle() : 0);
-					s.trySetUniform("map_disp",         m.map_disp.isPresent()? m.map_disp.get().getHandle() : 0);
-					s.trySetUniform("map_bump",         m.map_bump.isPresent()? m.map_bump.get().getHandle() : 0);
+					s.trySetUniform(       "material_kd",      m.kd.vec());
+					s.trySetUniform(       "material_illum",   m.illum);
+					s.trySetUniform(       "material_ka", 		m.ka.isPresent()? m.ka.get().vec() : Color.WHITE.vec());
+					s.trySetUniform(       "material_ks", 		m.ks.isPresent()? m.ks.get().vec() : Color.WHITE.vec());
+					s.trySetUniform(       "material_ke", 		m.ke.isPresent()? m.ke.get().vec() : Color.BLACK.vec());
+					s.trySetUniform(       "material_tf", 		m.tf.isPresent()? m.tf.get().vec() : Color.WHITE.vec());
+					s.trySetUniform(       "material_d", 		m.d .isPresent()? m.d.get()        : 1);
+					s.trySetUniform(       "material_halo", 	(m.halo.isPresent() && m.halo.get())?  1 : 0);
+					s.trySetUniform(       "material_ns",      m.ns.isPresent()? m.ns.get() 	   : 1);
+					s.trySetUniform(       "material_ni",      m.ni.isPresent()? m.ni.get()       : 1);
+				    s.trySetUniformTexture("map_ka",           m.map_ka.isPresent()? m.map_ka.get().getHandle() : 0,         0);
+				    s.trySetUniformTexture("map_kd",           m.map_kd.isPresent()? m.map_kd.get().getHandle() : 0,         1);
+				    s.trySetUniformTexture("map_ks",           m.map_ks.isPresent()? m.map_ks.get().getHandle() : 0,         2);
+				    s.trySetUniformTexture("map_ns",           m.map_ns.isPresent()? m.map_ns.get().getHandle() : 0,         3);
+				    s.trySetUniformTexture("map_d",            m.map_d .isPresent()? m.map_d .get().getHandle() : 0,         4);
+					s.trySetUniformTexture("map_disp",         m.map_disp.isPresent()? m.map_disp.get().getHandle() : 0,     5);
+					s.trySetUniformTexture("map_bump",         m.map_bump.isPresent()? m.map_bump.get().getHandle() : 0,     6);
+					s.trySetUniform("used_textures_flag", 
+							(m.map_kd.isPresent()?  1 : 0)   |
+							(m.map_ka.isPresent()?  2 : 0)   |
+							(m.map_ks.isPresent()?  4 : 0)   |
+							(m.map_ns.isPresent()?  8 : 0)   |
+							(m.map_d .isPresent()? 16 : 0)   |
+							(m.map_disp.isPresent()? 32 : 0) |
+							(m.map_bump.isPresent()? 64 : 0));
+					
 				}
 
 			}

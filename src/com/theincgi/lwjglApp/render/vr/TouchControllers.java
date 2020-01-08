@@ -133,7 +133,6 @@ public class TouchControllers implements VRController {
 			isRightAnalogPressed = (buttonPresses & 0b100000000000000000000000000000000l) > 0; // 1<<32
 			isRightGripPressed = (buttonPresses & 0b100) > 0; //10000000000000000000000000000000100  2 flags?
 			isRightTriggerPressed = (buttonPresses & 0b1000000000000000000000000000000000l) > 0;
-			System.out.println(buttonPresses);
 		}
 		{long buttonTouch = state.ulButtonTouched();
 			isATouch = (buttonTouch & 128) > 0;
