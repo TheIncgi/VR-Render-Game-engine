@@ -19,7 +19,7 @@ import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 
 
 public class Scene {
-	public Color clearColor = Color.SKY.clone();
+	public Color clearColor = Color.BLACK.clone();
 	protected Optional<CallbackListener> sceneListener = Optional.empty(); 
 	protected Location sun = new Location(3, 10, 4);
 	protected Color sunColor = Color.WHITE.clone();

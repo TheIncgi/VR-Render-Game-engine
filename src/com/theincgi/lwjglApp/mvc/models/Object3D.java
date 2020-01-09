@@ -7,6 +7,7 @@ import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
+import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 
 public class Object3D implements Drawable{
 	Optional<Model> model;
@@ -32,5 +33,8 @@ public class Object3D implements Drawable{
 	
 	public void draw() {
 		model.ifPresent(m->m.drawAt(location));
+	}
+	public void setShader(String shaderName) {
+		model.ifPresent(m->m.shader=ShaderManager.INSTANCE.get(shaderName));
 	}
 }

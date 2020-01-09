@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
+import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
@@ -97,6 +98,7 @@ public class Model {
 			System.out.println("\tVAO: "+Arrays.toString(VAO));
 			System.out.println("\tIBO: "+Arrays.toString(ibo));
 			System.out.println("\tVBO: "+Arrays.toString(vbo));
+			System.out.println("\tMaterials: "+Arrays.toString(materials));
 		}finally {
 			Utils.freeBuffer(data);
 			Utils.freeBuffer(index);
@@ -209,6 +211,7 @@ public class Model {
 			glBindVertexArray(VAO[mg]);
 			final int MG = mg;
 			shader.ifPresentOrElse(s->{
+				s.bind();
 				s.tryEnableVertexAttribArray("vPosition");
 				s.trySetMatrix("modelViewMatrix", stk.get());
 				s.tryEnableVertexAttribArray("texPosition");
@@ -243,14 +246,17 @@ public class Model {
 								(m.map_bump.isPresent()? 64 : 0));
 
 						
+					}else {
+						Logger.preferedLogger.w("Model#render", "Missing material '"+materials[MG]+"'");
 					}
-					s.bind();
+					
 				});
 			},()->glEnableVertexAttribArray(0));
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo[mg]);
 			
 			glDrawElements(GL_TRIANGLES, elementSizes[mg], GL_UNSIGNED_INT, 0l);
+			glBindVertexArray(0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			shader.ifPresentOrElse(s->{

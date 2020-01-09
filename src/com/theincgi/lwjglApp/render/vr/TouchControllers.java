@@ -149,7 +149,7 @@ public class TouchControllers implements VRController {
 	}
 
 	private static final Vector3f AXIS_REL_FOW = (Vector3f) new Vector3f(0, -1, -1).normalize();
-	private static final Vector3f AXIS_BUTTON  = (Vector3f) new Vector3f(0, -1, 1).normalize().scale(.0025f);
+	private static final Vector3f AXIS_BUTTON  = (Vector3f) new Vector3f(0, -1, 1).normalize().scale(.0015f);
 	private static final Vector3f AXIS_GRIP_LEFT = (Vector3f) new Vector3f(-1, 0, 0).scale(.005f);
 	private static final Vector3f AXIS_GRIP_RIGHT = (Vector3f) new Vector3f(1, 0, 0).scale(.005f);
 	@Override
@@ -236,6 +236,182 @@ public class TouchControllers implements VRController {
 			home.ifPresent(h->h.drawAtOrigin());
 		}
 		
+	}
+
+	public Location getLeftLocation() {
+		return leftLocation;
+	}
+
+	public Location getRightLocation() {
+		return rightLocation;
+	}
+
+	public Matrix4f getLeftTransform() {
+		return leftTransform;
+	}
+
+	public Matrix4f getRightTransform() {
+		return rightTransform;
+	}
+
+	public Optional<Model> getLeftBase() {
+		return leftBase;
+	}
+
+	public Optional<Model> getRightBase() {
+		return rightBase;
+	}
+
+	public Optional<Model> getLeftAnalog() {
+		return leftAnalog;
+	}
+
+	public Optional<Model> getRightAnalog() {
+		return rightAnalog;
+	}
+
+	public Optional<Model> getLeftTrigger() {
+		return leftTrigger;
+	}
+
+	public Optional<Model> getRightTrigger() {
+		return rightTrigger;
+	}
+
+	public Optional<Model> getLeftGrip() {
+		return leftGrip;
+	}
+
+	public Optional<Model> getRightGrip() {
+		return rightGrip;
+	}
+
+	public Optional<Model> getxButton() {
+		return xButton;
+	}
+
+	public Optional<Model> getyButton() {
+		return yButton;
+	}
+
+	public Optional<Model> getaButton() {
+		return aButton;
+	}
+
+	public Optional<Model> getbButton() {
+		return bButton;
+	}
+
+	public Optional<Model> getEnter() {
+		return enter;
+	}
+
+	public Optional<Model> getHome() {
+		return home;
+	}
+
+	public Vector3f getLeftAnalogVal() {
+		return leftAnalogVal;
+	}
+
+	public Vector3f getRightAnalogVal() {
+		return rightAnalogVal;
+	}
+
+	public boolean isAPressed() {
+		return isAPressed;
+	}
+
+	public boolean isBPressed() {
+		return isBPressed;
+	}
+
+	public boolean isXPressed() {
+		return isXPressed;
+	}
+
+	public boolean isYPressed() {
+		return isYPressed;
+	}
+
+	public boolean isLeftAnalogPressed() {
+		return isLeftAnalogPressed;
+	}
+
+	public boolean isRightAnalogPressed() {
+		return isRightAnalogPressed;
+	}
+
+	public boolean isLeftGripPressed() {
+		return isLeftGripPressed;
+	}
+
+	public boolean isRightGripPressed() {
+		return isRightGripPressed;
+	}
+
+	public boolean isLeftTriggerPressed() {
+		return isLeftTriggerPressed;
+	}
+
+	public boolean isRightTriggerPressed() {
+		return isRightTriggerPressed;
+	}
+
+	public boolean isATouch() {
+		return isATouch;
+	}
+
+	public boolean isBTouch() {
+		return isBTouch;
+	}
+
+	public boolean isXTouch() {
+		return isXTouch;
+	}
+
+	public boolean isYTouch() {
+		return isYTouch;
+	}
+
+	public boolean isLeftAnalogTouch() {
+		return isLeftAnalogTouch;
+	}
+
+	public boolean isRightAnalogTouch() {
+		return isRightAnalogTouch;
+	}
+
+	public boolean isLeftTriggerTouch() {
+		return isLeftTriggerTouch;
+	}
+
+	public boolean isRightTriggerTouch() {
+		return isRightTriggerTouch;
+	}
+
+	public float getLeftTriggerAmount() {
+		return leftTriggerAmount;
+	}
+
+	public float getRightTriggerAmount() {
+		return rightTriggerAmount;
+	}
+
+	public float getLeftGripAmount() {
+		return leftGripAmount;
+	}
+
+	public float getRightGripAmount() {
+		return rightGripAmount;
+	}
+
+	public boolean isLeftValid() {
+		return leftValid;
+	}
+
+	public boolean isRightValid() {
+		return rightValid;
 	}
 
 	

@@ -33,7 +33,7 @@ public class EyeCamera extends Camera {
 	public EyeCamera(float x, float y, float z, float yaw, float pitch, float roll) {
 		super(x, y, z, yaw, pitch, roll);
 		near = .1f;
-		far = 1000.1f;
+		far = 1010f;
 	}
 	
 	public EyeCamera setSide(Side side) {
