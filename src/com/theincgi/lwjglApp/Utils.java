@@ -85,7 +85,8 @@ public class Utils {
 		return buf;
 	}
 	public static void freeBuffer(Buffer buf) {
-		MemoryUtil.memFree(buf);
+		if(buf!=null)
+			MemoryUtil.memFree(buf);
 	}
 	
 	public static Matrix4f fromT(HmdMatrix34 h) {

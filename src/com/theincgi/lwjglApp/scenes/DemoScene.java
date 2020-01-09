@@ -5,6 +5,9 @@ import java.util.Optional;
 
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
+import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements;
+import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements2;
+import com.theincgi.lwjglApp.mvc.view.drawables.HelloTriangle;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.EyeCamera;
@@ -17,12 +20,12 @@ import com.theincgi.lwjglApp.ui.Scene;
 
 
 public class DemoScene extends Scene{
-
+	Object3D lantern;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
-		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 1, -5);
-		Object3D lantern = new Object3D("cmodels/emissionTest/lantern.obj", 2, 1, -3);
+		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
+		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 2, 1, -3);
 		addDrawables(monkey, lantern);
 		for(int x = -4; x<=4; x+=2) {
 			for(int y = -4; y<=4; y+=2) {
@@ -31,12 +34,13 @@ public class DemoScene extends Scene{
 				addDrawable(cube);
 			}
 		}
+		lantern.getLocation().setYaw(180);
 	}
 	
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
-		
+		//lantern.getLocation().rotate(1f, .4f, .7f);
 //		cube.ifPresent(c->{
 //			//c.getLocation().rotate(.52f, .53334f, .02f);
 //			//c.getLocation().setRotation(0,0,0);
@@ -60,6 +64,5 @@ public class DemoScene extends Scene{
 	
 	@Override
 	public void onUnload() {
-		
 	}
 }

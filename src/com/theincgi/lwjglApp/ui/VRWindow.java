@@ -276,7 +276,7 @@ public class VRWindow extends AWindow{
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		setViewport(0, 0, width/2, height);
-		setShaderUniforms(leftEyeTexture);
+		setShaderUniforms(tempEmissiveTexture);
 		quadMirror.drawAt(quadLocation);
 
 		setViewport(width/2, 0, width/2, height);

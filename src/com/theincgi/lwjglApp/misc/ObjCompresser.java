@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.function.Consumer;
 
 import javax.management.RuntimeErrorException;
 
@@ -176,7 +177,7 @@ public class ObjCompresser {
 			
 			
 			
-			writeFile(finalVertex, finalUV, finalNormal, objName, finalFaceGroups, out);
+			writeFile2(finalVertex, finalUV, finalNormal, objName, finalFaceGroups, out);
 			
 			
 			
@@ -192,8 +193,54 @@ public class ObjCompresser {
 
 
 
-	private static void writeFile(ArrayList<Float> vertex, ArrayList<Float> uv, ArrayList<Float> normal, String objName,
+	private static void writeFile2(ArrayList<Float> vertex, ArrayList<Float> uv, ArrayList<Float> normal, String objName,
 			ArrayList<FaceGroup> faceGroups, RandomAccessFile out) throws IOException {
+		
+		out.writeUTF(objName.trim());
+		out.writeInt(faceGroups.size());
+		for (FaceGroup fg : faceGroups) {
+			HashSet<Integer> indexUsed = new HashSet<>();
+			for (Integer i : fg.index) {
+				indexUsed.add(i);
+			}
+			
+			
+			out.writeUTF(fg.name.trim());
+			int nElements = indexUsed.size();
+			
+			out.writeInt(indexUsed.size());
+			final HashMap<Integer, Integer> remap = new HashMap<>();
+			indexUsed.forEach(new Consumer<Integer>() {
+				int map = 0;
+				@Override public void accept(Integer t) {
+					try {
+						remap.put(t, map);
+						int ind3 = t*3;
+						int ind2 = t*2;
+						out.writeFloat(vertex.get(ind3));
+						out.writeFloat(vertex.get(ind3+1));
+						out.writeFloat(vertex.get(ind3+2));
+						out.writeFloat(uv.get(ind2));
+						out.writeFloat(uv.get(ind2+1));
+						out.writeFloat(normal.get(ind3));
+						out.writeFloat(normal.get(ind3+1));
+						out.writeFloat(normal.get(ind3+2));
+						map++;
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+			}});
+			
+			out.writeInt(fg.index.size());
+			for (int i = 0; i < fg.index.size(); i++) {
+				out.writeInt(remap.get(fg.index.get(i)));
+			}
+		}
+		
+	}
+	
+		private static void writeFile(ArrayList<Float> vertex, ArrayList<Float> uv, ArrayList<Float> normal, String objName,
+				ArrayList<FaceGroup> faceGroups, RandomAccessFile out) throws IOException {
 		//Output file:
 		out.writeUTF(objName);
 		

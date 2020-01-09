@@ -22,31 +22,37 @@ public class HelloElements implements Drawable{
 	private int ibo;
 	private Optional<ShaderProgram> shader;
 	private IntBuffer indices;
-	static float triangleCoords[] = {   // in counterclockwise order:
-			-.5f,  0.622008459f, 0.0f, // top
-			-0.5f, -0.311004243f, 0.0f, // bottom left
-			0.5f, -0.311004243f, 0.0f  // bottom right
+	static float data[] = {   // in counterclockwise order:
+			-.25f, -.25f, -0.0f,     0f, 1f,   0, 0, -1,
+			 .25f,  .25f, -0.0f,     1f, 0f,   0, 0, -1,
+			-.25f,  .25f, -0.0f,     1f, 1f,   0, 0, -1,
+			 .25f, -.25f, -0.0f,     0f, 0f,   0, 0, -1
 	};
+	static int[] index = new int[]{0,1,2, 0,3,1};
 	
 	public HelloElements() {
 		FloatBuffer vertexBuffer = null;
+		IntBuffer indBuff = null;
 		try {
-			vertexBuffer = Utils.toBuffer(triangleCoords);
+			vertexBuffer = Utils.toBuffer(data);
+			indBuff = Utils.toBuffer(index);
 
 			vao = glGenVertexArrays();
 			glBindVertexArray(vao);
 
 			vbo = glGenBuffers();
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
-			//glBufferData(GL_ARRAY_BUFFER, triangleCoords, GL_STATIC_DRAW);
-			glBufferData(GL_ARRAY_BUFFER, 9*Float.BYTES, GL_STATIC_DRAW);
-			glBufferSubData(GL_ARRAY_BUFFER, 0, triangleCoords);
+			glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
+
 			
 			ibo = glGenBuffers();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, new int[]{0,1,2}, GL_STATIC_DRAW);
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indBuff, GL_STATIC_DRAW);
 			
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+			int stride = Float.BYTES * 8;
+			glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
+			glVertexAttribPointer(1, 2, GL_FLOAT, false, stride, 3 * Float.BYTES);
+			glVertexAttribPointer(2, 3, GL_FLOAT, false, stride, 5 * Float.BYTES);
 			
 			
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -54,11 +60,11 @@ public class HelloElements implements Drawable{
 			glBindVertexArray(0);
 			
 		}finally{
-			if(vertexBuffer!=null)
 				Utils.freeBuffer(vertexBuffer);
+				Utils.freeBuffer(indBuff);
 		}
 
-		shader = ShaderManager.INSTANCE.get("basic");
+		shader = ShaderManager.INSTANCE.get("showUv");
 	}
 	
 	public void onDestroy() {
@@ -75,10 +81,7 @@ public class HelloElements implements Drawable{
 		
 	}
 
-	@Override
-	public Location getLocation() {
-		return location;
-	}
+	
 
 	@Override
 	public void draw() {
@@ -88,16 +91,21 @@ public class HelloElements implements Drawable{
 			shader.ifPresentOrElse(s->{
 				s.bind();
 				s.tryEnableVertexAttribArray("vPosition");
+				s.tryEnableVertexAttribArray("tPosition");
+				s.tryEnableVertexAttribArray("nPosition");
 				s.trySetMatrix("modelViewMatrix", stk.get());
 				s.bind();
 			},()->glEnableVertexAttribArray(0));
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-			glDrawRangeElementsBaseVertex(GL_TRIANGLES, 0, 2, 3, GL_UNSIGNED_INT, 0l, 0);
+			glDrawElements(GL_TRIANGLES, index.length, GL_UNSIGNED_INT, 0l);
+			//glDrawRangeElementsBaseVertex(GL_TRIANGLES, 0, 2, 3, GL_UNSIGNED_INT, 0l, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 			shader.ifPresentOrElse(s->{
 				s.disableVertexAttribArray("vPosition");
+				s.disableVertexAttribArray("tPosition");
+				s.disableVertexAttribArray("nPosition");
 				ShaderProgram.unbind();
 			},()->glDisableVertexAttribArray(0));
 			glBindVertexArray(0);

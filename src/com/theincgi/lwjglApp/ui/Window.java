@@ -51,7 +51,7 @@ public class Window extends AWindow{
 
 
 	protected void postInit() {
-		camera = new Camera();
+		camera = new Camera(0,0,-7);
 	}
 
 	

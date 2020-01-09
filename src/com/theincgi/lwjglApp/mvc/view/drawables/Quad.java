@@ -113,7 +113,6 @@ public class Quad implements Drawable {
 
 	}
 
-	@Override
 	public Location getLocation() {
 		return location;
 	}
