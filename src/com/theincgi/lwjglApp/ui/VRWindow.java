@@ -276,7 +276,7 @@ public class VRWindow extends AWindow{
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		setViewport(0, 0, width/2, height);
-		setShaderUniforms(tempEmissiveTexture);
+		setShaderUniforms(leftEyeTexture);
 		quadMirror.drawAt(quadLocation);
 
 		setViewport(width/2, 0, width/2, height);
@@ -305,6 +305,10 @@ public class VRWindow extends AWindow{
 		case EVREventType_VREvent_ButtonTouch:
 		case EVREventType_VREvent_ButtonUnpress:
 		case EVREventType_VREvent_ButtonUntouch:
+		case EVREventType_VREvent_EnterStandbyMode:
+		case EVREventType_VREvent_LeaveStandbyMode:
+		case EVREventType_VREvent_TrackedDeviceUserInteractionStarted:
+		case EVREventType_VREvent_TrackedDeviceUserInteractionEnded:
 			break;
 		case EVREventType_VREvent_PropertyChanged:
 			VREventProperty propEvent = eventData.property();

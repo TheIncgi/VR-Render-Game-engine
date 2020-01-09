@@ -219,7 +219,7 @@ public class Model {
 				material.ifPresent(matGroup->{
 					Material m = matGroup.materials.get(materials[MG]);
 					if(m!=null) {
-						s.trySetUniform(       "material_kd",      MG==0?m.kd.vec() : Color.PURPLE.vec() );
+						s.trySetUniform(       "material_kd",      m.kd.vec() );
 						s.trySetUniform(       "material_illum",   m.illum);
 						s.trySetUniform(       "material_ka", 		m.ka.isPresent()? m.ka.get().vec() : Color.WHITE.vec());
 						s.trySetUniform(       "material_ks", 		m.ks.isPresent()? m.ks.get().vec() : Color.WHITE.vec());

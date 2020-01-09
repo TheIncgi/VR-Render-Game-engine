@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 
 
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
 import com.theincgi.lwjglApp.scenes.DemoScene;
 import com.theincgi.lwjglApp.ui.AWindow;
@@ -15,7 +16,10 @@ public class Launcher {
 	public static final String APPLICATION_NAME = "Unnamed Application";
 	private static AWindow mainWindow;
 	static Logger log = Logger.preferedLogger;
-
+	static {
+		Settings.load();
+		Settings.save();
+	}
 	private static VRUtil vrUtil;
 	public static void main(String[] args) {
 		try(VRUtil util = new VRUtil()){

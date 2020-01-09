@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.util.HashMap;
+import java.util.function.Function;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vector.Matrix4f;
@@ -18,6 +20,8 @@ import com.theincgi.lwjglApp.misc.Logger;
 public class ShaderProgram {
 	static Logger log = Logger.preferedLogger;
 	private static ShaderProgram activeShader = null;
+	
+	private HashMap<String, Integer> uniformLookup = new HashMap<>();
 	
 	private int programHandle;
 	private String label;
@@ -65,6 +69,7 @@ public class ShaderProgram {
 	/**Do from open GL thread only*/
 	public void reload() {
 		delete();
+		uniformLookup.clear();
 		init();
 	}
 	public ShaderProgram autoRefresh(boolean doAutoRefresh) {
@@ -75,8 +80,14 @@ public class ShaderProgram {
 	public int getAttribLocation(String name) {
 		return glGetAttribLocation(programHandle, name);
 	}
+	
+	Function<String, Integer> ifAbsent = new Function<String, Integer>() {
+		@Override public Integer apply(String name) {
+			return glGetUniformLocation(programHandle, name);
+		}
+	};
 	public int getUniformLocation(String name) {
-		return glGetUniformLocation(programHandle, name);
+		return uniformLookup.computeIfAbsent(name, ifAbsent);
 	}
 	
 	/**Used with VAO*/
@@ -245,8 +256,18 @@ public class ShaderProgram {
 	}
 	
 	
+	long nextCheck = System.currentTimeMillis() +1000;
+	public boolean isModified() {
+		long time = System.currentTimeMillis();
+		if(time > nextCheck) {
+			nextCheck = time +1000;
+			return vertexLastModified!=vertexSrc.lastModified() || fragmentLastModified!=fragmentSrc.lastModified();
+		}
+		return false;
+	}
+	
 	public void bind() {
-		if(autoRefresh && (vertexLastModified!=vertexSrc.lastModified() || fragmentLastModified!=fragmentSrc.lastModified())) {
+		if(autoRefresh && isModified()) {
 			vertexLastModified   = vertexSrc.lastModified();
 			fragmentLastModified = fragmentSrc.lastModified();
 			log.i("ShaderProgram#bind", "Auto-reloading shader due to file changes");
