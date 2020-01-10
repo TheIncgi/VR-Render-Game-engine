@@ -13,8 +13,13 @@ uniform vec2 vecNextLine;
 uniform vec2 cursor;
 uniform float leading;
 uniform float pxpcm; //pixels per centimeter
+uniform int fontFlags;
 
 out vec2 texturePosition;
+
+bool checkFlag(int flag, int bit){
+	return ((flag>>bit) & 1) == 1;
+}
 
 void main(){
 	vec2 vscale = tileSize/tileSize.y *scale;
@@ -22,7 +27,10 @@ void main(){
 		vscale.x,                 0,     0,              0,
 		       0,          vscale.y,     0,       		 0,
 		       0,                 0,     1,              0,
-		cursor.x/tileSize.x*vecNextChar.x*scale/2, -cursor.y/tileSize.y/pxpcm *2      ,     0,              1
+/*tx*/	cursor.x/tileSize.x*vecNextChar.x*scale/2+(vPosition.y==0 &&checkFlag(fontFlags, 1)?vecNextChar.x/3*scale:0), 
+/*ty*/ -cursor.y/tileSize.y/pxpcm *2,
+/*tz*/	       0,
+/* 1*/         1
 	);
 
 	gl_Position = projectionMatrix * (modelViewMatrix * transform)  * vec4(vPosition,1);// + vec4(cursor.x/100,0,0,0);

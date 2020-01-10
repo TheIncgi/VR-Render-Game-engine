@@ -22,6 +22,7 @@ public class ShaderProgram {
 	private static ShaderProgram activeShader = null;
 	
 	private HashMap<String, Integer> uniformLookup = new HashMap<>();
+	private HashMap<String, Integer> attribLookup = new HashMap<>();
 	
 	private int programHandle;
 	private String label;
@@ -70,6 +71,7 @@ public class ShaderProgram {
 	public void reload() {
 		delete();
 		uniformLookup.clear();
+		attribLookup.clear();
 		init();
 	}
 	public ShaderProgram autoRefresh(boolean doAutoRefresh) {
@@ -77,17 +79,19 @@ public class ShaderProgram {
 		return this;
 	}
 	
-	public int getAttribLocation(String name) {
+	
+	private int _getAttribLocation(String name) {
 		return glGetAttribLocation(programHandle, name);
 	}
+	public int getAttribLocation(String name) {
+		return attribLookup.computeIfAbsent(name, this::_getAttribLocation);
+	}
 	
-	Function<String, Integer> ifAbsent = new Function<String, Integer>() {
-		@Override public Integer apply(String name) {
+	private int _getUniformLocation(String name) {
 			return glGetUniformLocation(programHandle, name);
-		}
-	};
+	}
 	public int getUniformLocation(String name) {
-		return uniformLookup.computeIfAbsent(name, ifAbsent);
+		return uniformLookup.computeIfAbsent(name, this::_getUniformLocation);
 	}
 	
 	/**Used with VAO*/

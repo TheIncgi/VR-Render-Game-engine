@@ -76,10 +76,20 @@ public class DemoScene extends Scene{
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
-		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(0, 1, -1f))){	
+		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(0, 2, -3f))){	
 			font.ifPresent(ft->{
 					TextRenderer.renderText(ft, "Test\nWorld\n低1,0,0;Ok\n低0,1,0;伯Bold 呆plain\n"
-							+ "低0,0,1;兌Italics告 normal", true, 8);
+							+ "低0,0,1;兌Italics告 normal\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,1,0;刨Strke吱thru\n"
+							+ "低1,0,1;助Under吟line", true, 8);
 			});
 		}
 		//lantern.getLocation().rotate(1f, .4f, .7f);

@@ -78,7 +78,7 @@ public class TextRenderer {
 		shader.trySetUniform("pxpcm", PXPCM);
 		//shader.trySetUniform("cursor",      new float[]{cursor.x,      vecNextLine.y});
 		shader.trySetUniformTexture("plainTex", ft.getTexPlain().getHandle(), 0);
-		shader.trySetUniformTexture("boldTex", ft.getTexPlain().getHandle(), 1);
+		shader.trySetUniformTexture("boldTex",  ft.getTexBold().getHandle(), 1);
 		
 		StringBuffer valBuf = new StringBuffer();
 		
@@ -133,7 +133,7 @@ public class TextRenderer {
 									if(x==',' || x==';') {
 										switch (ind++) {
 										case 0:
-											color.setR(Float.parseFloat(valBuf.toString())); break;
+											color.setR(Float.parseFloat(valBuf.toString())); break; //TODO optimize Float.parseFloat, many values will be the same on each frame anyway, dynamic compute
 										case 1:
 											color.setG(Float.parseFloat(valBuf.toString())); break;
 										case 2:
