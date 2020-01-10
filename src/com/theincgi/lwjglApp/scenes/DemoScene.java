@@ -3,8 +3,12 @@ package com.theincgi.lwjglApp.scenes;
 import java.io.File;
 import java.util.Optional;
 
+import org.lwjgl.util.vector.Vector3f;
+
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
 import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements;
 import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements2;
@@ -15,6 +19,9 @@ import com.theincgi.lwjglApp.render.EyeCamera;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
+import com.theincgi.lwjglApp.render.text.FontTexture;
+import com.theincgi.lwjglApp.render.text.FontTextures;
+import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
 import com.theincgi.lwjglApp.ui.AWindow;
 import com.theincgi.lwjglApp.ui.CallbackListener;
@@ -24,6 +31,7 @@ import com.theincgi.lwjglApp.ui.VRWindow;
 
 public class DemoScene extends Scene{
 	Object3D lantern;
+	Optional<FontTexture> font;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -62,11 +70,18 @@ public class DemoScene extends Scene{
 			}
 		}
 		lantern.getLocation().setYaw(180);
+		font = FontTextures.INSTANCE.get(new Pair<>("ascii_consolas", 100));
 	}
 	
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
+		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(0, 1, -1f))){	
+			font.ifPresent(ft->{
+					TextRenderer.renderText(ft, "Test\nWorld\n低1,0,0;Ok\n低0,1,0;伯Bold 呆plain\n"
+							+ "低0,0,1;兌Italics告 normal", true, 8);
+			});
+		}
 		//lantern.getLocation().rotate(1f, .4f, .7f);
 //		cube.ifPresent(c->{
 //			//c.getLocation().rotate(.52f, .53334f, .02f);

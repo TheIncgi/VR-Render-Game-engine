@@ -37,13 +37,15 @@ public class ImgTexture implements AutoCloseable{
 //	boolean colorCorrection = false; //only valid for Ka Kd and Ks maps
 //	boolean clamp           = false;
 	
-	
+	private int srcWidth, srcHeight;
 
 	public ImgTexture(File imgfile) {
 		int hndl = 0;
 		ByteBuffer pixels;
 		try {
 			BufferedImage img = ImageIO.read(imgfile);
+			srcWidth = img.getWidth();
+			srcHeight = img.getHeight();
 			int components = img.getColorModel().getColorSpace().getNumComponents();
 			boolean isColor = components > 1;
 			pixels = ByteBuffer.allocate(img.getWidth() * img.getHeight() * (isColor?4:1));
@@ -140,6 +142,16 @@ public class ImgTexture implements AutoCloseable{
 	    return imageBuffer;
 	}
 	
+	
+	
+	public int getSrcWidth() {
+		return srcWidth;
+	}
+
+	public int getSrcHeight() {
+		return srcHeight;
+	}
+
 	@Override
 	public void close(){
 		if(HANDLE != 0)

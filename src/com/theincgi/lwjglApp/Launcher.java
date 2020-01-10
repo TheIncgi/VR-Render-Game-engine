@@ -1,11 +1,14 @@
 package com.theincgi.lwjglApp;
 
+import java.awt.Font;
+
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.Settings;
+import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
 import com.theincgi.lwjglApp.scenes.DemoScene;
 import com.theincgi.lwjglApp.ui.AWindow;
@@ -19,6 +22,13 @@ public class Launcher {
 	static {
 		Settings.load();
 		Settings.save();
+		FontTextures.fontsFolder.mkdirs();
+		if(FontTextures.fontsFolder.list().length==0) {
+			FontTextures.generate("ascii_",new Font("consolas", Font.PLAIN, 16), 0, 255);
+			FontTextures.generate("ascii_",new Font("consolas", Font.PLAIN, 32), 0, 255);
+			FontTextures.generate("ascii_",new Font("consolas", Font.PLAIN, 64), 0, 255);
+		}
+		FontTextures.updateFontList();
 	}
 	private static VRUtil vrUtil;
 	public static void main(String[] args) {

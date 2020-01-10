@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-11.0.1">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER">
 		<attributes>
 			<attribute name="module" value="true"/>
 		</attributes>
@@ -97,13 +97,6 @@
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-nuklear-natives-windows.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-nuklear.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-nuklear-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-odbc.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-odbc-sources.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux-arm32.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux-arm64.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-macos.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-windows-x86.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-windows.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-openal-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-opencl.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-opencl-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-opengl-natives-linux-arm32.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-opengl-natives-linux-arm64.jar"/>
@@ -226,5 +219,12 @@
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/steamworks4j-1.8.0.jar" sourcepath="lwjgl-release-3.2.3-custom/steamworks4j-1.8.0-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/steamworks4j-server-1.8.0.jar" sourcepath="lwjgl-release-3.2.3-custom/steamworks4j-server-1.8.0-sources.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux-arm32.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux-arm64.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-macos.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-windows-x86.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-windows.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

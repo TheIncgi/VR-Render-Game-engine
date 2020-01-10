@@ -22,6 +22,7 @@ import org.lwjgl.system.MemoryUtil;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.Camera;
+import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnChar;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnFilesDrop;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnJoystick;
@@ -52,6 +53,7 @@ public class Window extends AWindow{
 
 	protected void postInit() {
 		camera = new Camera(0,0,-7);
+		TextRenderer.init();
 	}
 
 	

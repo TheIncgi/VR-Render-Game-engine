@@ -93,4 +93,8 @@ public class Settings {
 		properties.put(key, value);
 		dirty = true;
 	}
+	
+	public static File getRunFolder() {
+		return runFolder;
+	}
 }

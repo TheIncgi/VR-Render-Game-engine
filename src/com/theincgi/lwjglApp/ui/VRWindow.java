@@ -33,6 +33,7 @@ import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
+import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
 import com.theincgi.lwjglApp.render.vr.VRController;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
@@ -171,6 +172,7 @@ public class VRWindow extends AWindow{
 		pRenderPoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
 		vrControllers = new TouchControllers();
 		postShader = ShaderManager.INSTANCE.get("post");
+		TextRenderer.init();
 	}
 
 	protected void cleanup() {
@@ -276,7 +278,7 @@ public class VRWindow extends AWindow{
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		setViewport(0, 0, width/2, height);
-		setShaderUniforms(leftEyeTexture);
+		setShaderUniforms(tempEmissiveTexture); //TODO make a mirror setting to toggle channels
 		quadMirror.drawAt(quadLocation);
 
 		setViewport(width/2, 0, width/2, height);

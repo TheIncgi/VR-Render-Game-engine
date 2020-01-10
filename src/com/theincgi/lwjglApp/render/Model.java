@@ -263,7 +263,7 @@ public class Model {
 				s.disableVertexAttribArray("vPosition");
 				s.disableVertexAttribArray("tPosition");
 				s.disableVertexAttribArray("nPosition");
-				ShaderProgram.unbind();
+				//ShaderProgram.unbind(); 
 			},()->glDisableVertexAttribArray(0));
 			glBindVertexArray(0);
 		}

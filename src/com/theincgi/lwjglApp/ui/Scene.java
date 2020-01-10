@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.*;
 
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.render.Camera;
@@ -56,6 +56,9 @@ public class Scene {
 		});
 		ShaderProgram.unbind();
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_ALPHA);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		drawables.forEach(d->{
 			d.draw();
