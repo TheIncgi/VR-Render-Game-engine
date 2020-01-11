@@ -37,6 +37,11 @@ import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
 import com.theincgi.lwjglApp.render.vr.VRController;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
+import com.theincgi.lwjglApp.ui.CallbackListener.OnJoystick;
+import com.theincgi.lwjglApp.ui.CallbackListener.OnVRControllerButtonPress;
+import com.theincgi.lwjglApp.ui.CallbackListener.OnVRControllerButtonTouch;
+import com.theincgi.lwjglApp.ui.CallbackListener.OnVRControllerButtonUnpress;
+import com.theincgi.lwjglApp.ui.CallbackListener.OnVRControllerButtonUntouch;
 
 public class VRWindow extends AWindow{
 	EyeCamera leftEye, rightEye;
@@ -301,12 +306,32 @@ public class VRWindow extends AWindow{
 		System.out.println("Event type: "+ VRUtil.getEventName(vrEvent.eventType()));
 		int device = vrEvent.trackedDeviceIndex();
 		VREventData eventData = vrEvent.data();
+		
 		switch (vrEvent.eventType()) {
-
 		case EVREventType_VREvent_ButtonPress:
+			for (CallbackListener callbackListener : callbackListeners) {
+				if(callbackListener instanceof OnVRControllerButtonPress)
+					if(((OnVRControllerButtonPress)callbackListener).onPress(this, eventData.controller().button())) return;
+			}
+			break;
 		case EVREventType_VREvent_ButtonTouch:
+			for (CallbackListener callbackListener : callbackListeners) {
+				if(callbackListener instanceof OnVRControllerButtonTouch)
+					if(((OnVRControllerButtonTouch)callbackListener).onTouch(this, eventData.controller().button())) return;
+			}
+			break;
 		case EVREventType_VREvent_ButtonUnpress:
+			for (CallbackListener callbackListener : callbackListeners) {
+				if(callbackListener instanceof OnVRControllerButtonUnpress)
+					if(((OnVRControllerButtonUnpress)callbackListener).onUnpress(this, eventData.controller().button())) return;
+			}
+			break;
 		case EVREventType_VREvent_ButtonUntouch:
+			for (CallbackListener callbackListener : callbackListeners) {
+				if(callbackListener instanceof OnVRControllerButtonUntouch)
+					if(((OnVRControllerButtonUntouch)callbackListener).onUntouch(this, eventData.controller().button())) return;
+			}
+			break;
 		case EVREventType_VREvent_EnterStandbyMode:
 		case EVREventType_VREvent_LeaveStandbyMode:
 		case EVREventType_VREvent_TrackedDeviceUserInteractionStarted:
@@ -321,7 +346,7 @@ public class VRWindow extends AWindow{
 		}
 
 	}
-
+	
 	private void setShaderUniforms(final int texture) {
 		quadMirror.shader.ifPresent(s->{
 			s.bind();
@@ -339,10 +364,24 @@ public class VRWindow extends AWindow{
 		super.setScene(s);
 	}
 
+	
+	
+	
 	private VRUtil vrUtil() {
 		if(vrUtil==null) vrUtil = Launcher.getVrUtil();
 		return vrUtil;
 	}
 	
-	
+	@Override
+	public Optional<Window> getWindow() {
+		return Optional.empty();
+	}
+	@Override
+	public Optional<VRWindow> getVRWindow() {
+		return Optional.of(this);
+	}
+	@Override
+	public boolean isVR() {
+		return true;
+	}
 }

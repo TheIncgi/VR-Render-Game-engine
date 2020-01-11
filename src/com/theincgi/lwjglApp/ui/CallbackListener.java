@@ -74,4 +74,20 @@ public class CallbackListener {
 	public interface OnWindowMoved{
 		public void onWindowMoved(AWindow window, int windowX, int windowY);
 	}
+	@FunctionalInterface
+	public interface OnVRControllerButtonTouch{
+		public boolean onTouch(VRWindow window, int buttonFlag);
+	}
+	@FunctionalInterface
+	public interface OnVRControllerButtonUntouch{
+		public boolean onUntouch(VRWindow window, int buttonFlag);
+	}
+	@FunctionalInterface
+	public interface OnVRControllerButtonPress{
+		public boolean onPress(VRWindow window, int buttonFlag);
+	}
+	@FunctionalInterface
+	public interface OnVRControllerButtonUnpress{
+		public boolean onUnpress(VRWindow window, int buttonFlag);
+	}
 }

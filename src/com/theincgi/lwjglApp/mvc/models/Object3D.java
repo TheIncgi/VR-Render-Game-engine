@@ -27,6 +27,10 @@ public class Object3D implements Drawable{
 		this.location = new Location(x, y, z);
 	}
 	
+	public Object3D(String model, String shaderName) {
+		this.model = ObjManager.INSTANCE.get(model, shaderName);
+		this.location = new Location();
+	}
 	public Location getLocation() {
 		return location;
 	}
