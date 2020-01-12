@@ -2,9 +2,11 @@ package com.theincgi.lwjglApp.render.animation;
 
 import java.util.ArrayList;
 
+import com.theincgi.lwjglApp.misc.Logger;
+
 public class Animation {
 
-	private Updater<?>[] updaters;
+	private final Updater<?>[] updaters;
 	private Long startTime;
 	private long duration;
 	private ArrayList<AnimationEventHandler> handlers;
@@ -20,6 +22,7 @@ public class Animation {
 		handlers.add(handler);
 	}
 	private synchronized void notifyListeners(AnimationEvent event) {
+		if(handlers!=null)
 		for (AnimationEventHandler animationEventHandler : handlers) {
 			animationEventHandler.handleEvent(event);
 		}
@@ -44,15 +47,23 @@ public class Animation {
 	}
 
 	/**Does nothing if playing*/
-	public void setDuration(long milliseconds) {setDuration(milliseconds, TimeUnit.MILLISECONDS);}
-	/**Does nothing if playing*/
-	public synchronized void setDuration(long amount, TimeUnit unit) {
+	public Animation setDuration(long milliseconds) {return setDuration(milliseconds, TimeUnit.MILLISECONDS);}
+	/**Does nothing if playing
+	 * @return */
+	public synchronized Animation setDuration(long amount, TimeUnit unit) {
 		if(startTime==null)
 			duration = amount * unit.mult;
+		return this;
+	}
+	public synchronized Animation setDuration(float amount, TimeUnit unit) {
+		if(startTime==null)
+			duration = (long) (amount * unit.mult);
+		return this;
 	}
 
 	/**Does from progress left off if paused*/
 	public synchronized void play() {
+		if(duration==0) Logger.preferedLogger.w("Animation#play", "Duration of 0");
 		if(progress!=null)
 			resume();
 		else {
@@ -63,6 +74,7 @@ public class Animation {
 	}
 	/**Does from progress left off if paused*/
 	public synchronized void playReverse() {
+		if(duration==0) Logger.preferedLogger.w("Animation#play", "Duration of 0");
 		if(progress!=null)
 			resume();
 		else {
@@ -78,6 +90,7 @@ public class Animation {
 	}
 	/**You can change values for duration while paused if needed, will resume based on % complete*/
 	public synchronized void resume() {
+		if(duration==0) Logger.preferedLogger.w("Animation#play", "Duration of 0");
 		long now = System.currentTimeMillis();
 		long passed = (long) (duration * progress);
 		startTime = now-passed;
@@ -99,16 +112,24 @@ public class Animation {
 		if(startTime==null) return;
 		float x = getProgress();
 		if(reverse) x = 1-x;
-		for (int i = 0; i < updaters.length; i++) {
-			updaters[i].iupdate(x);
-		}
 		if(x==0 && reverse) {
 			notifyListeners(AnimationEvent.FIN_REVERSE);
 			startTime = null;
+			for (int i = 0; i < updaters.length; i++) {
+				updaters[i].updateStart();
+			}
 		}else if(x==1) {
 			startTime = null;
 			notifyListeners(AnimationEvent.FIN_FOWARD);
+			for (int i = 0; i < updaters.length; i++) {
+				updaters[i].updateStop();
+			}
+		}else {
+			for (int i = 0; i < updaters.length; i++) {
+				updaters[i].iupdate(x);
+			}
 		}
+		
 	}
 
 	/**1 means it's approching the end of this stage, if playing backwards 1 is the start*/
@@ -171,6 +192,12 @@ public class Animation {
 		}
 		private void iupdate(float f) {
 			update(interpolator.interpolate(f));
+		}
+		private void updateStop() {
+			update(stop);
+		}
+		private void updateStart() {
+			update(start);
 		}
 		abstract public void update(S p);
 	}

@@ -65,6 +65,8 @@ public class Scene {
 		});
 	}
 
+	public void onTick() {}
+	
 	public Optional<CallbackListener> getSceneListener() {
 		return sceneListener;
 	}

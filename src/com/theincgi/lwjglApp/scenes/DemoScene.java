@@ -1,28 +1,24 @@
 package com.theincgi.lwjglApp.scenes;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.Optional;
 
 import org.lwjgl.util.vector.Vector3f;
 
-import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Pair;
+import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
-import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements;
-import com.theincgi.lwjglApp.mvc.view.drawables.HelloElements2;
-import com.theincgi.lwjglApp.mvc.view.drawables.HelloTriangle;
 import com.theincgi.lwjglApp.render.Camera;
-import com.theincgi.lwjglApp.render.Drawable;
-import com.theincgi.lwjglApp.render.EyeCamera;
-import com.theincgi.lwjglApp.render.Model;
-import com.theincgi.lwjglApp.render.ObjManager;
-import com.theincgi.lwjglApp.render.shaders.ShaderManager;
+import com.theincgi.lwjglApp.render.Side;
+import com.theincgi.lwjglApp.render.animation.Animation;
 import com.theincgi.lwjglApp.render.text.FontTexture;
 import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
+import com.theincgi.lwjglApp.render.vr.VRController;
+import com.theincgi.lwjglApp.render.vr.VRController.Type;
 import com.theincgi.lwjglApp.ui.AWindow;
 import com.theincgi.lwjglApp.ui.CallbackListener;
 import com.theincgi.lwjglApp.ui.Scene;
@@ -32,6 +28,8 @@ import com.theincgi.lwjglApp.ui.VRWindow;
 public class DemoScene extends Scene{
 	Object3D lantern;
 	Optional<FontTexture> font;
+	HashMap<VRController.Input, String> controls;
+	Animation testAnimation;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -49,6 +47,18 @@ public class DemoScene extends Scene{
 		}
 		lantern.getLocation().setYaw(180);
 		font = FontTextures.INSTANCE.get(new Pair<>("ascii_consolas", 100));
+		createDefaultDebugControls();
+		
+		testAnimation = new Animation(new Animation.Updater<Float>(Animation.Interpolator.SIGMOID, 0f, 90f) {
+			@Override
+			public void update(Float p) {
+				monkey.getLocation().setYaw(p);
+			}
+		}).setDuration(5000);
+	}
+	
+	public void onTick() {
+		testAnimation.update();
 	}
 	
 	@Override
@@ -81,16 +91,45 @@ public class DemoScene extends Scene{
 	}
 	
 	private class SceneCallbackListener extends CallbackListener
-	implements CallbackListener.OnMouseButton {
+	implements CallbackListener.OnMouseButton, CallbackListener.OnVRControllerButtonPress {
 
 		@Override
 		public boolean onMouseButton(AWindow window, double x, double y, int button, int action, int mods) {
 			System.out.printf("MOUSE BUTTON: Pos: <%6.2f, %6.2f> |Button: button | Window: %s\n", x, y, button, window);
 			return true;
 		}
+
+		@Override
+		public boolean onPress(VRWindow window, VRController.Input input) {
+			Logger.preferedLogger.d("DemoScene#onPress", "PRESSED: "+input);
+			String action = controls.get(input);
+			if(action==null) return false;
+			switch (action) {
+			case "playAnimationTest": //should be constants for a proper scene
+				Logger.preferedLogger.i("DemoScene#onPress", "Playing an animation...");
+				testAnimation.play();
+				return true;
+
+			default:
+				break;
+			}
+			return false;
+		}
+		
+		
 		
 	}
 	
+	public void createDefaultDebugControls() {
+		controls = Settings.computeControllMappingIfAbsent(Settings.CONTROLS+"debug");
+		//TODO bind some buttons
+		//1 y or b
+		//7 x or a
+		//32 thumb stick push
+		//33 trigger
+		//2 or 34 but 2 fires first
+		controls.put(TouchControllers.A_BUTTON, "playAnimationTest");
+	}
 	
 	@Override
 	public void onUnload() {

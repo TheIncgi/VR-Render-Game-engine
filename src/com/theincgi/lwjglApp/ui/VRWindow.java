@@ -26,6 +26,7 @@ import org.lwjgl.system.MemoryStack;
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.EyeCamera;
 import com.theincgi.lwjglApp.render.Side;
 import com.theincgi.lwjglApp.render.Location;
@@ -36,6 +37,8 @@ import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
 import com.theincgi.lwjglApp.render.vr.VRController;
+import com.theincgi.lwjglApp.render.vr.VRController.Input;
+import com.theincgi.lwjglApp.render.vr.VRController.Type;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnJoystick;
 import com.theincgi.lwjglApp.ui.CallbackListener.OnVRControllerButtonPress;
@@ -191,7 +194,7 @@ public class VRWindow extends AWindow{
 		while ( !glfwWindowShouldClose(WINDOW_HANDLE) ) {
 
 			scene.ifPresentOrElse(value->{
-
+				value.onTick(); //TODO move to logic thread
 				_render(value);
 
 			}, /*else*/()->{
@@ -308,30 +311,38 @@ public class VRWindow extends AWindow{
 		VREventData eventData = vrEvent.data();
 		
 		switch (vrEvent.eventType()) {
-		case EVREventType_VREvent_ButtonPress:
+		case EVREventType_VREvent_ButtonPress:{
+			Pair<Type, Side> cntrl = getControllerTypeSide(device);
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonPress)
-					if(((OnVRControllerButtonPress)callbackListener).onPress(this, eventData.controller().button())) return;
+					if(((OnVRControllerButtonPress)callbackListener).onPress(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
 			}
 			break;
-		case EVREventType_VREvent_ButtonTouch:
+		}
+		case EVREventType_VREvent_ButtonTouch:{
+			Pair<Type, Side> cntrl = getControllerTypeSide(device);
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonTouch)
-					if(((OnVRControllerButtonTouch)callbackListener).onTouch(this, eventData.controller().button())) return;
+					if(((OnVRControllerButtonTouch)callbackListener).onTouch(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
 			}
 			break;
-		case EVREventType_VREvent_ButtonUnpress:
+		}
+		case EVREventType_VREvent_ButtonUnpress:{
+			Pair<Type, Side> cntrl = getControllerTypeSide(device);
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonUnpress)
-					if(((OnVRControllerButtonUnpress)callbackListener).onUnpress(this, eventData.controller().button())) return;
+					if(((OnVRControllerButtonUnpress)callbackListener).onUnpress(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
 			}
 			break;
-		case EVREventType_VREvent_ButtonUntouch:
+		}
+		case EVREventType_VREvent_ButtonUntouch:{
+			Pair<Type, Side> cntrl = getControllerTypeSide(device);
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonUntouch)
-					if(((OnVRControllerButtonUntouch)callbackListener).onUntouch(this, eventData.controller().button())) return;
+					if(((OnVRControllerButtonUntouch)callbackListener).onUntouch(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
 			}
 			break;
+		}
 		case EVREventType_VREvent_EnterStandbyMode:
 		case EVREventType_VREvent_LeaveStandbyMode:
 		case EVREventType_VREvent_TrackedDeviceUserInteractionStarted:
@@ -345,6 +356,27 @@ public class VRWindow extends AWindow{
 			break;
 		}
 
+	}
+	
+	private Pair<VRController.Type, Side> getControllerTypeSide(int device){
+		VRController.Type type = null;
+		Side side = null;
+		try(MemoryStack ms = MemoryStack.stackPush()){
+			IntBuffer err = ms.mallocInt(1);
+			String name = VRSystem.VRSystem_GetStringTrackedDeviceProperty(device, ETrackedDeviceProperty_Prop_RenderModelName_String, err);
+			switch(name) {
+			case "oculus_cv1_controller_left":
+				side = Side.LEFT; type = VRController.Type.OCULUS_TOUCH;
+				break;
+			case "oculus_cv1_controller_right":
+				side = Side.RIGHT; type = VRController.Type.OCULUS_TOUCH;
+				break;
+			default:
+				Logger.preferedLogger.w("VRWindow#getDevice", "Unhandled device: "+name);
+			}
+		}
+		if(type==null || side==null) return null;
+		return new Pair<>(type, side);
 	}
 	
 	private void setShaderUniforms(final int texture) {

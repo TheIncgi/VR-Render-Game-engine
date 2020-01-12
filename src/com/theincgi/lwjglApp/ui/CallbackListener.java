@@ -2,6 +2,9 @@ package com.theincgi.lwjglApp.ui;
 
 import java.io.File;
 
+import com.theincgi.lwjglApp.render.Side;
+import com.theincgi.lwjglApp.render.vr.VRController;
+
 public class CallbackListener {
 
 	
@@ -76,18 +79,18 @@ public class CallbackListener {
 	}
 	@FunctionalInterface
 	public interface OnVRControllerButtonTouch{
-		public boolean onTouch(VRWindow window, int buttonFlag);
+		public boolean onTouch(VRWindow window, VRController.Input input);
 	}
 	@FunctionalInterface
 	public interface OnVRControllerButtonUntouch{
-		public boolean onUntouch(VRWindow window, int buttonFlag);
+		public boolean onUntouch(VRWindow window, VRController.Input input);
 	}
 	@FunctionalInterface
 	public interface OnVRControllerButtonPress{
-		public boolean onPress(VRWindow window, int buttonFlag);
+		public boolean onPress(VRWindow window, VRController.Input input);
 	}
 	@FunctionalInterface
 	public interface OnVRControllerButtonUnpress{
-		public boolean onUnpress(VRWindow window, int buttonFlag);
+		public boolean onUnpress(VRWindow window, VRController.Input input);
 	}
 }

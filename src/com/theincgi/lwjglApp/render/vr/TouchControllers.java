@@ -17,8 +17,20 @@ import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
+import com.theincgi.lwjglApp.render.Side;
+import com.theincgi.lwjglApp.render.vr.VRController.Type;
 
 public class TouchControllers implements VRController {
+	public static final VRController.Input
+		A_BUTTON 	   = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 7),
+		B_BUTTON       = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 1),
+		LTHUMB_BUTTON  = new Input(Type.OCULUS_TOUCH, Side.LEFT, false, 32),
+		RTHUMB_BUTTON  = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 32),
+		LTRIGGER_BUTTON= new Input(Type.OCULUS_TOUCH, Side.LEFT, false, 33),
+		RTRIGGER_BUTTON= new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 33),
+		LGRIP = new Input(Type.OCULUS_TOUCH, Side.LEFT, false,  2),
+		RGRIP = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 2);
+	
 	Location leftLocation, rightLocation;
 	Matrix4f leftTransform, rightTransform;
 	Optional<Model>

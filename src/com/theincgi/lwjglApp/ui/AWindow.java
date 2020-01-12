@@ -144,30 +144,7 @@ abstract public class AWindow {
 	}
 
 	abstract void loop(); 
-//	{
-//
-//
-//		// Run the rendering loop until the user has attempted to close
-//		// the window
-//		while ( !glfwWindowShouldClose(WINDOW_HANDLE) ) {
-//			setViewport(0, 0, width, height);
-//			scene.ifPresentOrElse(value->{
-//				Color cc = value.clearColor;
-//				glClearColor(cc.r(), cc.g(), cc.b(), cc.a());
-//				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//				Pair<Double, Double> mousePos = getMousePos();
-//				value.render(camera, mousePos.x, mousePos.y);
-//			}, /*else*/()->{
-//				glClearColor(0,0,0,0);
-//				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//			});
-//			// clear the framebuffer
-//
-//			glfwSwapBuffers(WINDOW_HANDLE); // swap the color buffers
-//
-//			glfwPollEvents();
-//		}
-//	}
+
 	
 	public void setViewport(int x, int y, int width, int height) {
 		glViewport(this.viewportX = x, this.viewportY = y, this.viewportWidth=width, viewportHeight= height);

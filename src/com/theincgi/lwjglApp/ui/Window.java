@@ -63,6 +63,7 @@ public class Window extends AWindow{
 		while ( !glfwWindowShouldClose(WINDOW_HANDLE) ) {
 			setViewport(0, 0, width, height);
 			scene.ifPresentOrElse(value->{
+				value.onTick(); //TODO move to logic thread
 				Color cc = value.clearColor;
 				glClearColor(cc.r(), cc.g(), cc.b(), cc.a());
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
