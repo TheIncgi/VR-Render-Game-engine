@@ -101,4 +101,14 @@ public class HelloElements2 implements Drawable{
 			ShaderProgram.unbind();
 		}
 	}
+
+	@Override
+	public boolean isTransparent() {
+		return false;
+	}
+
+	@Override
+	public float[] getTransparentObjectPos() {
+		return null;
+	}
 }

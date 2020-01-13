@@ -3,6 +3,8 @@ package com.theincgi.lwjglApp.scenes;
 import java.util.HashMap;
 import java.util.Optional;
 
+import javax.security.auth.callback.CallbackHandler;
+
 import org.lwjgl.util.vector.Vector3f;
 
 import com.theincgi.lwjglApp.misc.Logger;
@@ -13,11 +15,13 @@ import com.theincgi.lwjglApp.mvc.models.Object3D;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Side;
 import com.theincgi.lwjglApp.render.animation.Animation;
+import com.theincgi.lwjglApp.render.animation.Animation.TimeUnit;
 import com.theincgi.lwjglApp.render.text.FontTexture;
 import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
 import com.theincgi.lwjglApp.render.vr.VRController;
+import com.theincgi.lwjglApp.render.vr.VRController.Input;
 import com.theincgi.lwjglApp.render.vr.VRController.Type;
 import com.theincgi.lwjglApp.ui.AWindow;
 import com.theincgi.lwjglApp.ui.CallbackListener;
@@ -49,12 +53,10 @@ public class DemoScene extends Scene{
 		font = FontTextures.INSTANCE.get(new Pair<>("ascii_consolas", 100));
 		createDefaultDebugControls();
 		
-		testAnimation = new Animation(new Animation.Updater<Float>(Animation.Interpolator.SIGMOID, 0f, 90f) {
-			@Override
-			public void update(Float p) {
-				monkey.getLocation().setYaw(p);
-			}
-		}).setDuration(5000);
+		testAnimation = new Animation(Animation.Updater.makeFloatUpdater(Animation.Interpolator.SIGMOID, 0f, 90f, v->{
+			monkey.getLocation().setYaw(v);
+			System.out.println("\t"+v);
+		})).setDuration(5f, TimeUnit.SECONDS);
 	}
 	
 	public void onTick() {
@@ -91,7 +93,7 @@ public class DemoScene extends Scene{
 	}
 	
 	private class SceneCallbackListener extends CallbackListener
-	implements CallbackListener.OnMouseButton, CallbackListener.OnVRControllerButtonPress {
+	implements CallbackListener.OnMouseButton, CallbackListener.OnVRControllerButtonPress, CallbackListener.OnVRControllerButtonUnpress, CallbackListener.OnVRControllerButtonTouch, CallbackListener.OnVRControllerButtonUntouch {
 
 		@Override
 		public boolean onMouseButton(AWindow window, double x, double y, int button, int action, int mods) {
@@ -99,15 +101,14 @@ public class DemoScene extends Scene{
 			return true;
 		}
 
-		@Override
-		public boolean onPress(VRWindow window, VRController.Input input) {
+		@Override public boolean onTouch(VRWindow window, VRController.Input input) {
 			Logger.preferedLogger.d("DemoScene#onPress", "PRESSED: "+input);
 			String action = controls.get(input);
 			if(action==null) return false;
 			switch (action) {
 			case "playAnimationTest": //should be constants for a proper scene
 				Logger.preferedLogger.i("DemoScene#onPress", "Playing an animation...");
-				testAnimation.play();
+				testAnimation.playToggled();
 				return true;
 
 			default:
@@ -116,8 +117,28 @@ public class DemoScene extends Scene{
 			return false;
 		}
 		
+		@Override public boolean onUntouch(VRWindow window, Input input) {
+			String action = controls.get(input);
+			if(action==null) return false;
+			switch (action) {
+			case "playAnimationTest": //should be constants for a proper scene
+				testAnimation.pause();
+				return true;
+
+			default:
+				break;
+			}
+			return false;
+		}
 		
-		
+		@Override
+		public boolean onPress(VRWindow window, Input input) {
+			return false;
+		}
+		@Override
+		public boolean onUnpress(VRWindow window, Input input) {
+			return false;
+		}
 	}
 	
 	public void createDefaultDebugControls() {

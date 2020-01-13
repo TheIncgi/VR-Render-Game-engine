@@ -41,4 +41,12 @@ public class Object3D implements Drawable{
 	public void setShader(String shaderName) {
 		model.ifPresent(m->m.shader=ShaderManager.INSTANCE.get(shaderName));
 	}
+	@Override
+	public boolean isTransparent() {
+		return false;
+	}
+	@Override
+	public float[] getTransparentObjectPos() {
+		return null;
+	}
 }

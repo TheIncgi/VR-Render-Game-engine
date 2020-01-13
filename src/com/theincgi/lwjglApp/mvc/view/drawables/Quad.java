@@ -120,4 +120,14 @@ public class Quad implements Drawable {
 	public void setShader(Optional<ShaderProgram> optional) {
 		this.shader = optional;
 	}
+
+	@Override
+	public boolean isTransparent() {
+		return false;
+	}
+
+	@Override
+	public float[] getTransparentObjectPos() {
+		return null;
+	}
 }

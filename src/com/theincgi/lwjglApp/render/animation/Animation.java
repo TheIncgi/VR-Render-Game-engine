@@ -1,6 +1,7 @@
 package com.theincgi.lwjglApp.render.animation;
 
 import java.util.ArrayList;
+import java.util.function.Consumer;
 
 import com.theincgi.lwjglApp.misc.Logger;
 
@@ -10,8 +11,10 @@ public class Animation {
 	private Long startTime;
 	private long duration;
 	private ArrayList<AnimationEventHandler> handlers;
-	private boolean reverse;
+	private boolean reverse = true;
+	private boolean wasReverseBeforePause;
 	private Float progress;
+	
 
 	public Animation(Updater<?>...updaters) {
 		this.updaters = updaters;
@@ -64,34 +67,46 @@ public class Animation {
 	/**Does from progress left off if paused*/
 	public synchronized void play() {
 		if(duration==0) Logger.preferedLogger.w("Animation#play", "Duration of 0");
+		reverse = false;
 		if(progress!=null)
 			resume();
 		else {
 			startTime = System.currentTimeMillis();
-			reverse = false;
 			notifyListeners(AnimationEvent.START_FORWARD);
 		}
 	}
 	/**Does from progress left off if paused*/
 	public synchronized void playReverse() {
 		if(duration==0) Logger.preferedLogger.w("Animation#play", "Duration of 0");
+		reverse = true;
 		if(progress!=null)
 			resume();
 		else {
 			startTime = System.currentTimeMillis();
-			reverse = true;
 			notifyListeners(AnimationEvent.START_REVERSE);
 		}
 	}
+	public synchronized void playToggled() {
+		if(reverse)
+			play();
+		else 
+			playReverse();
+	}
+	
 	/**You can change values for duration while paused if needed, will resume based on % complete*/
 	public synchronized void pause() {
+		if(startTime==null) return;
 		progress = getProgress();
 		startTime = null;
+		wasReverseBeforePause = reverse;
 	}
 	/**You can change values for duration while paused if needed, will resume based on % complete*/
 	public synchronized void resume() {
+		if(progress==null) return;
 		if(duration==0) Logger.preferedLogger.w("Animation#play", "Duration of 0");
 		long now = System.currentTimeMillis();
+		if(wasReverseBeforePause!=reverse)
+			progress = 1-progress;
 		long passed = (long) (duration * progress);
 		startTime = now-passed;
 		progress = null;
@@ -184,14 +199,14 @@ public class Animation {
 
 	abstract public static class Updater<S> {
 		final S start, stop;
-		Interpolator<? extends S> interpolator;
-		public Updater(Interpolator<? extends S> i, S start, S stop) {
+		Interpolator interpolator;
+		public Updater(Interpolator i, S start, S stop) {
 			this.interpolator = i;
 			this.start = start;
 			this.stop = stop;
 		}
 		private void iupdate(float f) {
-			update(interpolator.interpolate(f));
+			update(map(interpolator.interpolate(f)));
 		}
 		private void updateStop() {
 			update(stop);
@@ -200,36 +215,50 @@ public class Animation {
 			update(start);
 		}
 		abstract public void update(S p);
+		abstract public S map(float x);
+		
+		public static Updater<Float> makeFloatUpdater(Animation.Interpolator interpolator, float start, float end, Consumer<Float> update){
+			return new Updater<Float>(interpolator, start, end) {
+				@Override
+				public Float map(float x) {
+					return (end-start)*x +start;
+				}
+				@Override
+				public void update(Float p) {
+					update.accept(p);
+				}
+			};
+		};
 	}
 
-	abstract public static class Interpolator<S>{
+	abstract public static class Interpolator{
 		/**Avoid this for starting and stopping animations, fine in the middle*/
-		public static final Interpolator<Float> LINEAR = new Interpolator<Float>() {
-			@Override public Float interpolate(float x) {
+		public static final Interpolator LINEAR = new Interpolator() {
+			@Override public float interpolate(float x) {
 				return x;
 			}};
-			public static final Interpolator<Float> SIGMOID = new Interpolator<Float>() {
-				@Override public Float interpolate(float x) {
+			public static final Interpolator SIGMOID = new Interpolator() {
+				@Override public float interpolate(float x) {
 					return (float) (1/(1+Math.pow(Math.E, -((x-.5)*16))));
 				}
 			};
 
-			public static Interpolator<Float> accelerate(float exitVelocity){
-				return new Interpolator<Float>() {@Override
-					public Float interpolate(float x) {
+			public static Interpolator accelerate(float exitVelocity){
+				return new Interpolator() {@Override
+					public float interpolate(float x) {
 					return (float) Math.pow(x, exitVelocity); //Calculus!
 				}
 				};
 			}
-			public static Interpolator<Float> decelerate(float entryVelocity){
-				return new Interpolator<Float>() {@Override
-					public Float interpolate(float x) {
+			public static Interpolator decelerate(float entryVelocity){
+				return new Interpolator() {@Override
+					public float interpolate(float x) {
 					return (float) Math.pow(1-x, entryVelocity); //Calculus!
 				}
 				};
 			}
 
-			abstract public S interpolate(float x);
+			abstract public float interpolate(float x);
 	}
 
 	@FunctionalInterface

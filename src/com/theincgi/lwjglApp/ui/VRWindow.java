@@ -313,6 +313,7 @@ public class VRWindow extends AWindow{
 		switch (vrEvent.eventType()) {
 		case EVREventType_VREvent_ButtonPress:{
 			Pair<Type, Side> cntrl = getControllerTypeSide(device);
+			if(cntrl==null)break;
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonPress)
 					if(((OnVRControllerButtonPress)callbackListener).onPress(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
@@ -321,6 +322,7 @@ public class VRWindow extends AWindow{
 		}
 		case EVREventType_VREvent_ButtonTouch:{
 			Pair<Type, Side> cntrl = getControllerTypeSide(device);
+			if(cntrl==null)break;
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonTouch)
 					if(((OnVRControllerButtonTouch)callbackListener).onTouch(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
@@ -329,6 +331,7 @@ public class VRWindow extends AWindow{
 		}
 		case EVREventType_VREvent_ButtonUnpress:{
 			Pair<Type, Side> cntrl = getControllerTypeSide(device);
+			if(cntrl==null)break;
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonUnpress)
 					if(((OnVRControllerButtonUnpress)callbackListener).onUnpress(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;
@@ -337,6 +340,7 @@ public class VRWindow extends AWindow{
 		}
 		case EVREventType_VREvent_ButtonUntouch:{
 			Pair<Type, Side> cntrl = getControllerTypeSide(device);
+			if(cntrl==null)break;
 			for (CallbackListener callbackListener : callbackListeners) {
 				if(callbackListener instanceof OnVRControllerButtonUntouch)
 					if(((OnVRControllerButtonUntouch)callbackListener).onUntouch(this, new Input(cntrl.x, cntrl.y, false, eventData.controller().button()))) return;

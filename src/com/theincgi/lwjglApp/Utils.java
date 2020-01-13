@@ -112,5 +112,15 @@ public class Utils {
 		out.m03 = h.m(3);  out.m13 = h.m(7);  out.m23 = h.m(11); out.m33 = 1;
 		return out;
 	}
+	/**
+	 * Takes 2 length 3 float arrays and provides the distance<br>
+	 * longer arrays will only use the first 3 elements
+	 * */
+	public static float distVec3(float[] a, float[] b) {
+		float dx = b[0] - a[0],
+			  dy = b[1] - a[1],
+			  dz = b[2] - a[2];
+		return (float) Math.sqrt( dx*dx + dy*dy + dz*dz );
+	}
 	
 }

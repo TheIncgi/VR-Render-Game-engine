@@ -426,6 +426,16 @@ public class TouchControllers implements VRController {
 		return rightValid;
 	}
 
+	@Override
+	public boolean isTransparent() {
+		return false;
+	}
+
+	@Override
+	public float[] getTransparentObjectPos() {
+		return null;
+	}
+
 	
 	
 	
