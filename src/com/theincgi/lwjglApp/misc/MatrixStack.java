@@ -9,7 +9,7 @@ import com.theincgi.lwjglApp.render.Location;
 
 public class MatrixStack implements AutoCloseable{
 	public static MatrixStack modelViewStack = new MatrixStack();
-	public static MatrixStack projection = new MatrixStack();
+	public static MatrixStack view = new MatrixStack();
 	
 	private ArrayList<Matrix4f> stack = new ArrayList<Matrix4f>();
 	private int top = 0;

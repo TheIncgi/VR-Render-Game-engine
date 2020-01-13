@@ -49,11 +49,11 @@ public class Scene {
 
 	public void render(Camera camera, double mouseX, double mouseY) {
 		MatrixStack.modelViewStack.reset();
-		MatrixStack.projection.reset();
+		MatrixStack.view.reset();
 
 		//gluPickMatrix2((float)mouseX, (float)mouseY, 1, 1);
-		camera.loadProjectionMatrix();
-
+		
+		camera.viewMatrix(); //load the view
 		ShaderManager.INSTANCE.forLoaded(s->{
 			camera.tellShader(s);
 			s.bind();
@@ -61,7 +61,8 @@ public class Scene {
 			s.trySetUniform("sunPos", sun.pos);
 			s.trySetUniform("sunColor", sunColor.vec());
 			s.trySetUniform("cameraPos", camera.getLocation().pos);
-			s.trySetMatrix("projectionMatrix", MatrixStack.projection.get());
+			s.trySetMatrix("projectionMatrix", camera.projectionMatrix());
+			s.trySetMatrix("viewMatrix", MatrixStack.view.get());
 
 		});
 		ShaderProgram.unbind();

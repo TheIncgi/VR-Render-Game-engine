@@ -5,6 +5,7 @@ layout (location = 1) in vec2 texPosition;
 layout (location = 2) in vec3 normPosition;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 uniform vec3 cameraPos;
 
 uniform float uptime;
@@ -31,7 +32,7 @@ out vec3 normalPosition;
 
 
 void main(){
-	vec4 tmp = projectionMatrix  * modelViewMatrix * vec4(vPosition,1);
+	vec4 tmp = projectionMatrix * viewMatrix * modelViewMatrix * vec4(vPosition,1);
 	gl_Position = tmp;
 
 	vertexPosition = vPosition; 

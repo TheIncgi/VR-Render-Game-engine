@@ -52,7 +52,12 @@ public class EyeCamera extends Camera {
 	}
 	
 	@Override
-	public void loadProjectionMatrix() {
+	public Matrix4f projectionMatrix() {
+		return getHMDMatrixProjectionEye();
+	}
+	
+	@Override
+	public void viewMatrix() {
 		HmdMatrix34 tmp = HmdMatrix34.create();
 		VRSystem.VRSystem_GetEyeToHeadTransform(side.getVal(), tmp);
 		eyeOffset = Utils.fromT(tmp);
@@ -63,17 +68,12 @@ public class EyeCamera extends Camera {
 		Matrix4f hmd = getHmdPose();
 		
 //VRChaperone.VRChaperone_ForceBoundsVisible(true);
-		Matrix4f prj;
-		prj = getHMDMatrixProjectionEye();
 		
 		Matrix4f.mul(hmd, eyeOffset, out);
 		out.invert(); //cam should do reverse rotation location compared to things like model view
-		Matrix4f.mul(prj, out, out);
-		
-		Vector4f test = new Vector4f(0,0,-3, 1);
-		Matrix4f.transform(out, test, test);
+		//Matrix4f.mul(prj, out, out);
 	
-		MatrixStack.projection.get().load(out);
+		MatrixStack.view.get().load(out);
 	}
 	
 	

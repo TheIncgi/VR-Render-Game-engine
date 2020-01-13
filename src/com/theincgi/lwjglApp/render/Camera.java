@@ -32,24 +32,28 @@ public class Camera {
     		sp.trySetUniform("cameraPos", location.pos);
     }
     
-    /**Does FOV and translation, applies on top of existing MatrixStack.projection top*/
-    public void loadProjectionMatrix(){
-		float width = Launcher.getMainWindow().getViewportWidth();
+    /**Applies camera movement to projection stack*/
+    public void viewMatrix(){
+    	Matrix4f viewMatrix = MatrixStack.view.get();
+		location.applyTo(viewMatrix);
+	}
+    
+    /**Returns the projection matrix*/
+    public Matrix4f projectionMatrix() {
+    	float width = Launcher.getMainWindow().getViewportWidth();
 		float height = Launcher.getMainWindow().getViewportHeight();
 		float aspectRatio = width / height;
 		float yScale = (float) ((1f / Math.tan(Math.toRadians(fov / 2f))) * aspectRatio);
 		float xScale = yScale / aspectRatio;
 		float frustumLength = far - near;
-
-		Matrix4f projectionMatrix = MatrixStack.projection.get();
+    	Matrix4f projectionMatrix = new Matrix4f();
 		projectionMatrix.m00 = xScale;
 		projectionMatrix.m11 = yScale;
 		projectionMatrix.m22 = -((far + near) / frustumLength);
 		projectionMatrix.m23 = -1;
 		projectionMatrix.m32 = -((2 * near * far) / frustumLength);
 		projectionMatrix.m33 = 0;
-		
-		location.applyTo(projectionMatrix);
-	}
+		return projectionMatrix;
+    }
     
 }
