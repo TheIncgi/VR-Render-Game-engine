@@ -15,9 +15,9 @@ import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
-import com.theincgi.lwjglApp.mvc.view.drawables.ParticleEffectStream;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Location;
+import com.theincgi.lwjglApp.render.ParticleSystem;
 import com.theincgi.lwjglApp.render.Side;
 import com.theincgi.lwjglApp.render.animation.Animation;
 import com.theincgi.lwjglApp.render.animation.Animation.TimeUnit;
@@ -39,6 +39,7 @@ public class DemoScene extends Scene{
 	Optional<FontTexture> font;
 	HashMap<VRController.Input, String> controls;
 	Animation testAnimation;
+	ParticleSystem testSystem;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -64,7 +65,14 @@ public class DemoScene extends Scene{
 		})).setDuration(5f, TimeUnit.SECONDS);
 		addTickable(testAnimation);
 		
-		
+		testSystem = new ParticleSystem(this, 0, 1, -5);
+		testSystem.addForce((s,d)->{
+			if(s.age==0) {
+				d.velocity.x = (float) (Math.random()*.1);
+				d.velocity.y = (float) (Math.random()*.3);
+				d.velocity.z = (float) (Math.random()*.1);
+			}
+		});
 	}
 	
 	public void onTick() {
@@ -126,8 +134,7 @@ public class DemoScene extends Scene{
 				Logger.preferedLogger.i("DemoScene#onPress", "Playing an animation...");
 				testAnimation.playToggled();
 				return true;
-			case "tryParticleSystem":
-				pes.emit();
+			
 			default:
 				break;
 			}
@@ -150,6 +157,16 @@ public class DemoScene extends Scene{
 		
 		@Override
 		public boolean onPress(VRWindow window, Input input) {
+			String action = controls.get(input);
+			if(action==null) return false;
+			switch (action) {
+			case "tryParticleSystem":
+				testSystem.emit(1000, 1000, 500, 200);
+				return true;
+				
+			default:
+				break;
+			}
 			return false;
 		}
 		@Override

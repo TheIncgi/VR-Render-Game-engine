@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.render.ParticleSystem.Particle;
 import com.theincgi.lwjglApp.ui.Color;
@@ -23,23 +24,25 @@ public class ParticleSystem implements Drawable, Tickable{
 	/**How long it will take to emit all particles*/
 	private long timeSpan;
 	private long startTime;
-	
+
 	private LinkedList<Particle> theParticles = new LinkedList<>();
 	private ArrayList<Emitter> emitters = new ArrayList<>();
 	private ArrayList<Collector> collectors = new ArrayList<>();
 	private ArrayList<Force> forces = new ArrayList<>();
 	private long maxAge;
 	private float ageNoise;
-	
+
 	/**Registers self to drawable and tickable listeners when `emit()` is called, removes self when no particles remain*/
 	public ParticleSystem(Scene scene, float x, float y, float z) {
 		this.scene = scene;
 		this.source = new Location(x,y,z);
 		if(particle.isEmpty())
 			particle = ObjManager.INSTANCE.get("cmodels/softcube/softcube.obj", "full");
-		
+		addCollector(p->{
+			return p.age >= p.maxAge; 
+		});
 	}
-	
+
 	/**
 	 * Emits the number of particles over some number of milliseconds<br>
 	 * this will stop the spawning of the previous group
@@ -53,22 +56,47 @@ public class ParticleSystem implements Drawable, Tickable{
 		this.maxAge = maxAge;
 		this.ageNoise = ageNoise;
 		startTime = System.currentTimeMillis();
+		scene.addDrawable(this);
+		scene.addTickable(this);
 	}
-	
-	
+
+
 	public void addEmitter(Emitter e) {
-		
+		synchronized (emitters) {
+			emitters.add(e);
+		}
 	}
-	
+	public void addForce(Force e) {
+		synchronized (forces) {
+			forces.add(e);
+		}
+	}
+	public void addCollector(Collector e) {
+		synchronized (collectors) {
+			collectors.add(e);
+		}
+	}
+
 	@Override
 	public void draw() {
-		particle.ifPresent(p->p.drawAt(source));
+		particle.ifPresent(pm->{
+		synchronized (theParticles) {
+			
+			theParticles.forEach(p->{
+				try(MatrixStack ms = MatrixStack.modelViewStack.push()){
+					ms.get().translate(p.position);
+					pm.drawAtOrigin();
+				}
+			});
+		}
+		});
+		
 	}
-	
+
 	@Override
 	public boolean onTickUpdate() {
 		long now = System.currentTimeMillis();
-		int target = (int) Math.min(spawnCount, (now-startTime)* spawnAmount / timeSpan);
+		int target = (int) Math.min(spawnAmount, (now-startTime)* spawnAmount / timeSpan);
 		Particle temp = new Particle();
 		while(spawnCount < target) {
 			addParticle();
@@ -90,36 +118,46 @@ public class ParticleSystem implements Drawable, Tickable{
 					temp.copyFrom(p);
 					for(Force f : forces)
 						f.apply(p, temp);
-					p.copyFrom(p);
+					p.copyFrom(temp);
 				}
+				Vector3f.add(p.position, p.velocity, p.position);
+				p.age++; //happy birthday...again
 			}
 		}
-		if(theParticles.isEmpty()) {
+		if(theParticles.isEmpty() && now > startTime+timeSpan) {
 			scene.removeDrawable(this);
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**Causes a single particle to be generated from a random emitter or the systems origin if no emitters are pressent*/
 	public void addParticle() {
-		Emitter e = emitters.get((int) (emitters.size() * Math.random()));
+		Particle p;
+		synchronized (emitters) {
+			if(emitters.size()==0)
+				p = new Particle(new Vector3f(source.getX(), source.getY(), source.getZ()), maxAge, ageNoise);
+			else {
+				Emitter e = emitters.get((int) (emitters.size() * Math.random()));
+				p = new Particle(e.generatePosition(), maxAge, ageNoise);
+			}
+		}
 		synchronized (theParticles) {
-			theParticles.add( new Particle(e.generatePosition(), maxAge, ageNoise) );
+			theParticles.add(p);
 		}
 	}
-	
-	
+
+
 	@Override
 	public boolean isTransparent() {
 		return true;
 	}
-	
+
 	@Override
 	public float[] getTransparentObjectPos() {
 		return source.pos;
 	}
-	
+
 	@FunctionalInterface
 	public interface Emitter{
 		public Vector3f generatePosition();
@@ -133,10 +171,15 @@ public class ParticleSystem implements Drawable, Tickable{
 		public void apply(Particle from, Particle dest);
 	}
 	public static class Particle {
-		Vector3f position, velocity, scale;
-		Color color;
-		long age, maxAge;
+		public Vector3f position;
+		public Vector3f velocity;
+		public Vector3f scale;
+		public Color color;
+		public long age, maxAge;
 		private Particle() {
+			position = new Vector3f();
+			velocity = new Vector3f();
+			scale    = new Vector3f();
 		}
 		public Particle(Vector3f position, long maxAge, float maxAgeNoise) {
 			this.position = position;
@@ -144,7 +187,7 @@ public class ParticleSystem implements Drawable, Tickable{
 			scale = new Vector3f(1, 1, 1);
 			color = Color.WHITE.clone();
 			age = 0;
-			this.maxAge = (long) (maxAge * maxAgeNoise*(2*Math.random()-1));
+			this.maxAge = (long) (maxAge + maxAgeNoise*(2*Math.random()-1));
 		}
 		public void copyFrom(Particle other) {
 			this.position.set(other.position);
