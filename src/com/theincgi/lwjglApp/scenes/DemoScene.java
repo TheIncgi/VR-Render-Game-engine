@@ -1,6 +1,8 @@
 package com.theincgi.lwjglApp.scenes;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.Optional;
 
 import javax.security.auth.callback.CallbackHandler;
@@ -11,8 +13,11 @@ import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.misc.Settings;
+import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
+import com.theincgi.lwjglApp.mvc.view.drawables.ParticleEffectStream;
 import com.theincgi.lwjglApp.render.Camera;
+import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Side;
 import com.theincgi.lwjglApp.render.animation.Animation;
 import com.theincgi.lwjglApp.render.animation.Animation.TimeUnit;
@@ -34,6 +39,7 @@ public class DemoScene extends Scene{
 	Optional<FontTexture> font;
 	HashMap<VRController.Input, String> controls;
 	Animation testAnimation;
+	ParticleEffectStream pes;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -53,14 +59,26 @@ public class DemoScene extends Scene{
 		font = FontTextures.INSTANCE.get(new Pair<>("ascii_consolas", 100));
 		createDefaultDebugControls();
 		
-		testAnimation = new Animation(Animation.Updater.makeFloatUpdater(Animation.Interpolator.SIGMOID, 0f, 90f, v->{
+		testAnimation = new Animation(this, Animation.Updater.makeFloatUpdater(Animation.Interpolator.SIGMOID, 0f, 90f, v->{
 			monkey.getLocation().setYaw(v);
 			System.out.println("\t"+v);
 		})).setDuration(5f, TimeUnit.SECONDS);
+		addTickable(testAnimation);
+		
+		addDrawable(pes = new ParticleEffectStream(new Location(0,1,-5), this));
+		
 	}
 	
 	public void onTick() {
-		testAnimation.update();
+		synchronized (tickables) {
+			LinkedList<Tickable> toRemove = new LinkedList<>();
+			tickables.forEach(t->{
+				if(t.onTickUpdate())
+					toRemove.add(t);
+			});
+			while(!toRemove.isEmpty())
+				tickables.remove(toRemove.removeFirst());
+		}
 	}
 	
 	@Override
@@ -110,7 +128,8 @@ public class DemoScene extends Scene{
 				Logger.preferedLogger.i("DemoScene#onPress", "Playing an animation...");
 				testAnimation.playToggled();
 				return true;
-
+			case "tryParticleSystem":
+				pes.emit();
 			default:
 				break;
 			}
@@ -150,6 +169,7 @@ public class DemoScene extends Scene{
 		//33 trigger
 		//2 or 34 but 2 fires first
 		controls.put(TouchControllers.A_BUTTON, "playAnimationTest");
+		controls.put(TouchControllers.X_BUTTON, "tryParticleSystem");
 	}
 	
 	@Override

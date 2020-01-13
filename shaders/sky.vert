@@ -10,7 +10,7 @@ uniform vec3 cameraPos;
 
 uniform float uptime;
 
-out vec4 vertexColor;
+
 out vec3 vertexPosition;
 out vec2 texturePosition;
 out vec3 normalPosition; 
@@ -38,7 +38,7 @@ void main(){
 		0, 0, 1, 0,//cameraPos.z,
 		0, 0, 0, 1
 		); //x
-	vec4 tmp = projectionMatrix *viewMatrix * model * vec4(vPosition,1);
+	vec4 tmp = projectionMatrix * viewMatrix * model * vec4(vPosition,1);
 	gl_Position = tmp;
 
 	vertexPosition = vPosition; 

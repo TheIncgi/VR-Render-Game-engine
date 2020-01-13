@@ -10,6 +10,7 @@ uniform vec3 sunPos;
 uniform vec3 sunColor;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform mat4 viewMatrix;
 uniform vec3 cameraPos;
 uniform float uptime;
 

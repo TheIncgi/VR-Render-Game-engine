@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.Tickable;
+import com.theincgi.lwjglApp.ui.Scene;
 
-public class Animation {
+public class Animation implements Tickable{
 
 	private final Updater<?>[] updaters;
 	private Long startTime;
@@ -14,9 +16,10 @@ public class Animation {
 	private boolean reverse = true;
 	private boolean wasReverseBeforePause;
 	private Float progress;
-	
+	private Scene scene;
 
-	public Animation(Updater<?>...updaters) {
+	public Animation(Scene scene, Updater<?>...updaters) {
+		this.scene = scene;
 		this.updaters = updaters;
 	}
 
@@ -74,6 +77,7 @@ public class Animation {
 			startTime = System.currentTimeMillis();
 			notifyListeners(AnimationEvent.START_FORWARD);
 		}
+		scene.addTickable(this);
 	}
 	/**Does from progress left off if paused*/
 	public synchronized void playReverse() {
@@ -85,6 +89,7 @@ public class Animation {
 			startTime = System.currentTimeMillis();
 			notifyListeners(AnimationEvent.START_REVERSE);
 		}
+		scene.addTickable(this);
 	}
 	public synchronized void playToggled() {
 		if(reverse)
@@ -110,6 +115,7 @@ public class Animation {
 		long passed = (long) (duration * progress);
 		startTime = now-passed;
 		progress = null;
+		scene.addTickable(this);
 	}
 	public synchronized boolean isPaused() {
 		return progress!=null;
@@ -123,8 +129,10 @@ public class Animation {
 	public synchronized boolean isPlaying() {
 		return startTime!=null;
 	}
-	public synchronized void update() {
-		if(startTime==null) return;
+	@Override
+
+	public synchronized boolean onTickUpdate() {
+		if(startTime==null) return true;
 		float x = getProgress();
 		if(reverse) x = 1-x;
 		if(x==0 && reverse) {
@@ -143,8 +151,9 @@ public class Animation {
 			for (int i = 0; i < updaters.length; i++) {
 				updaters[i].iupdate(x);
 			}
+			return false;
 		}
-		
+		return true;
 	}
 
 	/**1 means it's approching the end of this stage, if playing backwards 1 is the start*/

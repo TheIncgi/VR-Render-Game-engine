@@ -6,15 +6,19 @@ uniform sampler2D renderedTexture;
 uniform sampler2D emissionTexture;
 uniform float uptime;
 
-vec4 near(sampler2D t, vec2 pos){
-	vec4 z = vec4(0,0,0,0);
-	for(float x = -.04; x<=.04; x+=.005){
-		for(float y = -.04; y<=.04; y+=.005){
-			z += texture(t, pos+vec2(x,y));
-		}
-	}
-	return vec4((z/128).xyz, 1)/2;
-}
+// vec4 near(sampler2D tex, vec2 pos){
+// 	int r = 8;
+// 	float step = .005;
+// 	float t = r*step;
+// 	//vec4[2*r] z = vec4(0,0,0,0);
+// 	for(float x = -t; x<=t; x+=step){
+// 		//z
+// 	}
+// 	for(float y = -.04; y<=.04; y+=.005){
+// 			z += texture(tex, pos+vec2(x,y));
+// 	}
+// 	return vec4((z/128).xyz, 1)/2;
+// }
 
 const float offset = .05;
 void main() {

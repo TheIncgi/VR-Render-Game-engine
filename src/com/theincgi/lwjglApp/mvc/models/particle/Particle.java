@@ -10,6 +10,7 @@ public class Particle {
 	public long birth;
 	public Vector3f position;
 	public Vector3f velocity;
+	public Vector3f scale;
 	public float energy;
 	public Color color;
 	public boolean justBorn = true;
@@ -21,11 +22,13 @@ public class Particle {
 		this.velocity = velocity;
 		this.energy = energy;
 		this.color = color;
+		scale = new Vector3f(10, 10, 10);
 	}
 	
 	public Particle() {
 		position = new Vector3f();
 		velocity = new Vector3f();
+		scale = new Vector3f(1, 1, 1);
 	}
 
 	public void copyFrom(Particle p) {
@@ -33,6 +36,7 @@ public class Particle {
 		this.birth = p.birth;
 		this.position.set(p.position);
 		this.velocity.set(p.velocity);
+		this.scale.set(p.scale);
 		this.energy = p.energy;
 		this.color = p.color.clone();
 		this.justBorn = p.justBorn;

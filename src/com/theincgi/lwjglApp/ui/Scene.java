@@ -6,17 +6,16 @@ import java.nio.IntBuffer;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Optional;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.*;
 
-import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
-import com.theincgi.lwjglApp.mvc.models.particle.ParticleSystem;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.EyeCamera;
@@ -35,9 +34,9 @@ public class Scene {
 	long startupTime = System.currentTimeMillis();
 	private AWindow window;
 
-	protected final LinkedList<Drawable> opaqueDrawables = new LinkedList<>();
+	protected final HashSet<Drawable> opaqueDrawables = new HashSet<>();
 	protected final LinkedList<Drawable> transparentDrawables = new LinkedList<>();
-	protected final LinkedList<Tickable> tickables = new LinkedList<>();
+	protected final HashSet<Tickable> tickables = new HashSet<>();
 
 	public Scene(AWindow window) {
 		this.window = window;
@@ -107,7 +106,8 @@ public class Scene {
 			}
 		else
 			synchronized (transparentDrawables) {
-				transparentDrawables.add(obj);
+				if(!transparentDrawables.contains(obj))
+					transparentDrawables.add(obj);
 			}
 	} 
 	public void addDrawables(Drawable...objs) {

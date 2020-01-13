@@ -24,6 +24,8 @@ public class TouchControllers implements VRController {
 	public static final VRController.Input
 		A_BUTTON 	   = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 7),
 		B_BUTTON       = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 1),
+		X_BUTTON 	   = new Input(Type.OCULUS_TOUCH, Side.LEFT, false, 7),
+		Y_BUTTON       = new Input(Type.OCULUS_TOUCH, Side.LEFT, false, 1),
 		LTHUMB_BUTTON  = new Input(Type.OCULUS_TOUCH, Side.LEFT, false, 32),
 		RTHUMB_BUTTON  = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 32),
 		LTRIGGER_BUTTON= new Input(Type.OCULUS_TOUCH, Side.LEFT, false, 33),

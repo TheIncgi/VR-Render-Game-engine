@@ -12,10 +12,14 @@ import java.util.function.Function;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import static org.lwjgl.opengl.GL45.*;
 
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.ui.Color;
 
 public class ShaderProgram {
 	static Logger log = Logger.preferedLogger;
@@ -166,6 +170,18 @@ public class ShaderProgram {
 
         }
         return true;
+    }
+    public boolean trySetUniform( String name, Vector3f vec) {
+    	return trySetUniform(name, new float[] {vec.x, vec.y, vec.z});
+    }
+    public boolean trySetUniform( String name, Vector2f vec) {
+    	return trySetUniform(name, new float[] {vec.x, vec.y});
+    }
+    public boolean trySetUniform( String name, Vector4f vec) {
+    	return trySetUniform(name, new float[] {vec.x, vec.y, vec.z, vec.w});
+    }
+    public boolean trySetUniform( String name, Color color ) {
+    	return trySetUniform(name, color.vec());
     }
     public boolean trySetMatrix(String name, float[] m){
         int handle = getUniformLocation( name );

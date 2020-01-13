@@ -2,6 +2,7 @@ package com.theincgi.lwjglApp.mvc.models.particle;
 
 import java.util.LinkedList;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 
 import org.lwjgl.util.vector.Vector3f;
 
@@ -13,7 +14,6 @@ import com.theincgi.lwjglApp.ui.Color;
 import com.theincgi.lwjglApp.ui.Scene;
 
 public class ParticleSystem implements Tickable{
-	Location location;
 	ParticleEmitter[] emitters;
 	ParticleCollector[] collectors; 
 	ParticleForce[] forces;
@@ -24,9 +24,8 @@ public class ParticleSystem implements Tickable{
 	private int activeParticleCount;
 	private long spawnEnd, spawnStart;
 	
-	public ParticleSystem(Location location, ParticleEmitter[] emitters, ParticleCollector[] collectors,
+	public ParticleSystem(ParticleEmitter[] emitters, ParticleCollector[] collectors,
 			ParticleForce[] forces, long minimumParticleLife, long maximumParticleLife) {
-		this.location = location;
 		this.emitters = emitters;
 		this.collectors = collectors;
 		this.forces = forces;
@@ -53,13 +52,14 @@ public class ParticleSystem implements Tickable{
 	}
 	
 	@Override
-	public boolean onTickUpdate() {
+	public synchronized boolean onTickUpdate() {
 		long now = System.currentTimeMillis();
-		ListIterator<Particle> iterator = active.listIterator();
-		int targetBorn = (int) ((now - spawnStart)/(float)(spawnEnd - spawnStart)*maxSpawn);
+		
+		int targetBorn = Math.min(maxSpawn, (int) ((now - spawnStart)/(float)(spawnEnd - spawnStart)*maxSpawn));
 		Particle temp = new Particle();
 		while(nBorn++ < targetBorn)
 			addParticle(now);
+		ListIterator<Particle> iterator = active.listIterator();
 		while(iterator.hasNext()) {
 			Particle p = iterator.next();
 			if(p.expiration > now) {
@@ -78,12 +78,18 @@ public class ParticleSystem implements Tickable{
 			}
 			p.copyFrom(temp);
 			p.justBorn = false;
+			Vector3f.add(p.position, p.velocity, p.position);
 		}
 		return active.isEmpty();
 	}
 
 	protected void addParticle(long now) {
 		ParticleEmitter e = emitters[(int) (Math.random()*emitters.length)];
-		Particle p = new Particle((long) (Math.random()*maximumParticleLife), now, e.generateSpawnPosition(), new Vector3f(), 0, Color.WHITE.clone());
+		Particle p = new Particle((long) (Math.random()*(maximumParticleLife-minimumParticleLife)+minimumParticleLife), now, e.generateSpawnPosition(), new Vector3f(), 0, Color.WHITE.clone());
+		active.add(p);
+	}
+	
+	public synchronized void forEach(Consumer<Particle> forEach) {
+		active.forEach(forEach);
 	}
 }
