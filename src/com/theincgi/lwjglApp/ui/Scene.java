@@ -51,7 +51,7 @@ public class Scene {
 		MatrixStack.view.reset();
 
 		//gluPickMatrix2((float)mouseX, (float)mouseY, 1, 1);
-		
+
 		camera.viewMatrix(); //load the view
 		ShaderManager.INSTANCE.forLoaded(s->{
 			camera.tellShader(s);
@@ -69,7 +69,7 @@ public class Scene {
 		glEnable(GL_ALPHA);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		
+
 		synchronized (opaqueDrawables) {
 			opaqueDrawables.forEach(d->{
 				d.draw();
@@ -134,13 +134,13 @@ public class Scene {
 			tickables.remove( t );
 		}
 	}
-	
+
 
 	public Optional<Drawable> getClicked(float x, float y) {
 
 		return Optional.empty();
 	}
 
-	
+
 
 }

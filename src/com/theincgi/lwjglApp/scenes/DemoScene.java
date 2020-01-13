@@ -39,7 +39,6 @@ public class DemoScene extends Scene{
 	Optional<FontTexture> font;
 	HashMap<VRController.Input, String> controls;
 	Animation testAnimation;
-	ParticleEffectStream pes;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -65,7 +64,6 @@ public class DemoScene extends Scene{
 		})).setDuration(5f, TimeUnit.SECONDS);
 		addTickable(testAnimation);
 		
-		addDrawable(pes = new ParticleEffectStream(new Location(0,1,-5), this));
 		
 	}
 	
