@@ -1,5 +1,6 @@
 package com.theincgi.lwjglApp.scenes;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.ListIterator;
@@ -19,6 +20,7 @@ import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.ParticleSystem;
 import com.theincgi.lwjglApp.render.Side;
+import com.theincgi.lwjglApp.render.TextureManager;
 import com.theincgi.lwjglApp.render.animation.Animation;
 import com.theincgi.lwjglApp.render.animation.Animation.TimeUnit;
 import com.theincgi.lwjglApp.render.text.FontTexture;
@@ -65,14 +67,14 @@ public class DemoScene extends Scene{
 		})).setDuration(5f, TimeUnit.SECONDS);
 		addTickable(testAnimation);
 		
-		testSystem = new ParticleSystem(this, 0, 1, -5);
-		testSystem.addForce((s,d)->{
+		testSystem = new ParticleSystem(this, 0, 1, -5)
+		.addForce((psAge, s,d)->{
 			if(s.age==0) {
-				d.velocity.x = (float) (Math.random()*.1);
-				d.velocity.y = (float) (Math.random()*.3);
-				d.velocity.z = (float) (Math.random()*.1);
+				d.velocity.x = (float) ((Math.random()-.5)*.1);
+				d.velocity.y = (float) ((Math.random())*.3);
+				d.velocity.z = (float) ((Math.random()-.5)*.1);
 			}
-		});
+		}).setTexture("particleTextures/softPoint.png");
 	}
 	
 	public void onTick() {
@@ -90,7 +92,7 @@ public class DemoScene extends Scene{
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
-		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(0, 2, -3f))){	
+		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(.5f, 1, -1f))){	
 			font.ifPresent(ft->{
 					TextRenderer.renderText(ft, "Test\nWorld\n低1,0,0;Ok\n低0,1,0;伯Bold 呆plain\n"
 							+ "低0,0,1;兌Italics告 normal\n"
@@ -161,7 +163,7 @@ public class DemoScene extends Scene{
 			if(action==null) return false;
 			switch (action) {
 			case "tryParticleSystem":
-				testSystem.emit(1000, 1000, 500, 200);
+				testSystem.emit(1000, 10000, 500, 200);
 				return true;
 				
 			default:

@@ -1,5 +1,9 @@
 package com.theincgi.lwjglApp.render.text;
 
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+
 import java.util.Optional;
 import java.util.PrimitiveIterator.OfInt;
 
@@ -82,7 +86,7 @@ public class TextRenderer {
 		shader.trySetUniformTexture("boldTex",  ft.getTexBold().getHandle(), 1);
 		
 		StringBuffer valBuf = new StringBuffer();
-		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		ShaderProgram sp = fontRenderer.get();
 		OfInt it = text.codePoints().iterator();
 		if(it.hasNext()) for(int cp = 0; it.hasNext();) {

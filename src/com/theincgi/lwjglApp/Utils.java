@@ -123,4 +123,8 @@ public class Utils {
 		return (float) Math.sqrt( dx*dx + dy*dy + dz*dz );
 	}
 	
+	/**Returns a normaly distributed float between -range and range, non inclusive*/
+	public static float ndRandom(int range) {
+		return (float)( Math.random()+Math.random()+Math.random() - Math.random() - Math.random() - Math.random() )/6*range;
+	}
 }

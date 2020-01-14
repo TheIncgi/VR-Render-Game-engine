@@ -19,6 +19,7 @@ import org.lwjgl.util.vector.Vector4f;
 import static org.lwjgl.opengl.GL45.*;
 
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.render.ImgTexture;
 import com.theincgi.lwjglApp.ui.Color;
 
 public class ShaderProgram {
@@ -226,6 +227,14 @@ public class ShaderProgram {
         glActiveTexture(GL_TEXTURE0 + textureTarget);
         glBindTexture(GL_TEXTURE_2D, textureID);
         return true;
+    }
+    /**
+     * @param name Name of the sampler2D in GLSL shader
+     * @param textureID id of the texture generated
+     * @param textureTarget number 0 thru 31. Seems to be the max textures used is 32
+     * */
+    public boolean trySetUniformTexture( String name, ImgTexture textureID, int textureTarget ){
+    	return trySetUniformTexture(name, textureID.getHandle(), textureTarget);
     }
     /**
      *  * @param textureTarget number 0 thru 31. Seems to be the max textures used is 32
