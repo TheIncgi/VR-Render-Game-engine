@@ -11,6 +11,7 @@ import org.lwjgl.openvr.VRControllerState;
 import org.lwjgl.openvr.VRSystem;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
@@ -252,18 +253,19 @@ public class TouchControllers implements VRController {
 		
 	}
 
+	
 	public Location getLeftLocation() {
 		return leftLocation;
 	}
-
+	
 	public Location getRightLocation() {
 		return rightLocation;
 	}
-
+	@Override
 	public Matrix4f getLeftTransform() {
 		return leftTransform;
 	}
-
+	@Override
 	public Matrix4f getRightTransform() {
 		return rightTransform;
 	}
@@ -438,9 +440,5 @@ public class TouchControllers implements VRController {
 		return null;
 	}
 
-	
-	
-	
-	
 	
 }

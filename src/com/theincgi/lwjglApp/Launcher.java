@@ -1,12 +1,14 @@
 package com.theincgi.lwjglApp;
 
 import java.awt.Font;
+import java.io.IOException;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.ObjCompresser;
 import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
@@ -32,6 +34,12 @@ public class Launcher {
 	}
 	private static VRUtil vrUtil;
 	public static void main(String[] args) {
+		try {
+			Logger.preferedLogger.i("Launcher#main", "Checking for new models");
+			ObjCompresser.compressAll(false);
+		} catch (IOException e) {
+			Logger.preferedLogger.e("launcher#static", e);
+		}
 		try(VRUtil util = new VRUtil()){
 			vrUtil = util;
 			util.initVR();

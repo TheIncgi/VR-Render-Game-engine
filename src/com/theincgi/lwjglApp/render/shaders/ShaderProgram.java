@@ -316,25 +316,25 @@ public class ShaderProgram {
 	
 	public static int loadShader( int type, File srcFile ) {
 		try(FileInputStream fis = new FileInputStream(srcFile)){
-			return loadShader(type, fis);
+			return loadShader(type, fis, srcFile.getName());
 		} catch (FileNotFoundException e) {
-			log.e("ShaderProgram#loadShader", e);
+			log.e("ShaderProgram#loadShader", srcFile.getName(),e);
 		} catch (IOException e) {
-			log.e("ShaderProgram#loadShader", e);
+			log.e("ShaderProgram#loadShader", srcFile.getName(), e);
 		}
 		return 0;
 	}
-	public static int loadShader( int type, InputStream in) {
+	public static int loadShader( int type, InputStream in, String incaseOfErrorTheFileNameIs) {
 		String src;
 		try {
 			src = new String(in.readAllBytes());
-			return loadShader( type, src );
+			return loadShader( type, src, incaseOfErrorTheFileNameIs );
 		} catch (IOException e) {
 			log.e("ShaderProgram#loadShader", "Unable to read all bytes", e);
 			return 0;
 		}
 	}
-	private static int loadShader(int type, String src) {
+	private static int loadShader(int type, String src, String incaseOfErrorTheFileNameIs) {
 		int shader = glCreateShader(type);
 		//log.checkGL();
 		glShaderSource(shader, src);
@@ -346,7 +346,7 @@ public class ShaderProgram {
 			glGetShaderiv(shader, GL_COMPILE_STATUS, status);
 			if(status.get(0) == GL_FALSE) {
 				log.d("ShaderProgram#loadShader", "src: "+src);
-				log.w("ShaderProgram#loadShader", "Error compiling shader ("+status.get(0)+"): "+
+				log.w("ShaderProgram#loadShader", "Error compiling shader "+incaseOfErrorTheFileNameIs+" ("+status.get(0)+"): "+
 				  glGetShaderInfoLog(shader));
 				glDeleteShader(shader);
 				return 0;

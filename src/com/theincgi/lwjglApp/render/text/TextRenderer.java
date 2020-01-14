@@ -71,8 +71,8 @@ public class TextRenderer {
 		ShaderProgram shader = fontRenderer.get();		
 		shader.bind();
 		//shader.trySetMatrix("projectionMatrix",);
-		shader.trySetMatrix("viewMatrix", MatrixStack.view.get());
-		shader.trySetMatrix("modelViewMatrix", MatrixStack.modelViewStack.get());
+		
+		//shader.trySetMatrix("modelViewMatrix", MatrixStack.modelViewStack.get());
 		shader.trySetUniform("fontFlags", fontFlags);
 		shader.trySetUniform("tileSize", new float[]{ft.getTileWidth(), ft.getTileHeight()});
 		shader.trySetUniform("scale", heightInCentimeters);

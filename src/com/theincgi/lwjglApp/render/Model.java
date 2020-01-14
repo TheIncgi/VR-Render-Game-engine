@@ -68,8 +68,8 @@ public class Model {
 			ibo = new int[materialGroups];
 			elementSizes = new int[materialGroups];
 			materials = new String[materialGroups];
-			System.out.println("Model: "+modelName);
-			System.out.println("\tMGroups: "+materialGroups);
+		//	System.out.println("Model: "+modelName);
+		//	System.out.println("\tMGroups: "+materialGroups);
 			for(int mg = 0; mg<materialGroups; mg++) {
 				materials[mg] = in.readUTF().trim();
 				int uniqueIndexCount = in.readInt();
@@ -79,7 +79,7 @@ public class Model {
 					rawData[i] = in.readFloat();
 
 				int indexSize = in.readInt();
-				System.out.println("\tElements: "+indexSize);
+		//		System.out.println("\tElements: "+indexSize);
 				elementSizes[mg] = indexSize;
 				int[] rawIndex = new int[indexSize];
 				for(int i = 0; i<indexSize; i++)
@@ -94,11 +94,11 @@ public class Model {
 
 
 			}
-			System.out.println("");
-			System.out.println("\tVAO: "+Arrays.toString(VAO));
-			System.out.println("\tIBO: "+Arrays.toString(ibo));
-			System.out.println("\tVBO: "+Arrays.toString(vbo));
-			System.out.println("\tMaterials: "+Arrays.toString(materials));
+//			System.out.println("");
+//			System.out.println("\tVAO: "+Arrays.toString(VAO));
+//			System.out.println("\tIBO: "+Arrays.toString(ibo));
+//			System.out.println("\tVBO: "+Arrays.toString(vbo));
+//			System.out.println("\tMaterials: "+Arrays.toString(materials));
 		}finally {
 			Utils.freeBuffer(data);
 			Utils.freeBuffer(index);
@@ -214,6 +214,7 @@ public class Model {
 				s.bind();
 				s.tryEnableVertexAttribArray("vPosition");
 				s.trySetMatrix("modelViewMatrix", stk.get());
+				s.trySetMatrix("viewMatrix", MatrixStack.view.get());
 				s.tryEnableVertexAttribArray("texPosition");
 				s.tryEnableVertexAttribArray("normPosition");
 				material.ifPresent(matGroup->{

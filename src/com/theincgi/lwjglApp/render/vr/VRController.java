@@ -1,6 +1,9 @@
 package com.theincgi.lwjglApp.render.vr;
 
 import org.lwjgl.openvr.TrackedDevicePose;
+import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Side;
@@ -64,4 +67,9 @@ public interface VRController extends Drawable{
 	void updatePoseLeft(int index, TrackedDevicePose tdp);
 
 	void updatePoseRight(int index, TrackedDevicePose tdp);
+	
+	public Matrix4f getLeftTransform();
+
+	public Matrix4f getRightTransform();
+	
 }

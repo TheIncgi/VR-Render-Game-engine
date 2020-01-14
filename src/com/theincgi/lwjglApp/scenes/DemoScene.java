@@ -10,6 +10,7 @@ import javax.security.auth.callback.CallbackHandler;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Pair;
@@ -26,6 +27,7 @@ import com.theincgi.lwjglApp.render.animation.Animation.TimeUnit;
 import com.theincgi.lwjglApp.render.text.FontTexture;
 import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.text.TextRenderer;
+import com.theincgi.lwjglApp.render.vr.PointingLasers;
 import com.theincgi.lwjglApp.render.vr.TouchControllers;
 import com.theincgi.lwjglApp.render.vr.VRController;
 import com.theincgi.lwjglApp.render.vr.VRController.Input;
@@ -74,7 +76,10 @@ public class DemoScene extends Scene{
 				d.velocity.y = (float) ((Math.random())*.3);
 				d.velocity.z = (float) ((Math.random()-.5)*.1);
 			}
-		}).setTexture("particleTextures/softPoint.png");
+		}).setTexture("particleTextures/star4.png");
+		Launcher.getMainWindow().getVRWindow().ifPresent(vrWindow->{
+			addDrawable(new PointingLasers(vrWindow.vrControllers));
+		});
 	}
 	
 	public void onTick() {
