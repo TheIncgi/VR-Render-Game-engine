@@ -30,5 +30,5 @@ void main() {
 	vec4 textColor = color*texture( checkFlag(fontFlags, 0)?boldTex:plainTex, map(texturePosition, vec2(0,0), vec2(1,1), uv.xy, uv.zw));
 	textColor = ((checkFlag(fontFlags, 2) && abs(.5-texturePosition.y)<strikethruThickness)? BLACK : textColor);
 	FragColor = ((checkFlag(fontFlags, 3) && 1-texturePosition.y<underlineThickness)? BLACK : textColor);
-	EmissiveColor = vec4(0,1,1,1);
+	EmissiveColor = vec4(0,0,0,0);
 }

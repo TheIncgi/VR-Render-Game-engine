@@ -13,7 +13,7 @@ uniform vec3 particleScale;
 uniform vec3 particleVelocity;
 uniform int particleAge;
 uniform int particleMaxAge;
-uniform int particleEmissionStrength;
+uniform float particleEmissionStrength;
 uniform int flags;
 uniform sampler2D particleTexture;
 
@@ -27,5 +27,5 @@ void main(){
 		color *= texture(particleTexture, texturePosition);
 	}
 	FragColor     = color;
-	EmissionColor = vec4(color.xyz, particleEmissionStrength);
+	EmissionColor = (vec4(particleColor.rgb, particleEmissionStrength) + vec4(color.rgb, particleEmissionStrength) ) /2;
 }

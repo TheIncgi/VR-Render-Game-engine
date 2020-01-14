@@ -9,11 +9,14 @@ import static org.lwjgl.opengl.GL45.*;
 import static org.lwjgl.openvr.VR.*;
 
 import java.io.File;
+import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.Optional;
 
 import org.lwjgl.*;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.openvr.Texture;
 import org.lwjgl.openvr.TrackedDevicePose;
 import org.lwjgl.openvr.VR;
 import org.lwjgl.openvr.VRCompositor;
@@ -32,6 +35,8 @@ import com.theincgi.lwjglApp.render.Side;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
+import com.theincgi.lwjglApp.render.RenderPipeline;
+import com.theincgi.lwjglApp.render.RenderPipeline.BufferSet;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
 import com.theincgi.lwjglApp.render.text.TextRenderer;
@@ -51,16 +56,20 @@ public class VRWindow extends AWindow{
 	public VRController vrControllers;
 	/**Looks like each eye is rendered to a texture so additional effects can be applied after rendering. such as chromatic distortion*/
 
-	private int leftEyeTexture, rightEyeTexture, tempTexture, tempEmissiveTexture;
-	private int leftDepth, rightDepth, tempDepth;
-	private int leftFrameBuffer, rightFrameBuffer, tempFrameBuffer;
-	private Model quadPostEffect, quadMirror;
+	//private int leftEyeTexture, rightEyeTexture;
+	//private int leftDepth, rightDepth;
+	//private int leftFrameBuffer, rightFrameBuffer;
+	private Model quadMirror;
 	private Location quadLocation = new Location(0, 0, 0, 0, 0, -90);
+	RenderPipeline renderPipelineLeft, renderPipelineRight;
 	private long startTime = System.currentTimeMillis();
 	private VRUtil vrUtil;
 	TrackedDevicePose.Buffer pRenderPoseArray, pGamePoseArray;
 	boolean flipEyes = false; //TODO allow preview to be sterio mode
 
+	public static final String[] renderChannels = new String[] {"renderedTexture","emissionTexture"};
+	private int mirrorChannel = 0;
+	
 	public Optional<ShaderProgram> postShader;
 	/**Width and height should now be separate from window resolution*/
 	public VRWindow(int wid, int hei, String title, Scene scene) {
@@ -75,111 +84,98 @@ public class VRWindow extends AWindow{
 		leftEye = new EyeCamera();
 		rightEye = new EyeCamera().setSide(Side.RIGHT);
 
-		int internalFormat = GL_RGBA8;
-		int externalFormat = GL_RGBA;
-		//RED GREEN BLUE ALPHA RG RGB RGBA BGR 
-		//BGRA RED_INTEGER GREEN_INTEGER BLUE_INTEGER ALPHA_INTEGER RG_INTEGER RGB_INTEGER RGBA_INTEGER 
-		//BGR_INTEGER BGRA_INTEGER STENCIL_INDEX DEPTH_COMPONENT DEPTH_STENCIL 
-
-		int textel         = GL_UNSIGNED_BYTE;
-
-		//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
-		leftFrameBuffer = glGenFramebuffers();
-		glBindFramebuffer(GL_FRAMEBUFFER, leftFrameBuffer);
-
-		leftEyeTexture = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, leftEyeTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, externalFormat, textel, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-
-		leftDepth = glGenRenderbuffers();
-		glBindRenderbuffer(GL_RENDERBUFFER, leftDepth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, leftDepth);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, leftEyeTexture, 0);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-		
-		//and now the right
-		//...
-		rightFrameBuffer = glGenFramebuffers();
-		glBindFramebuffer(GL_FRAMEBUFFER, rightFrameBuffer);
-
-		rightEyeTexture = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, rightEyeTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, externalFormat, textel, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-		rightDepth = glGenRenderbuffers();
-		glBindRenderbuffer(GL_RENDERBUFFER, rightDepth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rightDepth);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, rightEyeTexture, 0);
-
-		glDrawBuffer(GL_COLOR_ATTACHMENT0);
-
-		//unbinding
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-		//temp buffer
-		tempFrameBuffer = glGenFramebuffers();
-		glBindFramebuffer(GL_FRAMEBUFFER, tempFrameBuffer);
-
-		tempTexture = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, tempTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, externalFormat, textel, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-		
-		tempEmissiveTexture = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, tempEmissiveTexture);
-		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, externalFormat, textel, 0);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-
-
-		tempDepth = glGenRenderbuffers();
-		glBindRenderbuffer(GL_RENDERBUFFER, tempDepth);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, tempDepth);
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, tempTexture, 0);
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, tempEmissiveTexture, 0);
-
-		glDrawBuffers(new int[] {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1});
-		
-		//unbinding
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+//		int internalFormat = GL_RGBA8;
+//		int externalFormat = GL_RGBA;
+//		int textel         = GL_UNSIGNED_BYTE;
+//
+//		//http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/
+//		leftFrameBuffer = glGenFramebuffers();
+//		glBindFramebuffer(GL_FRAMEBUFFER, leftFrameBuffer);
+//
+//		leftEyeTexture = glGenTextures();
+//		glBindTexture(GL_TEXTURE_2D, leftEyeTexture);
+//		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, externalFormat, textel, 0);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+//
+//
+//		leftDepth = glGenRenderbuffers();
+//		glBindRenderbuffer(GL_RENDERBUFFER, leftDepth);
+//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, leftDepth);
+//
+//		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, leftEyeTexture, 0);
+//
+//		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+//
+//		
+//		//and now the right
+//		//...
+//		rightFrameBuffer = glGenFramebuffers();
+//		glBindFramebuffer(GL_FRAMEBUFFER, rightFrameBuffer);
+//
+//		rightEyeTexture = glGenTextures();
+//		glBindTexture(GL_TEXTURE_2D, rightEyeTexture);
+//		glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, externalFormat, textel, 0);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+//		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+//
+//		rightDepth = glGenRenderbuffers();
+//		glBindRenderbuffer(GL_RENDERBUFFER, rightDepth);
+//		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+//		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rightDepth);
+//
+//		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, rightEyeTexture, 0);
+//
+//		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+//
+//		//unbinding
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//		glBindTexture(GL_TEXTURE_2D, 0);
+//		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+//
+//		
+//		
+//		//unbinding
+//		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//		glBindTexture(GL_TEXTURE_2D, 0);
+//		glBindRenderbuffer(GL_RENDERBUFFER, 0);
 				
 		//quad setup for display
 		//quad = ObjManager.INSTANCE.get(new File("cmodels/plane/plane.obj")).get(); //critical
 		quadMirror = ObjManager.INSTANCE.get("cmodels/plane/plane.obj", "textureDisplay").get(); //critical
-		quadPostEffect=ObjManager.INSTANCE.get("cmodels/plane/plane.obj", "post").get();
+		
 
-		vrUtil().bindEyeTextures(leftEyeTexture, rightEyeTexture, false);
+		//vrUtil().bindEyeTextures(leftEyeTexture, rightEyeTexture, false);
 		//vrUtil().bindEyeBuffers(leftFrameBuffer, rightFrameBuffer, false);
 		//pGamePoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount); optional predicted frame
 		pRenderPoseArray = TrackedDevicePose.create(VR.k_unMaxTrackedDeviceCount);
 		vrControllers = new TouchControllers();
-		postShader = ShaderManager.INSTANCE.get("post");
+		renderPipelineLeft = new RenderPipeline(vrUtil.getWidth(), vrUtil.getHeight(), renderChannels);
+		renderPipelineRight = new RenderPipeline(vrUtil.getWidth(), vrUtil.getHeight(), renderChannels);
+//		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+//		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+//		
+//		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+//		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+//		
+		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+//		
+		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+		
+		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+//		
+		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("blurEmission1").get());
+		renderPipelineLeft .appendStep(ShaderManager.INSTANCE.get("post").get());
+		renderPipelineRight.appendStep(ShaderManager.INSTANCE.get("post").get());
 		TextRenderer.init();
 	}
 
@@ -222,8 +218,15 @@ public class VRWindow extends AWindow{
 
 		VRCompositor.VRCompositor_WaitGetPoses(pRenderPoseArray, null);
 		TrackedDevicePose hmdPose = pRenderPoseArray.get(VR.k_unTrackedDeviceIndex_Hmd);
+		
+		
+		
+		
 		try(MemoryStack ms = MemoryStack.stackPush()){
 			IntBuffer err = ms.mallocInt(1);
+			FloatBuffer sinceLastVsyncBuff = ms.mallocFloat(1);
+			LongBuffer frames = ms.mallocLong(1);
+			
 			for (int i = 1; i < pRenderPoseArray.limit(); i++) {
 				TrackedDevicePose tdp = pRenderPoseArray.get(i);
 				if(tdp == null || !tdp.bDeviceIsConnected() || !tdp.bPoseIsValid()) continue;
@@ -241,56 +244,50 @@ public class VRWindow extends AWindow{
 						Logger.preferedLogger.w("VRWindow#_render", "Unhandled device: "+name);
 				}
 			}
+			
+//			VRSystem.VRSystem_GetTimeSinceLastVsync(sinceLastVsyncBuff, frames);
+//			float fSecondsSinceLastVsync = sinceLastVsyncBuff.get(0);
+//			float fDisplayFrequency = VRSystem.VRSystem_GetFloatTrackedDeviceProperty(VR.k_unTrackedDeviceIndex_Hmd, VR.ETrackedDeviceProperty_Prop_DisplayFrequency_Float, err);
+//			float fFrameDuration = 1f / fDisplayFrequency;
+//			float fVsyncToPhotons = VRSystem.VRSystem_GetFloatTrackedDeviceProperty(VR.k_unTrackedDeviceIndex_Hmd, VR.ETrackedDeviceProperty_Prop_SecondsFromVsyncToPhotons_Float, err);
+//			float fPredictedSecondsFromNow = fFrameDuration - fSecondsSinceLastVsync + fVsyncToPhotons;
+//			VRSystem.nVRSystem_GetDeviceToAbsoluteTrackingPose(ETrackingUniverseOrigin_TrackingUniverseStanding, fPredictedSecondsFromNow, pRenderPoseArray.address(), VR.k_unMaxTrackedDeviceCount);
+//			hmdPose = pRenderPoseArray.get(VR.k_unTrackedDeviceIndex_Hmd);
 		}
 
 
 		leftEye.setHmdPose(hmdPose);
 		rightEye.setHmdPose(hmdPose);
-
+		
+		
+		
+		
+		
+		
 		//left eye
-		glBindFramebuffer(GL_FRAMEBUFFER, tempFrameBuffer);
+		renderPipelineLeft.bind();
 		setViewport(0, 0, vrUtil().getWidth(), vrUtil().getHeight());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
-		
-		
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects		
 		value.render(flipEyes?rightEye:leftEye, -1, -1);
-
-		postShader.ifPresent(s->{
-			glBindFramebuffer(GL_FRAMEBUFFER, leftFrameBuffer);
-			setViewport(0, 0, vrUtil().getWidth(), vrUtil().getHeight());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
-			s.bind();
-			s.trySetUniform("uptime", (System.currentTimeMillis()-startTime)/1000f); //casted to float
-			s.trySetUniformTexture("renderedTexture", tempTexture, 0);
-			s.trySetUniformTexture("emissionTexture", tempEmissiveTexture, 1);
-			quadPostEffect.drawAt(quadLocation);
-		});
-		
+		BufferSet left = renderPipelineLeft.process();
+				
 		//right eye
-		glBindFramebuffer(GL_FRAMEBUFFER, tempFrameBuffer);
+		renderPipelineRight.bind();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
 		value.render(flipEyes?leftEye:rightEye, -1, -1);
 
-		postShader.ifPresent(s->{
-			glBindFramebuffer(GL_FRAMEBUFFER, rightFrameBuffer);
-			setViewport(0, 0, vrUtil().getWidth(), vrUtil().getHeight());
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); //Disabling this makes fun effects
-			s.bind();
-			s.trySetUniform("uptime", (System.currentTimeMillis()-startTime)/1000f); //casted to float
-			s.trySetUniformTexture("renderedTexture", tempTexture, 0);
-			s.trySetUniformTexture("emissionTexture", tempEmissiveTexture, 1);
-			quadPostEffect.drawAt(quadLocation);
-		});
-
-		vrUtil().submitFrame();
+		BufferSet right = renderPipelineRight.process();
+		vrUtil().submitFrame(left.output, right.output, VR.EVRSubmitFlags_Submit_Default);
+		
+		
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		setViewport(0, 0, width/2, height);
-		setShaderUniforms(tempEmissiveTexture); //TODO make a mirror setting to toggle channels
+		setShaderUniforms(left.textureChannels[mirrorChannel]);
 		quadMirror.drawAt(quadLocation);
 
 		setViewport(width/2, 0, width/2, height);
-		setShaderUniforms(rightEyeTexture);
+		setShaderUniforms(right.textureChannels[mirrorChannel]);
 		quadMirror.drawAt(quadLocation);
 		
 		
@@ -419,5 +416,9 @@ public class VRWindow extends AWindow{
 	@Override
 	public boolean isVR() {
 		return true;
+	}
+	
+	public void showNextMirrorChannel() {
+		mirrorChannel = (mirrorChannel + 1) % renderChannels.length;
 	}
 }

@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import org.lwjgl.system.MemoryStack;
@@ -26,8 +27,8 @@ public class ShaderProgram {
 	static Logger log = Logger.preferedLogger;
 	private static ShaderProgram activeShader = null;
 	
-	private HashMap<String, Integer> uniformLookup = new HashMap<>();
-	private HashMap<String, Integer> attribLookup = new HashMap<>();
+	private ConcurrentHashMap<String, Integer> uniformLookup = new ConcurrentHashMap<>();
+	private ConcurrentHashMap<String, Integer> attribLookup = new ConcurrentHashMap<>();
 	
 	private int programHandle;
 	private String label;
@@ -41,6 +42,7 @@ public class ShaderProgram {
 	public ShaderProgram(File vertex, File fragment) {
 		this.vertexSrc = vertex;
 		this.fragmentSrc = fragment;
+		label = fragment.getName();
 		init();
 	}
 	private void init() {
@@ -353,5 +355,9 @@ public class ShaderProgram {
 			}
 		}
 		return shader;
+	}
+	@Override
+	public String toString() {
+		return label;
 	}
 }

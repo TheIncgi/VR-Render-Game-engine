@@ -124,7 +124,7 @@ public class Utils {
 	}
 	
 	/**Returns a normaly distributed float between -range and range, non inclusive*/
-	public static float ndRandom(int range) {
+	public static float ndRandom(float range) {
 		return (float)( Math.random()+Math.random()+Math.random() - Math.random() - Math.random() - Math.random() )/6*range;
 	}
 }

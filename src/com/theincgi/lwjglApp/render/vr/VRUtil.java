@@ -138,6 +138,19 @@ public class VRUtil implements AutoCloseable, Closeable {
 		
 	}
 	
+	public void submitFrame(Texture leftTexture, Texture rightTexture, int flags) {
+		//int flags = VR.EVRSubmitFlags_Submit_Default ;//| VR.EVRSubmitFlags_Submit_GlRenderBuffer; TextureUsesUnsupportedFormat caused by this if using a texture an not a render buffer, oops
+		int code = 0;
+		code = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Left,  leftTexture,  null, flags);
+		if(code!=VR.EVRCompositorError_VRCompositorError_None) {
+			Logger.preferedLogger.w("VRUtil#submitFrame", VR.VR_GetVRInitErrorAsEnglishDescription(code));
+		}
+		code = VRCompositor.VRCompositor_Submit(VR.EVREye_Eye_Right, rightTexture, null, flags);
+		
+		VRCompositor.VRCompositor_PostPresentHandoff();
+		
+	}
+	
 	private static WeakHashMap<Integer, String> eventNameLookup = new WeakHashMap<>();
 	public static String getEventName(int ecode) {
 		return eventNameLookup.computeIfAbsent(ecode, (k)->{

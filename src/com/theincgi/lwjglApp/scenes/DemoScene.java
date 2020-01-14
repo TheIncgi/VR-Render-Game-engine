@@ -8,9 +8,13 @@ import java.util.Optional;
 
 import javax.security.auth.callback.CallbackHandler;
 
+import org.lwjgl.glfw.GLFW;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.Launcher;
+import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Pair;
@@ -72,13 +76,26 @@ public class DemoScene extends Scene{
 		testSystem = new ParticleSystem(this, 0, 1, -5)
 		.addForce((psAge, s,d)->{
 			if(s.age==0) {
-				d.velocity.x = (float) ((Math.random()-.5)*.1);
-				d.velocity.y = (float) ((Math.random())*.3);
-				d.velocity.z = (float) ((Math.random()-.5)*.1);
+				d.velocity.x =  Utils.ndRandom(.83f);
+				d.velocity.y =  Utils.ndRandom(.83f);
+				d.velocity.z =-(Utils.ndRandom(.6f)+.43f);
+				Vector4f tmp = new Vector4f(d.velocity.x, d.velocity.y, d.velocity.z, 0);
+				Matrix4f.transform(new Matrix4f().rotate(-45, new Vector3f(1, 0, 0)), tmp, tmp);
+				Matrix4f.transform(Launcher.getMainWindow().getVRWindow().get().vrControllers.getLeftTransform(), tmp,tmp);
+				d.velocity.x = tmp.x;
+				d.velocity.y = tmp.y;
+				d.velocity.z = tmp.z;
+				d.velocity.scale(.04f);
 			}
+			d.emissionStrength = (float)(1-Math.pow(s.age/(float)s.maxAge, 3));
 		}).setTexture("particleTextures/star4.png");
 		Launcher.getMainWindow().getVRWindow().ifPresent(vrWindow->{
 			addDrawable(new PointingLasers(vrWindow.vrControllers));
+			testSystem.addEmitter(()->{
+				Vector4f x = new Vector4f(0,0,0,1);
+				Matrix4f.transform(vrWindow.vrControllers.getLeftTransform(), x, x);
+				return new Vector3f(x);
+			});
 		});
 	}
 	
@@ -128,7 +145,10 @@ public class DemoScene extends Scene{
 
 		@Override
 		public boolean onMouseButton(AWindow window, double x, double y, int button, int action, int mods) {
-			System.out.printf("MOUSE BUTTON: Pos: <%6.2f, %6.2f> |Button: button | Window: %s\n", x, y, button, window);
+			if(action == GLFW.GLFW_PRESS)
+			Launcher.getMainWindow().getVRWindow().ifPresent(vr->{
+				vr.showNextMirrorChannel();
+			});
 			return true;
 		}
 
@@ -168,7 +188,7 @@ public class DemoScene extends Scene{
 			if(action==null) return false;
 			switch (action) {
 			case "tryParticleSystem":
-				testSystem.emit(1000, 10000, 500, 200);
+				testSystem.emit(1000, 8000, 500, 200);
 				return true;
 				
 			default:
