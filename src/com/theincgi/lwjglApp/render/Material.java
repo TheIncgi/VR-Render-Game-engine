@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.theincgi.lwjglApp.ui.Color;
 
-public class Material {
+public class Material implements Cloneable{
 	public final String materialName;
 	/**Diffuse reflectivity - manditory*/
 	public Color kd = Color.WHITE; //Kd r g b
@@ -110,5 +110,26 @@ recommended.*/
 		this.materialName = name;
 	}
 	
-	
+	@Override
+	protected Material clone() {
+		Material x = new Material(this.materialName);
+		x.d 		= this.d;
+		x.halo 		= this.halo;
+		x.illum 	= this.illum;
+		x.ka 		= this.ka;
+		x.ke 		= this.ke;
+		x.ks 		= this.ks;
+		x.map_bump 	= this.map_bump;
+		x.map_d 	= this.map_d;
+		x.map_disp 	= this.map_disp;
+		x.map_ka 	= this.map_ka;
+		x.map_kd 	= this.map_kd;
+		x.map_ks 	= this.map_ks;
+		x.map_ns 	= this.map_ns;
+		x.ni 		= this.ni;
+		x.ns 		= this.ns;
+		x.sharpness = this.sharpness;
+		x.tf 		= this.tf;
+		return x;
+	}
 }

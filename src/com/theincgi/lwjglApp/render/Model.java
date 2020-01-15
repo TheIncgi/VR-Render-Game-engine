@@ -201,6 +201,9 @@ public class Model {
 	}
 
 	public void drawAtOrigin() {
+		drawAtOrigin(this.material);
+	}
+	public void drawAtOrigin(Optional<MaterialGroup> material) {
 		MatrixStack stk = MatrixStack.modelViewStack;
 		shader.ifPresentOrElse(s->{
 			s.bind();
@@ -270,6 +273,10 @@ public class Model {
 		}
 
 
+	}
+	
+	public Optional<MaterialGroup> getMaterial() {
+		return material;
 	}
 
 	//	public void drawAsColor(Color color, Location locaiton) {

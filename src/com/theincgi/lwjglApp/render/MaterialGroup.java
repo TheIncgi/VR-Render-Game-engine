@@ -3,6 +3,7 @@ package com.theincgi.lwjglApp.render;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -11,9 +12,11 @@ import org.lwjgl.openvr.Texture;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.ui.Color;
 
-public class MaterialGroup {
+public class MaterialGroup implements Cloneable {
 	HashMap<String, Material> materials = new HashMap<>();
 
+	private MaterialGroup() {}
+	
 	public MaterialGroup(File src) {
 		try(Scanner scanner = new Scanner(src)){
 			Material current = null;
@@ -85,6 +88,17 @@ public class MaterialGroup {
 		}catch (Exception e) {
 			Logger.preferedLogger.e("MaterialGroup#new", e);
 		}
+	}
+	
+	/**Creates a 'deep' copy for modification<br>
+	 * any optional type values may not have cloned their held values*/
+	@Override
+	protected MaterialGroup clone() {
+		MaterialGroup x = new MaterialGroup();
+		x.materials = new HashMap<>();
+		for(Entry<String, Material> a : materials.entrySet())
+			x.materials.put(a.getKey(), a.getValue().clone());
+		return x;
 	}
 
 	private static Optional<Color> nextColor(Scanner s){
