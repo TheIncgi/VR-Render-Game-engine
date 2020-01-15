@@ -48,14 +48,16 @@ public class DemoScene extends Scene{
 	HashMap<VRController.Input, String> controls;
 	Animation testAnimation;
 	ParticleSystem testSystem;
+	Object3D location;
+	
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
 		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
 		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 2, 1, -3);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
-		sky.setShader("sky");
-		addDrawables(monkey, lantern, sky);
+		location = new Object3D("cmodels/locator/locator.obj", "full");
+		addDrawables(monkey, lantern, sky, location);
 		for(int x = -4; x<=4; x+=2) {
 			for(int y = -4; y<=4; y+=2) {
 				final int X = x*2, Y = y*2;
@@ -100,6 +102,14 @@ public class DemoScene extends Scene{
 	}
 	
 	public void onTick() {
+		Launcher.getMainWindow().getVRWindow().ifPresent(vr->{
+			Vector4f v = vr.vrControllers.getRightPointingVector();
+			location.getLocation().pos[0] = v.x;
+			location.getLocation().pos[1] = v.y;
+			location.getLocation().pos[2] = v.z;
+					
+		});
+		 
 		synchronized (tickables) {
 			LinkedList<Tickable> toRemove = new LinkedList<>();
 			tickables.forEach(t->{

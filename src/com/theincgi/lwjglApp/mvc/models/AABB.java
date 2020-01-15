@@ -3,8 +3,10 @@ package com.theincgi.lwjglApp.mvc.models;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
 import static com.theincgi.lwjglApp.Utils.inRangeE;
+import static com.theincgi.lwjglApp.Utils.inRangeI;
 import static java.lang.Math.min;
 import static java.lang.Math.max;
 
@@ -34,6 +36,12 @@ public class AABB implements Bounds{
 			   inRangeE(z, p1[2], p2[2]);
 	}
 	
+	public boolean isInInclusive(float x, float y, float z) {
+		return inRangeI(x, p1[0], p2[0]) &&
+			   inRangeI(y, p1[1], p2[1]) &&
+			   inRangeI(z, p1[2], p2[2]);
+	}
+	
 	@Override
 	public boolean intersects(Bounds other) {
 		if(other instanceof AABB) {
@@ -46,6 +54,57 @@ public class AABB implements Bounds{
 			return false;
 		}
 	}
+	
+	public boolean isRaycastPassthru(RayCast ray) {
+		if(ray.rayDirection.length()==0) return false;
+		if(isIn(ray.worldOffset.x, ray.worldOffset.y, ray.worldOffset.z)) return true;
+		/**If world offset is in an axis bound*/
+		boolean 
+			isInX = inRangeI(ray.worldOffset.x, p1[0], p2[0]),
+			isInY = inRangeI(ray.worldOffset.y, p1[1], p2[1]),
+			isInZ = inRangeI(ray.worldOffset.z, p1[2], p2[2]);
+		float 
+		  lx = p1[0] - ray.worldOffset.x,
+		  ly = p1[1] - ray.worldOffset.y,
+		  lz = p1[2] - ray.worldOffset.z,
+		  hx = p2[0] - ray.worldOffset.x,
+		  hy = p2[1] - ray.worldOffset.y,
+		  hz = p2[2] - ray.worldOffset.z;
+		
+		if(!isInX && ray.rayDirection.x!=0) {
+			float scale;
+			if(ray.worldOffset.x < p1[0]) //left of the box
+				scale = lx / ray.rayDirection.x;
+			else
+				scale = hx / ray.rayDirection.x;
+			
+			if(scale <= 0) return false;
+			return inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]) &&
+				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2]);
+		}else if(!isInY && ray.rayDirection.y!=0) {
+			float scale;
+			if(ray.worldOffset.y < p1[1])
+				scale = ly / ray.rayDirection.y;
+			else
+				scale = hy / ray.rayDirection.y;
+			if(scale <= 0) return false;
+			return inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
+				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2]);
+		}else if(!isInZ && ray.rayDirection.z!=0) {
+			float scale;
+			if(ray.worldOffset.z < p1[2])
+				scale = lz / ray.rayDirection.z;
+			else
+				scale = hz / ray.rayDirection.z;
+			if(scale <= 0) return false;
+			return inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
+				   inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]);
+		}else {
+			Logger.preferedLogger.w("AABB#isRaycastPassThru", "a ray casted is not sourced from the AABB is also not in any axis' range while also not having a direction vector of length 0...");
+			return false; //this shouldn't be reached ever
+		}
+	};
+	
 	/**Checks if a point in b is contained by a*/
 	private static boolean contains(AABB a, AABB b) {
 		return //any point from b exists in a?

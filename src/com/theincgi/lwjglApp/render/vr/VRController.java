@@ -72,4 +72,12 @@ public interface VRController extends Drawable{
 
 	public Matrix4f getRightTransform();
 	
+	public Vector4f getLeftPointingVector();
+	public Vector4f getLeftHoldingVector();
+	public Vector4f getRightPointingVector();
+	public Vector4f getRightHoldingVector();
+	public Vector4f getLeftPointingSource();
+	public Vector4f getRightPointingSource();
+	public Vector4f getLeftHoldingSource();
+	public Vector4f getRightHoldingSource();
 }

@@ -2,6 +2,7 @@ package com.theincgi.lwjglApp.mvc.models;
 
 import org.lwjgl.util.vector.Vector3f;
 
+import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
 
 public interface Bounds {
@@ -15,4 +16,6 @@ public interface Bounds {
 	boolean isIn(Location l);
 
 	boolean intersects(Bounds other);
+	
+	boolean isRaycastPassthru(RayCast ray);
 }

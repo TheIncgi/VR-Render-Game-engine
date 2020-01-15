@@ -12,6 +12,7 @@ import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 public class Object3D implements Drawable{
 	Optional<Model> model;
 	Location location;
+	Bounds bounds;
 	
 	public Object3D(File model) {
 		this(model, 0,0,0);
@@ -33,6 +34,13 @@ public class Object3D implements Drawable{
 	}
 	public Location getLocation() {
 		return location;
+	}
+	
+	public void setBounds(Bounds bounds) {
+		this.bounds = bounds;
+	}
+	public Bounds getBounds() {
+		return bounds;
 	}
 	
 	public void draw() {
