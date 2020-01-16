@@ -15,6 +15,7 @@ import com.theincgi.lwjglApp.render.Material;
 import com.theincgi.lwjglApp.render.MaterialGroup;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
+import com.theincgi.lwjglApp.ui.Scene;
 
 public class Gui implements Drawable, Tickable{
 	protected ArrayList<Drawable> guiElements = new ArrayList<>();
@@ -22,7 +23,10 @@ public class Gui implements Drawable, Tickable{
 	Optional<Model> square;
 	private float guiWidth = 0, guiHeight = 0;
 	protected CompoundBounds bounds = new CompoundBounds();
-	public Gui(float widthMeters, float heightMeters) {
+	private Scene scene;
+	private boolean isOpen = false;
+	public Gui(Scene scene, float widthMeters, float heightMeters) {
+		this.scene = scene;
 		square = ObjManager.INSTANCE.get("cmodels/plane/plane.obj", "full");
 		guiWidth = widthMeters;
 		guiHeight = heightMeters;
@@ -31,6 +35,7 @@ public class Gui implements Drawable, Tickable{
 	/***/
 	public void addButton(Button button, int gridX, int gridY) {
 		guiElements.add(button);
+		button.setGui(this);
 		button.buttonPosition.x = gridX * .05f;
 		button.buttonPosition.y = gridY * .05f;
 		bounds.addBounds(button.getBounds());
@@ -64,6 +69,28 @@ public class Gui implements Drawable, Tickable{
 		}
 	}
 
+	public void open() {
+		scene.addDrawable(this);
+		scene.addTickable(this);
+		isOpen = true;
+	}
+	public void close() {
+		scene.removeDrawable(this);
+		scene.removeTickable(this);
+		isOpen = false;
+	}
+	
+	public void toggle() {
+		if(isOpen)
+			close();
+		else
+			open();
+	}
+	
+	public boolean isOpen() {
+		return isOpen;
+	}
+	
 	@Override
 	public boolean onTickUpdate() {
 		for (Drawable drawable : guiElements) {

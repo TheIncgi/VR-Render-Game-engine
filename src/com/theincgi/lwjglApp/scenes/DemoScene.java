@@ -42,6 +42,7 @@ import com.theincgi.lwjglApp.ui.AWindow;
 import com.theincgi.lwjglApp.ui.CallbackListener;
 import com.theincgi.lwjglApp.ui.Scene;
 import com.theincgi.lwjglApp.ui.VRWindow;
+import com.theincgi.lwjglApp.vrTests.TestGui;
 
 
 public class DemoScene extends Scene{
@@ -53,7 +54,7 @@ public class DemoScene extends Scene{
 	Object3D location;
 	private String rayResultMessage = "-";
 	private PointingLasers pointingLasers;
-	
+	TestGui testGui;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -103,7 +104,7 @@ public class DemoScene extends Scene{
 				Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), x, x);
 				return new Vector3f(x);
 			});
-		
+		testGui = new TestGui(this);
 	}
 	
 	public void onTick() {
@@ -204,6 +205,10 @@ public class DemoScene extends Scene{
 				raycast(window.vrControllers, ray);
 				//rayResultMessage = ray.result==null? "§C1,0,0;NULL" : "§C0,0,1;"+ray.result.toString();
 			}
+			break;
+			case "tryGui":
+				testGui.toggle(Side.RIGHT);
+				break;
 			default:
 				break;
 			}
@@ -226,6 +231,7 @@ public class DemoScene extends Scene{
 		controls.put(TouchControllers.A_BUTTON, "playAnimationTest");
 		controls.put(TouchControllers.X_BUTTON, "tryParticleSystem");
 		controls.put(TouchControllers.Y_BUTTON, "tryRaycast");
+		controls.put(TouchControllers.B_BUTTON, "tryGui");
 	}
 	
 	@Override

@@ -11,6 +11,7 @@ import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
+import com.theincgi.lwjglApp.mvc.models.AABB;
 import com.theincgi.lwjglApp.mvc.models.Bounds;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.ImgTexture;
@@ -37,6 +38,7 @@ public class Button implements Drawable, Tickable {
 	Size size;
 	private Optional<FontTexture> fontTexture;
 	public float fontSize = 1;
+	private Gui gui;
 	
 	
 	public Button(Optional<FontTexture> defaultFont, String text, Size size) {
@@ -152,8 +154,7 @@ public class Button implements Drawable, Tickable {
 	}
 	@Override
 	public Optional<Bounds> getBounds() {
-		// TODO Auto-generated method stub
-		return null;
+		size.getBounds();
 	}
 	
 	public float getWidth() {
@@ -170,13 +171,16 @@ public class Button implements Drawable, Tickable {
 	}
 
 	public enum Size{
-		s5x5(  "cmodels/buttons/5x5.obj",   .05f, .05f),
-		s5x10( "cmodels/buttons/5x10.obj",  .05f, .10f),
-		s10x5( "cmodels/buttons/10x5.obj",  .10f, .05f),
-		s10x10("cmodels/buttons/10x10.obj", .10f, .10f);
+		s5x5(  "cmodels/buttons/5x5.obj",   .05f, .05f, new AABB(-.002f, -.002f, 0f, .002f, .002f, .0052f)),
+		s5x10( "cmodels/buttons/5x10.obj",  .05f, .10f, new AABB(-.002f, -.045f, 0f, .002f, .045f, .0052f)),
+		s10x5( "cmodels/buttons/10x5.obj",  .10f, .05f, new AABB(-.045f, -.002f, 0f, .045f, .002f, .0052f)),
+		s10x10("cmodels/buttons/10x10.obj", .10f, .10f, new AABB(-.045f, -.045f, 0f, .045f, .045f, .0052f));
+		
 		private final String modelName;
 		float width, height;
-		private Size(String model, float width, float height) {
+		private AABB bounds;
+		private Size(String model, float width, float height, AABB bounds) {
+			this.bounds = bounds;
 			modelName = model;
 			this.width = width;
 			this.height = height;
@@ -190,5 +194,9 @@ public class Button implements Drawable, Tickable {
 		public float getHeight() {
 			return height;
 		}
+	}
+
+	public void setGui(Gui gui) {
+		this.gui = gui;
 	}
 }

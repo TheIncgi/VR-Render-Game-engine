@@ -23,4 +23,8 @@ public enum Side {
 			return null;
 		}
 	}
+
+	public boolean isLeft() {
+		return this.equals(LEFT);
+	}
 }

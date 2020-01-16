@@ -28,6 +28,7 @@ import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Side;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 import com.theincgi.lwjglApp.render.shaders.ShaderProgram;
+import com.theincgi.lwjglApp.vrGUI.Gui;
 
 
 public class Scene {
@@ -193,7 +194,7 @@ public class Scene {
 			tickables.add( t );
 		}
 	}
-	public void addRemove(Tickable t) {
+	public void removeTickable(Tickable t) {
 		synchronized (tickables) {
 			tickables.remove( t );
 		}
@@ -204,6 +205,7 @@ public class Scene {
 
 		return Optional.empty();
 	}
+
 
 
 
