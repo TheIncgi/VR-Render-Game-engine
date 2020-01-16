@@ -18,9 +18,11 @@ import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Pair;
+import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
+import com.theincgi.lwjglApp.mvc.models.RadialBounds;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.ParticleSystem;
@@ -49,11 +51,14 @@ public class DemoScene extends Scene{
 	Animation testAnimation;
 	ParticleSystem testSystem;
 	Object3D location;
+	private String rayResultMessage = "-";
+	private PointingLasers pointingLasers;
 	
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
 		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
+		monkey.setBounds(new RadialBounds(0, 0, -5, 1));
 		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 2, 1, -3);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
 		location = new Object3D("cmodels/locator/locator.obj", "full");
@@ -83,7 +88,7 @@ public class DemoScene extends Scene{
 				d.velocity.z =-(Utils.ndRandom(.6f)+.43f);
 				Vector4f tmp = new Vector4f(d.velocity.x, d.velocity.y, d.velocity.z, 0);
 				Matrix4f.transform(new Matrix4f().rotate(-45, new Vector3f(1, 0, 0)), tmp, tmp);
-				Matrix4f.transform(Launcher.getMainWindow().getVRWindow().get().vrControllers.getLeftTransform(), tmp,tmp);
+				Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), tmp,tmp);
 				d.velocity.x = tmp.x;
 				d.velocity.y = tmp.y;
 				d.velocity.z = tmp.z;
@@ -91,24 +96,29 @@ public class DemoScene extends Scene{
 			}
 			d.emissionStrength = (float)(1-Math.pow(s.age/(float)s.maxAge, 3));
 		}).setTexture("particleTextures/star4.png");
-		Launcher.getMainWindow().getVRWindow().ifPresent(vrWindow->{
-			addDrawable(new PointingLasers(vrWindow.vrControllers));
+		
+			addDrawable(pointingLasers = new PointingLasers(Launcher.getMainWindow().vrControllers));
 			testSystem.addEmitter(()->{
 				Vector4f x = new Vector4f(0,0,0,1);
-				Matrix4f.transform(vrWindow.vrControllers.getLeftTransform(), x, x);
+				Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), x, x);
 				return new Vector3f(x);
 			});
-		});
+		
 	}
 	
 	public void onTick() {
-		Launcher.getMainWindow().getVRWindow().ifPresent(vr->{
-			Vector4f v = vr.vrControllers.getRightPointingVector();
+			Vector4f v = Launcher.getMainWindow().vrControllers.getRightPointingVector();
 			location.getLocation().pos[0] = v.x;
 			location.getLocation().pos[1] = v.y;
 			location.getLocation().pos[2] = v.z;
 					
-		});
+			RayCast ray = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
+			raycast(Launcher.getMainWindow().vrControllers, ray);
+			rayResultMessage = ray.result==null? "\n\t低1,0,0;NULL" : 
+				"\n\t低0,0,1;"+ray.result.toString()+
+				"\n\t低1,1,1;"+"Length: 低0,1,0;"+ray.result.length()+
+				"\n\t低1,1,1;Target: 低1,0,1;"+(ray.raycastedObject==null?"unknown object":ray.raycastedObject.toString());
+			pointingLasers.setLeftLength(ray.result==null?.05f:ray.result.length());
 		 
 		synchronized (tickables) {
 			LinkedList<Tickable> toRemove = new LinkedList<>();
@@ -124,20 +134,11 @@ public class DemoScene extends Scene{
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
-		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(.5f, 1, -1f))){	
+		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(-1f, 1, -1.98f))){	
 			font.ifPresent(ft->{
-					TextRenderer.renderText(ft, "Test\nWorld\n低1,0,0;Ok\n低0,1,0;伯Bold 呆plain\n"
-							+ "低0,0,1;兌Italics告 normal\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,1,0;刨Strke吱thru\n"
-							+ "低1,0,1;助Under吟line", true, 8);
+					TextRenderer.renderText(ft, 
+							 "低1,1,1;Raycast Result: "+rayResultMessage +"\n"
+							, true, 8);
 			});
 		}
 		//lantern.getLocation().rotate(1f, .4f, .7f);
@@ -156,9 +157,7 @@ public class DemoScene extends Scene{
 		@Override
 		public boolean onMouseButton(AWindow window, double x, double y, int button, int action, int mods) {
 			if(action == GLFW.GLFW_PRESS)
-			Launcher.getMainWindow().getVRWindow().ifPresent(vr->{
-				vr.showNextMirrorChannel();
-			});
+				Launcher.getMainWindow().showNextMirrorChannel();
 			return true;
 		}
 
@@ -200,7 +199,11 @@ public class DemoScene extends Scene{
 			case "tryParticleSystem":
 				testSystem.emit(1000, 8000, 500, 200);
 				return true;
-				
+			case "tryRaycast":{
+				RayCast ray = new RayCast(window.vrControllers.getLeftPointingSource(), window.vrControllers.getLeftPointingVector());
+				raycast(window.vrControllers, ray);
+				//rayResultMessage = ray.result==null? "低1,0,0;NULL" : "低0,0,1;"+ray.result.toString();
+			}
 			default:
 				break;
 			}
@@ -222,6 +225,7 @@ public class DemoScene extends Scene{
 		//2 or 34 but 2 fires first
 		controls.put(TouchControllers.A_BUTTON, "playAnimationTest");
 		controls.put(TouchControllers.X_BUTTON, "tryParticleSystem");
+		controls.put(TouchControllers.Y_BUTTON, "tryRaycast");
 	}
 	
 	@Override

@@ -9,6 +9,7 @@ import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.render.vr.VRUtil;
 
@@ -120,6 +121,15 @@ public class Utils {
 		float dx = b[0] - a[0],
 			  dy = b[1] - a[1],
 			  dz = b[2] - a[2];
+		return (float) Math.sqrt( dx*dx + dy*dy + dz*dz );
+	}
+	/**
+	 * Takes the xyz values and provides the distance<br>
+	 * */
+	public static float distVec3(Vector4f a, Vector4f b) {
+		float dx = b.x - a.x,
+			  dy = b.y - a.y,
+			  dz = b.z - a.z;
 		return (float) Math.sqrt( dx*dx + dy*dy + dz*dz );
 	}
 	

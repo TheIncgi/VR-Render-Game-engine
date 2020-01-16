@@ -19,7 +19,7 @@ import com.theincgi.lwjglApp.ui.Window;
 
 public class Launcher {
 	public static final String APPLICATION_NAME = "Unnamed Application";
-	private static AWindow mainWindow;
+	private static VRWindow mainWindow;
 	static Logger log = Logger.preferedLogger;
 	static {
 		Settings.load();
@@ -54,7 +54,7 @@ public class Launcher {
 		}
 	}
 
-	public static AWindow getMainWindow() {
+	public static VRWindow getMainWindow() {
 		return mainWindow;
 	}
 	public static VRUtil getVrUtil() {

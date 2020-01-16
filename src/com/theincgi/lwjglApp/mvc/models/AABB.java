@@ -1,6 +1,7 @@
 package com.theincgi.lwjglApp.mvc.models;
 
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.RayCast;
@@ -79,8 +80,11 @@ public class AABB implements Bounds{
 				scale = hx / ray.rayDirection.x;
 			
 			if(scale <= 0) return false;
-			return inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]) &&
-				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2]);
+			if(inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]) &&
+				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2])){
+				ray.result = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
+				return true;
+			}return false;
 		}else if(!isInY && ray.rayDirection.y!=0) {
 			float scale;
 			if(ray.worldOffset.y < p1[1])
@@ -88,8 +92,11 @@ public class AABB implements Bounds{
 			else
 				scale = hy / ray.rayDirection.y;
 			if(scale <= 0) return false;
-			return inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
-				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2]);
+			if( inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
+				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2])) {
+				ray.result = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
+				return true;
+			}return false;
 		}else if(!isInZ && ray.rayDirection.z!=0) {
 			float scale;
 			if(ray.worldOffset.z < p1[2])
@@ -97,8 +104,11 @@ public class AABB implements Bounds{
 			else
 				scale = hz / ray.rayDirection.z;
 			if(scale <= 0) return false;
-			return inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
-				   inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]);
+			if( inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
+				   inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]) ) {
+				ray.result = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
+				return true;
+			}return false;
 		}else {
 			Logger.preferedLogger.w("AABB#isRaycastPassThru", "a ray casted is not sourced from the AABB is also not in any axis' range while also not having a direction vector of length 0...");
 			return false; //this shouldn't be reached ever

@@ -300,7 +300,7 @@ abstract public class AWindow {
 		return WINDOW_HANDLE;
 	}
 
-	abstract public Optional<Window>   getWindow();
-	abstract public Optional<VRWindow> getVRWindow();
-	abstract public boolean isVR();
+//	abstract public Optional<Window>   getWindow();
+//	abstract public Optional<VRWindow> getVRWindow();
+//	abstract public boolean isVR();
 }

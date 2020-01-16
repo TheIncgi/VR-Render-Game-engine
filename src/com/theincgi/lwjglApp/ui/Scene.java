@@ -8,14 +8,19 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Optional;
+
+import org.lwjgl.util.vector.Vector4f;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.*;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.misc.Tickable;
+import com.theincgi.lwjglApp.mvc.models.Bounds;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.EyeCamera;
@@ -89,7 +94,66 @@ public class Scene {
 			});
 		}
 	}
-
+	
+	/**Tries to find a hit for some ray in the list of drawable objects
+	 * if multiple hit, the closest will be returned*/
+	public void raycast(Drawable optIgnore, RayCast ray) {
+		Vector4f best = new Vector4f();
+		boolean found = false;
+		synchronized (opaqueDrawables) {
+			for(Drawable d : opaqueDrawables) {
+				if(d==optIgnore) continue;
+				if(d.getBounds().isPresent()) {
+					Bounds b = d.getBounds().get();
+					if(b.isRaycastPassthru(ray)) {
+						if(best.length() > ray.result.length() || !found) {
+							best.set(ray.result);
+							ray.raycastedObject = d;
+						}
+						found = true;
+					}
+				};
+			}
+			for(Drawable d : transparentDrawables) { //should be closest last
+				if(d==optIgnore) continue;
+				if(d.getBounds().isPresent()) {
+					Bounds b = d.getBounds().get();
+					if(b.isRaycastPassthru(ray)) {
+						found = true;
+						if(best.length() > ray.result.length()) {
+							best.set(ray.result);
+							ray.raycastedObject = d;
+						}
+					}
+				};
+			}
+		}
+		if(found)
+			ray.result.set(best);
+	}
+	
+	/**adds any drawables that are colliding with the target drawable<br>
+	 * (will exclude itself from results)<br>
+	 * if the target object does not have bounds then no results will be added*/
+	public void findCollisions(Drawable self, List<Drawable> collisions) {
+		if(self.getBounds().isEmpty()) return;
+		Bounds b = self.getBounds().get();
+		for(Drawable d : opaqueDrawables) {
+			if(d==self) continue;
+			d.getBounds().ifPresent(c->{
+				if(b.intersects(c))
+					collisions.add(d);
+			});
+		}
+		for (Drawable d : transparentDrawables) {
+			if(d==self) continue;
+			d.getBounds().ifPresent(c->{
+				if(b.intersects(c))
+					collisions.add(d);
+			});
+		}
+	}
+	
 	public void onTick() {}
 
 	public Optional<CallbackListener> getSceneListener() {

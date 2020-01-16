@@ -45,6 +45,7 @@ public class Model {
 	public Optional<ShaderProgram> shader = Optional.empty();
 	//public Optional<MaterialGroup> material = Optional.empty();
 	private Optional<MaterialGroup> material;
+	private boolean materialCloned = false;
 
 	//load material if exists
 	//for each material
@@ -278,6 +279,16 @@ public class Model {
 	public Optional<MaterialGroup> getMaterial() {
 		return material;
 	}
+	public void makeMaterialUnique() {
+		material.ifPresent(mat->{
+			if(materialCloned) return; //already unique
+			materialCloned  = true;
+			this.material = Optional.of(mat.clone());
+		});
+	}
+	public void setMaterial(MaterialGroup materialGroup) {
+		this.material = Optional.ofNullable(materialGroup);
+	}
 
 	//	public void drawAsColor(Color color, Location locaiton) {
 	//		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
@@ -306,6 +317,10 @@ public class Model {
 	@Deprecated
 	public void onDestroy() {
 		delete();
+	}
+
+	public String getName() {
+		return modelName;
 	}
 }
 

@@ -81,16 +81,16 @@ public class Window extends AWindow{
 		}
 	}
 	
-	@Override
-	public Optional<Window> getWindow() {
-		return Optional.of(this);
-	}
-	@Override
-	public Optional<VRWindow> getVRWindow() {
-		return Optional.empty();
-	}
-	@Override
-	public boolean isVR() {
-		return false;
-	}
+//	@Override
+//	public Optional<Window> getWindow() {
+//		return Optional.of(this);
+//	}
+//	@Override
+//	public Optional<VRWindow> getVRWindow() {
+//		return Optional.empty();
+//	}
+//	@Override
+//	public boolean isVR() {
+//		return false;
+//	}
 }

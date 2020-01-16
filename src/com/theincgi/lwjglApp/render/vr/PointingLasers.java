@@ -7,6 +7,7 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.mvc.models.Bounds;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
@@ -57,6 +58,11 @@ public class PointingLasers implements Drawable{
 	}
 	public void setRightLength(float rightLength) {
 		this.rightLength = rightLength;
+	}
+
+	@Override
+	public Optional<Bounds> getBounds() {
+		return Optional.empty();
 	}
 
 }

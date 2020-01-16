@@ -405,18 +405,18 @@ public class VRWindow extends AWindow{
 		return vrUtil;
 	}
 	
-	@Override
-	public Optional<Window> getWindow() {
-		return Optional.empty();
-	}
-	@Override
-	public Optional<VRWindow> getVRWindow() {
-		return Optional.of(this);
-	}
-	@Override
-	public boolean isVR() {
-		return true;
-	}
+//	@Override
+//	public Optional<Window> getWindow() {
+//		return Optional.empty();
+//	}
+//	@Override
+//	public Optional<VRWindow> getVRWindow() {
+//		return Optional.of(this);
+//	}
+//	@Override
+//	public boolean isVR() {
+//		return true;
+//	}
 	
 	public void showNextMirrorChannel() {
 		mirrorChannel = (mirrorChannel + 1) % renderChannels.length;

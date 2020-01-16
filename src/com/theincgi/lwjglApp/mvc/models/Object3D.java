@@ -39,8 +39,9 @@ public class Object3D implements Drawable{
 	public void setBounds(Bounds bounds) {
 		this.bounds = bounds;
 	}
-	public Bounds getBounds() {
-		return bounds;
+	@Override
+	public Optional<Bounds> getBounds() {
+		return Optional.ofNullable(bounds);
 	}
 	
 	public void draw() {
@@ -56,5 +57,10 @@ public class Object3D implements Drawable{
 	@Override
 	public float[] getTransparentObjectPos() {
 		return null;
+	}
+	
+	@Override
+	public String toString() {
+		return getClass().getSimpleName()+": "+(model.isPresent()?model.get().getName():"missing-name");
 	}
 }

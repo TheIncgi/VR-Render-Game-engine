@@ -14,6 +14,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
+import com.theincgi.lwjglApp.mvc.models.Bounds;
 import com.theincgi.lwjglApp.ui.Color;
 import com.theincgi.lwjglApp.ui.Scene;
 
@@ -241,5 +242,10 @@ public class ParticleSystem implements Drawable, Tickable{
 			this.maxAge = other.maxAge;
 			this.emissionStrength = other.emissionStrength;
 		}
+	}
+	
+	@Override
+	public Optional<Bounds> getBounds() {
+		return Optional.empty();
 	}
 }

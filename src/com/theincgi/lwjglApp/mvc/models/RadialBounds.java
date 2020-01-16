@@ -1,26 +1,32 @@
 package com.theincgi.lwjglApp.mvc.models;
 
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
 import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
 
 public class RadialBounds implements Bounds{
-	float radius;
-	float[] center;
+	public float radius;
+	public final Vector4f center;
 	public RadialBounds(float x, float y, float z, float r) {
-		center = new float[] {x,y,z};
+		center = new Vector4f(x,y,z,1);
+		this.radius = r;
+	}
+	public RadialBounds(Vector4f v, float r) {
+		center = v;
 		this.radius = r;
 	}
 	
 	@Override
 	public boolean isIn(float x, float y, float z) {
-		float dx = x-center[0];
-		float dy = y-center[1];
-		float dz = z-center[2];
+		float dx = x-center.x;
+		float dy = y-center.y;
+		float dz = z-center.z;
 		return Math.sqrt(dx*dx + dy*dy + dz*dz) <= radius;
 	}
 	@Override
@@ -44,21 +50,53 @@ public class RadialBounds implements Bounds{
 			return Utils.distVec3(center, rother.center) <= this.radius+rother.radius;
 		}else if(other instanceof AABB) {
 			AABB aabb = (AABB)other;
-			if(aabb.isIn(center)) return true;
+			if(aabb.isIn(new Vector3f(center))) return true;
 			/**Nearest point to the box*/
 			float[] near = new float[3];
-			boolean inX = inRangeE(center[0], aabb.p1[0], aabb.p2[0]);
-			boolean inY = inRangeE(center[1], aabb.p1[1], aabb.p2[1]);
-			boolean inZ = inRangeE(center[2], aabb.p1[2], aabb.p2[2]);
+			boolean inX = inRangeE(center.x, aabb.p1[0], aabb.p2[0]);
+			boolean inY = inRangeE(center.y, aabb.p1[1], aabb.p2[1]);
+			boolean inZ = inRangeE(center.z, aabb.p1[2], aabb.p2[2]);
 			
-			near[0] = inX? center[0] : closest(center[0], aabb.p1[0], aabb.p2[0]);
-			near[1] = inY? center[1] : closest(center[1], aabb.p1[1], aabb.p2[1]);
-			near[2] = inZ? center[2] : closest(center[2], aabb.p1[2], aabb.p2[2]);
+			near[0] = inX? center.x : closest(center.x, aabb.p1[0], aabb.p2[0]);
+			near[1] = inY? center.y : closest(center.y, aabb.p1[1], aabb.p2[1]);
+			near[2] = inZ? center.z : closest(center.z, aabb.p1[2], aabb.p2[2]);
 			return isIn(near);	
 		}else {
 			Logger.preferedLogger.w("RadialBounds#intersects", "No definition for the intersection with "+other.getClass());
 			return false;
 		}
+	}
+	
+	
+	
+	@Override
+	public boolean isRaycastPassthru(RayCast ray) {
+		Vector4f l = new Vector4f(
+			center.x - ray.worldOffset.x,
+			center.y - ray.worldOffset.y,
+			center.z - ray.worldOffset.z,
+			0
+		);
+		float tca = Vector4f.dot(l, ray.rayDirection);
+		if(tca < 0) return false;
+		Vector4f tcav = (Vector4f) new Vector4f(ray.rayDirection).normalize().scale(tca);
+		float d = 
+				(float) Math.sqrt(l.length()*l.length() - tca*tca);
+//				  (l.x*l.x - tcav.x*tcav.x) 
+//				 -(l.y*l.y - tcav.y*tcav.y)
+//				 -(l.z*l.z - tcav.z*tcav.z));
+		
+		if(Float.isNaN(d)) return false;
+		if(d > radius) return false;
+		
+		float th;
+		float r2 = radius*radius;
+		th = (float) Math.sqrt( radius*radius - d*d );
+		
+		
+		ray.result = Vector4f.sub(tcav, (Vector4f) new Vector4f(tcav).normalize().scale(th), new Vector4f());
+		ray.result.w = 1;
+		return true;
 	}
 	
 	private static float closest(float target, float a, float b) {

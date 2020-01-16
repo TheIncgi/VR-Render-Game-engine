@@ -15,6 +15,9 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.mvc.models.Bounds;
+import com.theincgi.lwjglApp.mvc.models.CompoundBounds;
+import com.theincgi.lwjglApp.mvc.models.RadialBounds;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
@@ -33,7 +36,7 @@ public class TouchControllers implements VRController {
 	RTRIGGER_BUTTON= new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 33),
 	LGRIP = new Input(Type.OCULUS_TOUCH, Side.LEFT, false,  2),
 	RGRIP = new Input(Type.OCULUS_TOUCH, Side.RIGHT, false, 2);
-
+	
 	Location leftLocation, rightLocation;
 	Matrix4f leftTransform, rightTransform;
 	Optional<Model>
@@ -59,7 +62,10 @@ public class TouchControllers implements VRController {
 	private static final String LEFT =  "cmodels/oculus_cv1_controller_left/oculus_cv1_controller_left_";
 	private static final String RIGHT = "cmodels/oculus_cv1_controller_right/oculus_cv1_controller_right_";
 	boolean leftValid, rightValid;
-
+	
+	private CompoundBounds bounds;
+	private RadialBounds leftBounds, rightBounds;
+	
 	public TouchControllers() {
 		leftLocation = new Location();
 		rightLocation = new Location();
@@ -80,6 +86,7 @@ public class TouchControllers implements VRController {
 		bButton 		= ObjManager.INSTANCE.get(RIGHT+"button_b.obj", 	shaderName);
 		enter 			= ObjManager.INSTANCE.get(LEFT+ "button_enter.obj", shaderName);
 		home 			= ObjManager.INSTANCE.get(RIGHT+ "button_home.obj", shaderName);
+		bounds = new CompoundBounds(leftBounds = new RadialBounds(0, 0, 0, .0585f), rightBounds = new RadialBounds(0, 0, 0, .0585f));
 	}
 
 	@Override
@@ -121,9 +128,13 @@ public class TouchControllers implements VRController {
 		isLeftAnalogTouch = (buttonTouch & 0b100000000000000000000000000000000l) > 0; // 1<<32
 		isLeftTriggerTouch = (buttonTouch & 0b1000000000000000000000000000000000l) > 0;
 		}
-
-
 		leftValid = tdp.bPoseIsValid();
+		
+		Vector4f dirToBoundsCenter = new Vector4f(-.011338f, -.082839f, -.020863f, 1); //I put a sphere around the model in Blender
+		Matrix4f.transform(leftTransform, dirToBoundsCenter, dirToBoundsCenter);
+		leftBounds.center.set(dirToBoundsCenter);
+		
+		
 		//state.free();
 	}
 
@@ -167,6 +178,10 @@ public class TouchControllers implements VRController {
 		isRightTriggerTouch = (buttonTouch & 0b1000000000000000000000000000000000l) > 0;
 		}
 
+		Vector4f dirToBoundsCenter = new Vector4f(.011338f, -.082839f, -.020863f, 1); //I put a sphere around the model in Blender
+		Matrix4f.transform(rightTransform, dirToBoundsCenter, dirToBoundsCenter);
+		rightBounds.center.set(dirToBoundsCenter);
+		
 
 		rightValid = tdp.bPoseIsValid();
 		//state.free();
@@ -301,9 +316,10 @@ public class TouchControllers implements VRController {
 		if(leftPointingVector==null) {
 			leftPointingVector = new Vector4f(0,0,-1,0);
 			try(MatrixStack ms = MatrixStack.modelViewStack.push()){
+				Matrix4f.mul(ms.get(), getLeftTransform(), ms.get());
 				ms.get().translate(new Vector3f(.0075f, -.025f, .035f));
 				ms.get().rotate((float)Math.toRadians(-45), new Vector3f(1, 0 ,0));
-				Matrix4f.transform(ms.get(), getLeftHoldingVector(), leftPointingVector);
+				Matrix4f.transform(ms.get(), leftPointingVector, leftPointingVector);
 			}
 		}
 		return leftPointingVector;
@@ -313,9 +329,10 @@ public class TouchControllers implements VRController {
 		if(rightPointingVector==null) {
 			rightPointingVector = new Vector4f(0,0,-1,0);
 			try(MatrixStack ms = MatrixStack.modelViewStack.push()){
+				Matrix4f.mul(ms.get(), getRightTransform(), ms.get());
 				ms.get().translate(new Vector3f(-.0075f, -.025f, .035f));
 				ms.get().rotate((float)Math.toRadians(-45), new Vector3f(1, 0 ,0));
-				Matrix4f.transform(ms.get(), getRightHoldingVector(), rightPointingVector);
+				Matrix4f.transform(ms.get(), rightPointingVector, rightPointingVector);
 			}
 		}
 		return rightPointingVector;
@@ -534,5 +551,8 @@ public class TouchControllers implements VRController {
 		return null;
 	}
 
-
+	@Override
+	public Optional<Bounds> getBounds() {
+		return Optional.empty();
+	}
 }

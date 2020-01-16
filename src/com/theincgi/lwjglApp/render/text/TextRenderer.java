@@ -45,6 +45,9 @@ public class TextRenderer {
 	
 	private static final int PLAIN = 0, BOLD = 1, ITALICS = 2, STRIKETHRU = 4, UNDERLINE = 8;
 	
+	public static Vector2f renderText(FontTexture ft, String text, float heightInCentimeters) {
+		return renderText(ft, text, RIGHT, DOWN, null, true, heightInCentimeters);
+	}
 	public static Vector2f renderText(FontTexture ft, String text, boolean useFormattingCodes, float heightInCentimeters) {
 		return renderText(ft, text, RIGHT, DOWN, null, useFormattingCodes, heightInCentimeters);
 	}
@@ -182,7 +185,15 @@ public class TextRenderer {
 	 * Used to help transform text before rendering<br>
 	 * @return A vector containing the width and height in centimeters assuming {@link TextRenderer#PXPCM}px per centimeter;
 	 * */
-	public static Vector2f measureArea(FontTexture ft, String text, Vector2f vecNextChar, Vector2f vecNextLine, boolean ignoreFormats) {
+	public static Vector2f measureArea(FontTexture ft, String text) {
+		return measureArea(ft, text, RIGHT, DOWN, false);
+	}
+		/**
+		 * Returns the amout of pixel space used to draw all the text (not making a texture)<br>
+		 * Used to help transform text before rendering<br>
+		 * @return A vector containing the width and height in centimeters assuming {@link TextRenderer#PXPCM}px per centimeter;
+		 * */
+		public static Vector2f measureArea(FontTexture ft, String text, Vector2f vecNextChar, Vector2f vecNextLine, boolean ignoreFormats) {
 		if(ignoreFormats)
 			text = text.replaceAll("[^§]§(?:(?:[BIUSbius])|(?:C(?:[\\d,\\.]+);))", "");
 		String[] lines = text.split("\\n");

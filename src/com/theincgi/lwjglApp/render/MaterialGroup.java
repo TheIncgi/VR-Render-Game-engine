@@ -13,7 +13,7 @@ import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.ui.Color;
 
 public class MaterialGroup implements Cloneable {
-	HashMap<String, Material> materials = new HashMap<>();
+	public final HashMap<String, Material> materials = new HashMap<>();
 
 	private MaterialGroup() {}
 	
@@ -93,9 +93,8 @@ public class MaterialGroup implements Cloneable {
 	/**Creates a 'deep' copy for modification<br>
 	 * any optional type values may not have cloned their held values*/
 	@Override
-	protected MaterialGroup clone() {
+	public MaterialGroup clone() {
 		MaterialGroup x = new MaterialGroup();
-		x.materials = new HashMap<>();
 		for(Entry<String, Material> a : materials.entrySet())
 			x.materials.put(a.getKey(), a.getValue().clone());
 		return x;

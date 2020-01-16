@@ -9,6 +9,7 @@ import java.util.Optional;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.mvc.models.Bounds;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.shaders.ShaderManager;
@@ -77,7 +78,6 @@ public class HelloElements implements Drawable{
 	}
 
 	public void drawAsColor(Color color) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -121,5 +121,10 @@ public class HelloElements implements Drawable{
 	@Override
 	public float[] getTransparentObjectPos() {
 		return null;
+	}
+
+	@Override
+	public Optional<Bounds> getBounds() {
+		return Optional.empty();
 	}
 }
