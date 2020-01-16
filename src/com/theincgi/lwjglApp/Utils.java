@@ -137,4 +137,7 @@ public class Utils {
 	public static float ndRandom(float range) {
 		return (float)( Math.random()+Math.random()+Math.random() - Math.random() - Math.random() - Math.random() )/6*range;
 	}
+	public static Vector4f vec4(Vector3f v, float w) {
+		return new Vector4f(v.x, v.y, v.z, w);
+	}
 }
