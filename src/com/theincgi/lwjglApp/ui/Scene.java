@@ -17,6 +17,7 @@ import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.*;
 
 import com.theincgi.lwjglApp.Utils;
+import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.misc.Tickable;
@@ -115,11 +116,15 @@ public class Scene {
 				if(d.getBounds().isPresent()) {
 					Bounds b = d.getBounds().get();
 					if(b.isRaycastPassthru(ray)) {
+						if(ray.result==null)
+							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
+						else {
 						if(best.length() > ray.result.length() || !found) {
 							best.set(ray.result);
 							ray.raycastedObject = d;
 						}
 						found = true;
+					}
 					}
 				};
 			}

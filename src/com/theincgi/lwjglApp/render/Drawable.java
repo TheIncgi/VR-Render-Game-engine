@@ -19,5 +19,6 @@ public interface Drawable {
 	/**Returns the bounding box of this object if it exists*/
 	public Optional<Bounds> getBounds();
 	
+	public void setShowBounds(boolean show);
 	public boolean showBounds();
 }

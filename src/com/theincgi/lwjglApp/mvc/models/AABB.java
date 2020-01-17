@@ -67,7 +67,10 @@ public class AABB implements Bounds{
 	
 	public boolean isRaycastPassthru(RayCast ray) {
 		if(ray.rayDirection.length()==0) return false;
-		if(isIn(ray.worldOffset.x, ray.worldOffset.y, ray.worldOffset.z)) return true;
+		if(isIn(ray.worldOffset.x, ray.worldOffset.y, ray.worldOffset.z)) {
+			ray.result = ray.worldOffset;
+			return true;
+		}
 		/**If world offset is in an axis bound*/
 		boolean 
 			isInX = inRangeI(ray.worldOffset.x, p1[0], p2[0]),
@@ -119,8 +122,8 @@ public class AABB implements Bounds{
 				return true;
 			}return false;
 		}else {
-			Logger.preferedLogger.w("AABB#isRaycastPassThru", "a ray casted is not sourced from the AABB is also not in any axis' range while also not having a direction vector of length 0...");
-			return false; //this shouldn't be reached ever
+			//Logger.preferedLogger.w("AABB#isRaycastPassThru", "a ray casted is not sourced from the AABB is also not in any axis' range while also not having a direction vector of length 0...");
+			return false; 
 		}
 	};
 	
@@ -149,6 +152,18 @@ public class AABB implements Bounds{
 		Utils.drawVecLine(origin, new Vector3f(-(p2[0]-p1[0]), 0, 0), Color.GRAY);
 		Utils.drawVecLine(origin, new Vector3f(0, -(p2[1]-p1[1]), 0), Color.GRAY);
 		Utils.drawVecLine(origin, new Vector3f(0, 0, -(p2[2]-p1[2])), Color.GRAY);
+		
+		origin = new Vector3f(p2[0], p1[1], p1[2]);
+		Utils.drawVecLine(origin, new Vector3f(0, p2[1]-p1[1], 0), Color.GRAY);
+		Utils.drawVecLine(origin, new Vector3f(0, 0, p2[2]-p1[2]), Color.GRAY);
+		
+		origin = new Vector3f(p1[0], p2[1], p1[2]);
+		Utils.drawVecLine(origin, new Vector3f(p2[0]-p1[0], 0, 0), Color.GRAY);
+		Utils.drawVecLine(origin, new Vector3f(0, 0, p2[2]-p1[2]), Color.GRAY);
+		
+		origin = new Vector3f(p1[0], p1[1], p2[2]);
+		Utils.drawVecLine(origin, new Vector3f(p2[0]-p1[0], 0, 0), Color.GRAY);
+		Utils.drawVecLine(origin, new Vector3f(0, p2[1]-p1[1], 0), Color.GRAY);
 	}
 	
 }

@@ -113,4 +113,7 @@ public class HelloTriangle implements Drawable {
 	public boolean showBounds() {
 		return false;
 	}
+	@Override
+	public void setShowBounds(boolean show) {
+	}
 }

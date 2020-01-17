@@ -41,6 +41,7 @@ public class Button implements Drawable, Tickable {
 	public float fontSize = 1;
 	private Gui gui;
 	private Bounds bounds;
+	private boolean showBounds;
 	
 	
 	public Button(Optional<FontTexture> defaultFont, String text, Size size) {
@@ -149,7 +150,11 @@ public class Button implements Drawable, Tickable {
 	
 	@Override
 	public boolean showBounds() {
-		return true;
+		return showBounds;
+	}
+	@Override
+	public void setShowBounds(boolean show) {
+		showBounds = show;
 	}
 	
 	@Override

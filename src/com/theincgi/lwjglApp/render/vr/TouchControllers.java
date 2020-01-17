@@ -65,6 +65,8 @@ public class TouchControllers implements VRController {
 	
 	private CompoundBounds bounds;
 	private RadialBounds leftBounds, rightBounds;
+
+	private boolean showBounds;
 	
 	public TouchControllers() {
 		leftLocation = new Location();
@@ -276,7 +278,11 @@ public class TouchControllers implements VRController {
 
 			home.ifPresent(h->h.drawAtOrigin());
 		}
-
+		
+		if(showBounds) {
+			leftBounds.draw();
+			rightBounds.draw();
+		}
 	}
 
 
@@ -569,6 +575,10 @@ public class TouchControllers implements VRController {
 	}
 	@Override
 	public boolean showBounds() {
-		return false;
+		return showBounds;
+	}
+	@Override
+	public void setShowBounds(boolean show) {
+		showBounds = show;
 	}
 }

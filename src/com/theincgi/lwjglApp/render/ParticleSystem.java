@@ -252,4 +252,7 @@ public class ParticleSystem implements Drawable, Tickable{
 	public Optional<Bounds> getBounds() {
 		return Optional.empty();
 	}
+	@Override
+	public void setShowBounds(boolean show) {//nothing to show, you dont want hundreds or thousands of bounding boxes for points...	
+	}
 }

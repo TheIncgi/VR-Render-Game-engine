@@ -69,4 +69,8 @@ public class PointingLasers implements Drawable{
 	public boolean showBounds() {
 		return false;
 	}
+	@Override
+	public void setShowBounds(boolean show) {
+		//not really useful
+	}
 }

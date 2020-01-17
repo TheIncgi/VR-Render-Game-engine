@@ -118,4 +118,7 @@ public class Gui implements Drawable, Tickable{
 	public boolean showBounds() {
 		return false;
 	}
+	@Override
+	public void setShowBounds(boolean show) {	
+	}
 }

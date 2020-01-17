@@ -10,6 +10,7 @@ import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
+import com.theincgi.lwjglApp.ui.Color;
 
 import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
@@ -80,6 +81,7 @@ public class RadialBounds implements Bounds{
 	@Override
 	public void draw() {
 		Optional<Model> model = ObjManager.INSTANCE.get("cmodels/debug/sphereBounds.obj", "full");
+		model.ifPresent(mod->{mod.getMaterial().ifPresent(matg->{matg.materials.get("sphereBounds").kd=new Color(0, 0, 0, 0);});});
 		try(MatrixStack m = MatrixStack.modelViewStack.push(center)){
 			m.get().scale(new Vector3f(radius, radius, radius));
 			model.ifPresent(mod->mod.drawAtOrigin());

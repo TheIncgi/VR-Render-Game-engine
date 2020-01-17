@@ -150,45 +150,37 @@ public class Utils {
 		return new Vector4f(v.x, v.y, v.z, w);
 	}
 	
-	public static void drawVecLine(Vector3f origin, Vector3f target) {
-		Optional<Model> m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
-		m.ifPresent(mod->{
-			mod.shader.ifPresent(s->{
-				mod.getMaterial().ifPresent(w->{
-					Material ma = w.materials.get("wire");
-					s.bind();
-					if(ma!=null)
-						s.trySetUniform("color", ma.kd);
-				});
-			});
-			Location location = new Location();
-			float yaw = (float) Math.atan2(target.z, target.x);
-			float pitch = (float) Math.asin(target.y / target.length());
-			if(Float.isNaN(pitch)) return;
-			location.setX(origin.x);
-			location.setY(origin.y);
-			location.setZ(origin.z);
-			location.setYaw(yaw);
-			location.setPitch(pitch);
-			mod.drawAt(location);
-		});
-	}
+	
+	private static Optional<Model> m = Optional.empty();
 	public static void drawVecLine(Vector3f origin, Vector3f target, final Color color) {
-		Optional<Model> m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
+		if(m.isEmpty())
+			m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
 		m.ifPresent(mod->{
 			mod.shader.ifPresent(s->{
+				s.bind();
 				s.trySetUniform("color", color);
 			});
 			Location location = new Location();
-			float yaw = (float) Math.atan2(target.z, target.x);
+			float yaw = (float) -Math.atan2(target.z, target.x);
 			float pitch = (float) Math.asin(target.y / target.length());
 			if(Float.isNaN(pitch)) return;
-			location.setX(origin.x);
-			location.setY(origin.y);
-			location.setZ(origin.z);
-			location.setYaw(yaw);
-			location.setPitch(pitch);
-			mod.drawAt(location);
+			Matrix4f matrix = new Matrix4f();
+			matrix.translate(origin);
+			
+			matrix.rotate(yaw, AXIS_UP);
+			matrix.rotate(pitch, AXIS_OUT);
+			matrix.rotate((float) Math.toRadians(-90), AXIS_UP);
+			
+			
+			try(MatrixStack m1 = MatrixStack.modelViewStack.push(matrix)){
+				mod.drawAtOrigin();
+			}
+//			location.setX(origin.x);
+//			location.setY(origin.y);
+//			location.setZ(origin.z);
+//			location.setYaw((float) Math.toDegrees(yaw)-90);
+//			location.setPitch((float) Math.toDegrees(pitch));
+//			mod.drawAt(location);
 		});
 	}
 }

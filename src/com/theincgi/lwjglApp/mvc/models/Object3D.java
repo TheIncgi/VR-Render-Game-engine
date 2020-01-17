@@ -14,6 +14,7 @@ public class Object3D implements Drawable{
 	Location location;
 	Bounds bounds;
 	public boolean showBounds;
+	private String label;
 	
 	public Object3D(File model) {
 		this(model, 0,0,0);
@@ -64,7 +65,14 @@ public class Object3D implements Drawable{
 		return showBounds;
 	}
 	@Override
+	public void setShowBounds(boolean show) {
+		showBounds = show;
+	}
+	@Override
 	public String toString() {
-		return getClass().getSimpleName()+": "+(model.isPresent()?model.get().getName():"missing-name");
+		return label==null?(getClass().getSimpleName()+": "+(model.isPresent()?model.get().getName():"missing-name")):label;
+	}
+	public void setLabel(String string) {
+		label = string;
 	}
 }

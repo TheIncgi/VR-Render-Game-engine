@@ -139,4 +139,7 @@ public class Quad implements Drawable {
 	public boolean showBounds() {
 		return false;
 	}
+	@Override
+	public void setShowBounds(boolean show) {
+	}
 }

@@ -21,6 +21,7 @@ import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.misc.Tickable;
+import com.theincgi.lwjglApp.mvc.models.AABB;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
 import com.theincgi.lwjglApp.mvc.models.RadialBounds;
 import com.theincgi.lwjglApp.render.Camera;
@@ -52,15 +53,17 @@ public class DemoScene extends Scene{
 	Animation testAnimation;
 	ParticleSystem testSystem;
 	Object3D location;
-	private String rayResultMessage = "-";
+	private String rayResultMessageLeft = "-";
+	private String rayResultMessageRight = "-";
 	private PointingLasers pointingLasers;
 	TestGui testGui;
+	AABB testAABB = new AABB(-1.5f, 2, -3, -.5f, 3, -2);
+	private RayCast lastRayLeft, lastRayRight;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
 		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
 		monkey.setBounds(new RadialBounds(0, 0, -5, 1));
-		monkey.showBounds = true;
 		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 2, 1, -3);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
 		location = new Object3D("cmodels/locator/locator.obj", "full");
@@ -70,6 +73,8 @@ public class DemoScene extends Scene{
 				final int X = x*2, Y = y*2;
 				Object3D cube =  new Object3D("cmodels/softcube/softcube.obj", X, -1, Y);
 				addDrawable(cube);
+//				cube.setBounds(new AABB(X-1, -2, Y-1, X+1, 0, Y+1));
+				cube.setLabel("Ground cube <"+X+":"+Y+">");
 			}
 		}
 		lantern.getLocation().setYaw(180);
@@ -78,7 +83,6 @@ public class DemoScene extends Scene{
 		
 		testAnimation = new Animation(this, Animation.Updater.makeFloatUpdater(Animation.Interpolator.SIGMOID, 0f, 90f, v->{
 			monkey.getLocation().setYaw(v);
-			System.out.println("\t"+v);
 		})).setDuration(5f, TimeUnit.SECONDS);
 		addTickable(testAnimation);
 		
@@ -109,18 +113,29 @@ public class DemoScene extends Scene{
 	}
 	
 	public void onTick() {
-			Vector4f v = Launcher.getMainWindow().vrControllers.getRightPointingVector();
-			location.getLocation().pos[0] = v.x;
-			location.getLocation().pos[1] = v.y;
-			location.getLocation().pos[2] = v.z;
-					
-			RayCast ray = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
-			raycast(Launcher.getMainWindow().vrControllers, ray);
-			rayResultMessage = ray.result==null? "\n\t低1,0,0;NULL" : 
-				"\n\t低0,0,1;"+ray.result.toString()+
-				"\n\t低1,1,1;"+"Length: 低0,1,0;"+ray.result.length()+
-				"\n\t低1,1,1;Target: 低1,0,1;"+(ray.raycastedObject==null?"unknown object":ray.raycastedObject.toString());
-			pointingLasers.setLeftLength(ray.result==null?.05f:ray.result.length());
+		if(lastRayLeft!=null && lastRayLeft.raycastedObject!=null){
+			lastRayLeft.raycastedObject.setShowBounds(false);
+		}if(lastRayRight!=null && lastRayRight.raycastedObject!=null){
+			lastRayRight.raycastedObject.setShowBounds(false);
+		}
+			lastRayLeft = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
+			raycast(Launcher.getMainWindow().vrControllers, lastRayLeft);
+			lastRayRight= new RayCast(Launcher.getMainWindow().vrControllers.getRightPointingSource(), Launcher.getMainWindow().vrControllers.getRightPointingVector());
+			raycast(Launcher.getMainWindow().vrControllers, lastRayRight);
+			
+			if(lastRayLeft.raycastedObject!=null) lastRayLeft.raycastedObject.setShowBounds(true);
+			if(lastRayRight.raycastedObject!=null) lastRayRight.raycastedObject.setShowBounds(true);
+			
+			rayResultMessageLeft = lastRayLeft.result==null? "\n\t低1,0,0;NULL" : 
+				"\n\t低0,0,1;"+lastRayLeft.result.toString()+
+				"\n\t低1,1,1;"+"Length: 低0,1,0;"+lastRayLeft.result.length()+
+				"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayLeft.raycastedObject==null?"unknown object":lastRayLeft.raycastedObject.toString());
+			pointingLasers.setLeftLength(lastRayLeft.result==null?.05f:lastRayLeft.result.length());
+			rayResultMessageRight = lastRayRight.result==null? "\n\t低1,0,0;NULL" : 
+				"\n\t低0,0,1;"+lastRayRight.result.toString()+
+				"\n\t低1,1,1;"+"Length: 低0,1,0;"+lastRayRight.result.length()+
+				"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedObject==null?"unknown object":lastRayRight.raycastedObject.toString());
+			pointingLasers.setRightLength(lastRayRight.result==null?.05f:lastRayRight.result.length());
 		 
 		synchronized (tickables) {
 			LinkedList<Tickable> toRemove = new LinkedList<>();
@@ -139,17 +154,14 @@ public class DemoScene extends Scene{
 		try(MatrixStack ms = MatrixStack.modelViewStack.push(new Vector3f(-1f, 1, -1.98f))){	
 			font.ifPresent(ft->{
 					TextRenderer.renderText(ft, 
-							 "低1,1,1;Raycast Result: "+rayResultMessage +"\n"
+							 "低1,1,1;Raycast Result [left ]: "+rayResultMessageLeft +"\n"+
+							 "低1,1,1;Raycast Result [right]: "+rayResultMessageRight
 							, true, 8);
 			});
 		}
-		//lantern.getLocation().rotate(1f, .4f, .7f);
-//		cube.ifPresent(c->{
-//			//c.getLocation().rotate(.52f, .53334f, .02f);
-//			//c.getLocation().setRotation(0,0,0);
-//			c.getLocation().setZ(-3);
-//			c.getLocation().setY(0);
-//		});
+		RayCast test = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
+		if(testAABB.isRaycastPassthru(test))
+			testAABB.draw();
 		
 	}
 	
@@ -186,7 +198,6 @@ public class DemoScene extends Scene{
 			case "playAnimationTest": //should be constants for a proper scene
 				testAnimation.pause();
 				return true;
-
 			default:
 				break;
 			}
@@ -201,12 +212,7 @@ public class DemoScene extends Scene{
 			case "tryParticleSystem":
 				testSystem.emit(1000, 8000, 500, 200);
 				return true;
-			case "tryRaycast":{
-				RayCast ray = new RayCast(window.vrControllers.getLeftPointingSource(), window.vrControllers.getLeftPointingVector());
-				raycast(window.vrControllers, ray);
-				//rayResultMessage = ray.result==null? "低1,0,0;NULL" : "低0,0,1;"+ray.result.toString();
-			}
-			break;
+			
 			case "tryGui":
 				testGui.toggle(Side.RIGHT);
 				break;
@@ -231,7 +237,6 @@ public class DemoScene extends Scene{
 		//2 or 34 but 2 fires first
 		controls.put(TouchControllers.A_BUTTON, "playAnimationTest");
 		controls.put(TouchControllers.X_BUTTON, "tryParticleSystem");
-		controls.put(TouchControllers.Y_BUTTON, "tryRaycast");
 		controls.put(TouchControllers.B_BUTTON, "tryGui");
 	}
 	
