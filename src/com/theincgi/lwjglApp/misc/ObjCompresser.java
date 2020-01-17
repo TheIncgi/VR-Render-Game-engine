@@ -85,9 +85,11 @@ public class ObjCompresser {
 					faceGroups.add(activeFaceGroup = new FaceGroup(line));
 					break;
 				case "s":
-					activeFaceGroup.smooth = line.equals("1");
+					if(activeFaceGroup!=null)
+						activeFaceGroup.smooth = line.equals("1");
 					break;
 				case "f":
+					if(activeFaceGroup!=null) {
 					if(activeFaceGroup.index.size()==0) {
 						switch(count(line, "/")) {
 						case 0: //face only
@@ -102,6 +104,7 @@ public class ObjCompresser {
 						}
 					}
 					Collections.addAll(activeFaceGroup.index, splitInt(line));
+					}
 					break;
 				default:
 					Logger.preferedLogger.e("ObjCompresser", new RuntimeException("Unexpected line operation: "+op));

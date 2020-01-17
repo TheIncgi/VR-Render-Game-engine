@@ -97,6 +97,7 @@ public class TouchControllers implements VRController {
 		leftPointingVector = null;
 		leftHoldingSource = null;
 		leftPointingSource = null;
+		@SuppressWarnings("resource") //VR lib seems to manage this memory, closing causes errors
 		VRControllerState state = VRControllerState.create();
 		VRSystem.VRSystem_GetControllerState(index, state);
 
@@ -106,6 +107,7 @@ public class TouchControllers implements VRController {
 		//leftLocation.rot[1] = (float) Math.toDegrees(Math.acos(transform.m22));
 		//leftLocation.rot[2] = (float) Math.toDegrees(-Math.atan2(transform.m02, transform.m12));
 
+		@SuppressWarnings("resource") //VR lib seems to manage this memory, closing causes errors
 		VRControllerAxis axis = state.rAxis(0); 
 		leftAnalogVal.x = axis.x();
 		leftAnalogVal.y = axis.y();
@@ -195,7 +197,7 @@ public class TouchControllers implements VRController {
 	public void draw() {
 		//the left
 
-		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(leftTransform)){
+		try(MatrixStack stk = MatrixStack.modelViewStack.push(leftTransform)){
 			leftBase.ifPresent(lb->lb.drawAtOrigin());
 			{float tx=0, ty=-0.014f, tz=0.0539f, maxAngle = 20;
 			try(MatrixStack stk2 = MatrixStack.modelViewStack.push()){ //.05 .01
@@ -216,19 +218,19 @@ public class TouchControllers implements VRController {
 				leftTrigger.ifPresent(la->la.drawAtOrigin());
 			}}
 			if(isXPressed) {
-				try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(AXIS_BUTTON)){
+				try(MatrixStack stk2 = MatrixStack.modelViewStack.push(AXIS_BUTTON)){
 					xButton.ifPresent(x->x.drawAtOrigin());}
 			}else {
 				xButton.ifPresent(x->x.drawAtOrigin());
 			}
 			if(isYPressed) {
-				try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(AXIS_BUTTON)){
+				try(MatrixStack stk2 = MatrixStack.modelViewStack.push(AXIS_BUTTON)){
 					yButton.ifPresent(x->x.drawAtOrigin());}
 			}else {
 				yButton.ifPresent(x->x.drawAtOrigin());
 			}
 
-			try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate((Vector3f) new Vector3f(AXIS_GRIP_LEFT).scale(leftGripAmount))){
+			try(MatrixStack stk2 = MatrixStack.modelViewStack.push((Vector3f) new Vector3f(AXIS_GRIP_LEFT).scale(leftGripAmount))){
 				leftGrip.ifPresent(x->x.drawAtOrigin());}
 
 			enter.ifPresent(e->e.drawAtOrigin());
@@ -236,7 +238,7 @@ public class TouchControllers implements VRController {
 
 		//and the right
 
-		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(rightTransform)){
+		try(MatrixStack stk = MatrixStack.modelViewStack.push(rightTransform)){
 			rightBase.ifPresent(lb->lb.drawAtOrigin());
 			{float tx=0, ty=-0.014f, tz=0.0539f, maxAngle = 20;
 			try(MatrixStack stk2 = MatrixStack.modelViewStack.push()){ //.05 .01
@@ -257,19 +259,19 @@ public class TouchControllers implements VRController {
 				rightTrigger.ifPresent(la->la.drawAtOrigin());
 			}}
 			if(isAPressed) {
-				try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(AXIS_BUTTON)){
+				try(MatrixStack stk2 = MatrixStack.modelViewStack.push(AXIS_BUTTON)){
 					aButton.ifPresent(x->x.drawAtOrigin());}
 			}else {
 				aButton.ifPresent(x->x.drawAtOrigin());
 			}
 			if(isBPressed) {
-				try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate(AXIS_BUTTON)){
+				try(MatrixStack stk2 = MatrixStack.modelViewStack.push(AXIS_BUTTON)){
 					bButton.ifPresent(x->x.drawAtOrigin());}
 			}else {
 				bButton.ifPresent(x->x.drawAtOrigin());
 			}
 
-			try(MatrixStack stk2 = MatrixStack.modelViewStack.pushTranslate((Vector3f) new Vector3f(AXIS_GRIP_RIGHT).scale(rightGripAmount))){
+			try(MatrixStack stk2 = MatrixStack.modelViewStack.push((Vector3f) new Vector3f(AXIS_GRIP_RIGHT).scale(rightGripAmount))){
 				rightGrip.ifPresent(x->x.drawAtOrigin());}
 
 			home.ifPresent(h->h.drawAtOrigin());
@@ -541,6 +543,14 @@ public class TouchControllers implements VRController {
 		return rightValid;
 	}
 
+	public RadialBounds getLeftBounds() {
+		return leftBounds;
+	}
+	public RadialBounds getRightBounds() {
+		return rightBounds;
+	}
+	
+	//Drawable stuffs
 	@Override
 	public boolean isTransparent() {
 		return false;
@@ -550,9 +560,15 @@ public class TouchControllers implements VRController {
 	public float[] getTransparentObjectPos() {
 		return null;
 	}
-
+	
+	/**Left empty so controllers are not collision tested<br>
+	 * instead see {@link TouchControllers#getLeftBounds()} and {@link TouchControllers#getRightBounds()}*/
 	@Override
 	public Optional<Bounds> getBounds() {
 		return Optional.empty();
+	}
+	@Override
+	public boolean showBounds() {
+		return false;
 	}
 }

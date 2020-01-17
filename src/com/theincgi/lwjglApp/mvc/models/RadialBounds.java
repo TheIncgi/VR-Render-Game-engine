@@ -5,10 +5,16 @@ import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
+import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
+import com.theincgi.lwjglApp.render.Model;
+import com.theincgi.lwjglApp.render.ObjManager;
+
 import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static java.lang.Math.abs;
+
+import java.util.Optional;
 
 public class RadialBounds implements Bounds{
 	public float radius;
@@ -61,9 +67,22 @@ public class RadialBounds implements Bounds{
 			near[1] = inY? center.y : closest(center.y, aabb.p1[1], aabb.p2[1]);
 			near[2] = inZ? center.z : closest(center.z, aabb.p1[2], aabb.p2[2]);
 			return isIn(near);	
+		}else if(other instanceof OBB) {
+			OBB obb = (OBB) other;
+			return obb.intersects(this); //handled in obb
 		}else {
 			Logger.preferedLogger.w("RadialBounds#intersects", "No definition for the intersection with "+other.getClass());
 			return false;
+		}
+	}
+	
+	
+	@Override
+	public void draw() {
+		Optional<Model> model = ObjManager.INSTANCE.get("cmodels/debug/sphereBounds.obj", "full");
+		try(MatrixStack m = MatrixStack.modelViewStack.push(center)){
+			m.get().scale(new Vector3f(radius, radius, radius));
+			model.ifPresent(mod->mod.drawAtOrigin());
 		}
 	}
 	

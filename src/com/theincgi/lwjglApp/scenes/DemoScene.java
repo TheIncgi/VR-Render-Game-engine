@@ -60,6 +60,7 @@ public class DemoScene extends Scene{
 		sceneListener = Optional.of(new SceneCallbackListener());
 		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
 		monkey.setBounds(new RadialBounds(0, 0, -5, 1));
+		monkey.showBounds = true;
 		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 2, 1, -3);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
 		location = new Object3D("cmodels/locator/locator.obj", "full");
@@ -135,7 +136,7 @@ public class DemoScene extends Scene{
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
-		try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(-1f, 1, -1.98f))){	
+		try(MatrixStack ms = MatrixStack.modelViewStack.push(new Vector3f(-1f, 1, -1.98f))){	
 			font.ifPresent(ft->{
 					TextRenderer.renderText(ft, 
 							 "§C1,1,1;Raycast Result: "+rayResultMessage +"\n"

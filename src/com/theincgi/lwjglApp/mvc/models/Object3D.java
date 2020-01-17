@@ -13,6 +13,7 @@ public class Object3D implements Drawable{
 	Optional<Model> model;
 	Location location;
 	Bounds bounds;
+	public boolean showBounds;
 	
 	public Object3D(File model) {
 		this(model, 0,0,0);
@@ -58,7 +59,10 @@ public class Object3D implements Drawable{
 	public float[] getTransparentObjectPos() {
 		return null;
 	}
-	
+	@Override
+	public boolean showBounds() {
+		return showBounds;
+	}
 	@Override
 	public String toString() {
 		return getClass().getSimpleName()+": "+(model.isPresent()?model.get().getName():"missing-name");

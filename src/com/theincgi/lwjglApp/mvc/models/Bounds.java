@@ -3,9 +3,10 @@ package com.theincgi.lwjglApp.mvc.models;
 import org.lwjgl.util.vector.Vector3f;
 
 import com.theincgi.lwjglApp.misc.RayCast;
+import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Location;
 
-public interface Bounds {
+public interface Bounds{
 
 	boolean isIn(float x, float y, float z);
 
@@ -18,4 +19,6 @@ public interface Bounds {
 	boolean intersects(Bounds other);
 	
 	boolean isRaycastPassthru(RayCast ray);
+	
+	public void draw();
 }

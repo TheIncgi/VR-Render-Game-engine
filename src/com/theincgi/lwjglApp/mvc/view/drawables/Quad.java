@@ -91,7 +91,7 @@ public class Quad implements Drawable {
 	}
 
 	public void draw() {
-		try (MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
+		try (MatrixStack stk = MatrixStack.modelViewStack.push(location)){
 			glBindVertexArray(vao);
 
 			shader.ifPresentOrElse(s->{
@@ -134,5 +134,9 @@ public class Quad implements Drawable {
 	@Override
 	public Optional<Bounds> getBounds() {
 		return Optional.empty();
+	}
+	@Override
+	public boolean showBounds() {
+		return false;
 	}
 }

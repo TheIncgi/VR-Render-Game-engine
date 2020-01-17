@@ -55,11 +55,11 @@ public class Gui implements Drawable, Tickable{
 
 	@Override
 	public void draw() {
-		try(MatrixStack m1 = MatrixStack.modelViewStack.pushTransform(location)){
+		try(MatrixStack m1 = MatrixStack.modelViewStack.push(location)){
 			square.ifPresent(sq->{
 				try(MatrixStack m2 = 
 						MatrixStack.modelViewStack
-						.pushTransform(new Matrix4f().scale(new Vector3f(guiWidth, guiHeight, 1)))){
+						.push(new Matrix4f().scale(new Vector3f(guiWidth, guiHeight, 1)))){
 					sq.drawAtOrigin();	
 				}
 			});
@@ -113,5 +113,9 @@ public class Gui implements Drawable, Tickable{
 	@Override
 	public Optional<Bounds> getBounds() {
 		return Optional.of(bounds);
+	}
+	@Override
+	public boolean showBounds() {
+		return false;
 	}
 }

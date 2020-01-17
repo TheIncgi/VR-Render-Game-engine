@@ -58,7 +58,7 @@ public class CompoundBounds implements Bounds {
 		}return false;
 	}
 	
-	public ArrayList<Bounds> getBounds() {
+	public ArrayList<Bounds> getBoundsList() {
 		return bounds;
 	}
 
@@ -67,5 +67,10 @@ public class CompoundBounds implements Bounds {
 			bounds.add(bo);
 		});
 	}
-
+	
+	/**Does nothing, should be handled per bound so parent classes do not render bounds of the child elements twice*/
+	@Override
+	public void draw() {
+	}
+	
 }

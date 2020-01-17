@@ -4,14 +4,23 @@ import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Optional;
 
+import org.lwjgl.opengl.GL11;
 import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.theincgi.lwjglApp.misc.MatrixStack;
+import com.theincgi.lwjglApp.render.Location;
+import com.theincgi.lwjglApp.render.Material;
+import com.theincgi.lwjglApp.render.MaterialGroup;
+import com.theincgi.lwjglApp.render.Model;
+import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
+import com.theincgi.lwjglApp.ui.Color;
 
 public class Utils {
 	public static final Vector3f 
@@ -139,5 +148,47 @@ public class Utils {
 	}
 	public static Vector4f vec4(Vector3f v, float w) {
 		return new Vector4f(v.x, v.y, v.z, w);
+	}
+	
+	public static void drawVecLine(Vector3f origin, Vector3f target) {
+		Optional<Model> m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
+		m.ifPresent(mod->{
+			mod.shader.ifPresent(s->{
+				mod.getMaterial().ifPresent(w->{
+					Material ma = w.materials.get("wire");
+					s.bind();
+					if(ma!=null)
+						s.trySetUniform("color", ma.kd);
+				});
+			});
+			Location location = new Location();
+			float yaw = (float) Math.atan2(target.z, target.x);
+			float pitch = (float) Math.asin(target.y / target.length());
+			if(Float.isNaN(pitch)) return;
+			location.setX(origin.x);
+			location.setY(origin.y);
+			location.setZ(origin.z);
+			location.setYaw(yaw);
+			location.setPitch(pitch);
+			mod.drawAt(location);
+		});
+	}
+	public static void drawVecLine(Vector3f origin, Vector3f target, final Color color) {
+		Optional<Model> m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
+		m.ifPresent(mod->{
+			mod.shader.ifPresent(s->{
+				s.trySetUniform("color", color);
+			});
+			Location location = new Location();
+			float yaw = (float) Math.atan2(target.z, target.x);
+			float pitch = (float) Math.asin(target.y / target.length());
+			if(Float.isNaN(pitch)) return;
+			location.setX(origin.x);
+			location.setY(origin.y);
+			location.setZ(origin.z);
+			location.setYaw(yaw);
+			location.setPitch(pitch);
+			mod.drawAt(location);
+		});
 	}
 }

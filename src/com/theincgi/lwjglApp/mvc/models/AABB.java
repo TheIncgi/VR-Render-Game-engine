@@ -3,12 +3,18 @@ package com.theincgi.lwjglApp.mvc.models;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
+import com.theincgi.lwjglApp.ui.Color;
+
 import static com.theincgi.lwjglApp.Utils.inRangeE;
 import static com.theincgi.lwjglApp.Utils.inRangeI;
 import static java.lang.Math.min;
+
+import java.util.Optional;
+
 import static java.lang.Math.max;
 
 public class AABB implements Bounds{
@@ -50,6 +56,9 @@ public class AABB implements Bounds{
 			return AABB.contains(this, aabb) || AABB.contains(aabb, this);
 		}else if(other instanceof RadialBounds) {
 			return ((RadialBounds)other).intersects(this); //radialBounds has the definition already
+		}else if(other instanceof OBB) {
+			OBB obb = (OBB) other;
+			return obb.intersects(this); //handled in obb
 		}else {
 			Logger.preferedLogger.w("AABB#intersects", "No definition for the intersection with type "+other.getClass());
 			return false;
@@ -127,4 +136,19 @@ public class AABB implements Bounds{
 				a.isIn(b.p2[0], b.p2[1], b.p1[2]) || // ++-
 				a.isIn(b.p2[0], b.p2[1], b.p2[2]);   // +++
 	}
+	
+	@Override
+	public void draw() {
+		Vector3f origin = new Vector3f(p1[0], p1[1], p1[2]);
+		
+		Utils.drawVecLine(origin, new Vector3f(p2[0]-p1[0], 0, 0), Color.RED);
+		Utils.drawVecLine(origin, new Vector3f(0, p2[1]-p1[1], 0), Color.BLUE);
+		Utils.drawVecLine(origin, new Vector3f(0, 0, p2[2]-p1[2]), Color.GREEN);
+		
+		origin = new Vector3f(p2[0], p2[1], p2[2]);
+		Utils.drawVecLine(origin, new Vector3f(-(p2[0]-p1[0]), 0, 0), Color.GRAY);
+		Utils.drawVecLine(origin, new Vector3f(0, -(p2[1]-p1[1]), 0), Color.GRAY);
+		Utils.drawVecLine(origin, new Vector3f(0, 0, -(p2[2]-p1[2])), Color.GRAY);
+	}
+	
 }

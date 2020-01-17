@@ -207,7 +207,7 @@ public class VRWindow extends AWindow{
 		cleanup();
 	}
 
-
+	@SuppressWarnings("resource") //VR lib seems to manage this memory, closing causes errors
 	private void _render(Scene value) {
 		glEnable(GL_DEPTH_TEST);
 		setViewport(0, 0, width, height);

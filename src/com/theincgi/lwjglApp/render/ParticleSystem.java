@@ -134,6 +134,10 @@ public class ParticleSystem implements Drawable, Tickable{
 		});
 
 	}
+	@Override
+	public boolean showBounds() {
+		return false;
+	}
 
 	@Override
 	public boolean onTickUpdate() {

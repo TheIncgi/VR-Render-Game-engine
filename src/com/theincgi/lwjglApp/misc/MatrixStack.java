@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
+import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.render.Location;
 
@@ -30,22 +31,25 @@ public class MatrixStack implements AutoCloseable{
 		tmp.load(stack.get(top++));
 		return this;
 	}
-	public MatrixStack pushTransform(Location transform) {
+	public MatrixStack push(Location transform) {
 		push();
 		transform.applyTo(get());
 		return this;
 	}
-	public MatrixStack pushTransform(Matrix4f transform) {
+	public MatrixStack push(Matrix4f transform) {
 		push();
 		Matrix4f.mul(transform, get(), get());  //CHECK ME
 		return this;
 	}
-	public MatrixStack pushTranslate(Vector3f vec) {
+	public MatrixStack push(Vector3f vec) {
 		push();
 		get().translate(vec);
 		return this;
 	}
-	public MatrixStack pushRotate(float angle, Vector3f axis) {
+	public MatrixStack push(Vector4f vec) {
+		return push(new Vector3f(vec));
+	}
+	public MatrixStack push(float angle, Vector3f axis) {
 		push();
 		get().rotate(angle, axis);
 		return this;

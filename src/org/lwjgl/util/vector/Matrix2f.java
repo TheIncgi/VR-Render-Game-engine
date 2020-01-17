@@ -305,7 +305,7 @@ public class Matrix2f extends Matrix implements Serializable {
 			dest.m10 = t10;
 			dest.m11 = t11;
 			return dest;
-		} else
+		}
 			return null;
 	}
 

@@ -13,6 +13,7 @@ import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.AABB;
 import com.theincgi.lwjglApp.mvc.models.Bounds;
+import com.theincgi.lwjglApp.mvc.models.OBB;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.ImgTexture;
 import com.theincgi.lwjglApp.render.Material;
@@ -39,6 +40,7 @@ public class Button implements Drawable, Tickable {
 	private Optional<FontTexture> fontTexture;
 	public float fontSize = 1;
 	private Gui gui;
+	private Bounds bounds;
 	
 	
 	public Button(Optional<FontTexture> defaultFont, String text, Size size) {
@@ -47,6 +49,7 @@ public class Button implements Drawable, Tickable {
 		this.text = Optional.ofNullable(text);
 		if(size!=null)
 			buttonModel = ObjManager.INSTANCE.get(size.getModelName(), "full");
+		this.bounds = size.getBounds().clone();
 	}
 	public Button(ImgTexture icon, Size size) {
 		this(Optional.ofNullable(icon), size);
@@ -56,6 +59,7 @@ public class Button implements Drawable, Tickable {
 		setImage(icon);
 		if(size!=null)
 			buttonModel = ObjManager.INSTANCE.get(size.getModelName(), "full");
+		this.bounds = size.getBounds().clone();
 	}
 
 	public void setImage(Optional<ImgTexture> icon) {
@@ -128,33 +132,37 @@ public class Button implements Drawable, Tickable {
 	@Override
 	public void draw() {
 		buttonModel.ifPresent(model->{
-			try(MatrixStack ms = MatrixStack.modelViewStack.pushTranslate(new Vector3f(buttonPosition.x, buttonPosition.y, isPressed?-pushAmount:0))){
+			try(MatrixStack ms = MatrixStack.modelViewStack.push(new Vector3f(buttonPosition.x, buttonPosition.y, isPressed?-pushAmount:0))){
 				model.drawAtOrigin();
 				text.ifPresent(txt->{
 					if(fontTexture==null) return;
 					if(fontTexture.isEmpty()) return;
 					Vector2f area = TextRenderer.measureArea(fontTexture.get(), txt);
 					area.scale(-.5f);
-					try(MatrixStack m2 = MatrixStack.modelViewStack.pushTranslate(new Vector3f(area.x, area.y, 0))){
+					try(MatrixStack m2 = MatrixStack.modelViewStack.push(new Vector3f(area.x, area.y, 0))){
 						TextRenderer.renderText(fontTexture.get(), txt, fontSize);
 					}
 				});
 			}
 		});
 	}
+	
+	@Override
+	public boolean showBounds() {
+		return true;
+	}
+	
 	@Override
 	public boolean isTransparent() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 	@Override
 	public float[] getTransparentObjectPos() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	@Override
 	public Optional<Bounds> getBounds() {
-		size.getBounds();
+		return Optional.of(bounds);
 	}
 	
 	public float getWidth() {
@@ -170,16 +178,18 @@ public class Button implements Drawable, Tickable {
 		return 0;
 	}
 
-	public enum Size{
-		s5x5(  "cmodels/buttons/5x5.obj",   .05f, .05f, new AABB(-.002f, -.002f, 0f, .002f, .002f, .0052f)),
-		s5x10( "cmodels/buttons/5x10.obj",  .05f, .10f, new AABB(-.002f, -.045f, 0f, .002f, .045f, .0052f)),
-		s10x5( "cmodels/buttons/10x5.obj",  .10f, .05f, new AABB(-.045f, -.002f, 0f, .045f, .002f, .0052f)),
-		s10x10("cmodels/buttons/10x10.obj", .10f, .10f, new AABB(-.045f, -.045f, 0f, .045f, .045f, .0052f));
+	// 0.045 - large dim
+	// 0.02 - small dim
+	public enum Size{						/*                 (           origin                  )               (     x+ width     )             (      y+ height   )                 z+          */
+		s5x5(  "cmodels/buttons/5x5.obj",   .05f, .05f, new OBB(new Vector3f(-0.020f, -0.020f, 0.0f),  0.04f, 0.04f, 0.0052f)),
+		s5x10( "cmodels/buttons/5x10.obj",  .05f, .10f, new OBB(new Vector3f(-0.020f, -0.045f, 0.0f),  0.04f, 0.09f, 0.0052f)),
+		s10x5( "cmodels/buttons/10x5.obj",  .10f, .05f, new OBB(new Vector3f(-0.045f, -0.020f, 0.0f),  0.09f, 0.04f, 0.0052f)),
+		s10x10("cmodels/buttons/10x10.obj", .10f, .10f, new OBB(new Vector3f(-0.045f, -0.045f, 0.0f),  0.09f, 0.09f, 0.0052f));
 		
 		private final String modelName;
 		float width, height;
-		private AABB bounds;
-		private Size(String model, float width, float height, AABB bounds) {
+		private OBB bounds;
+		private Size(String model, float width, float height, OBB bounds) {
 			this.bounds = bounds;
 			modelName = model;
 			this.width = width;
@@ -193,6 +203,9 @@ public class Button implements Drawable, Tickable {
 		}
 		public float getHeight() {
 			return height;
+		}
+		public OBB getBounds() {
+			return bounds;
 		}
 	}
 

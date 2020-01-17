@@ -196,7 +196,7 @@ public class Model {
 	}
 
 	public void drawAt(Location location) {
-		try(MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
+		try(MatrixStack stk = MatrixStack.modelViewStack.push(location)){
 			drawAtOrigin();
 		}
 	}

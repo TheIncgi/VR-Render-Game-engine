@@ -79,6 +79,10 @@ public class Scene {
 		synchronized (opaqueDrawables) {
 			opaqueDrawables.forEach(d->{
 				d.draw();
+				if(d.showBounds())
+					d.getBounds().ifPresent(bounds->{
+						bounds.draw();
+					});
 			});
 		}
 		synchronized (transparentDrawables) {
@@ -92,6 +96,10 @@ public class Scene {
 			}
 			transparentDrawables.forEach(d->{
 				d.draw();
+				if(d.showBounds())
+					d.getBounds().ifPresent(bounds->{
+						bounds.draw();
+					});
 			});
 		}
 	}

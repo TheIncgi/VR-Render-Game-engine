@@ -25,12 +25,12 @@ public class HelloElements implements Drawable{
 	private IntBuffer indices;
 	static float data[] = {   // in counterclockwise order:
 			-.25f, -.25f, -0.0f,     0f, 1f,   0, 0, -1,
-			 .25f,  .25f, -0.0f,     1f, 0f,   0, 0, -1,
+			.25f,  .25f, -0.0f,     1f, 0f,   0, 0, -1,
 			-.25f,  .25f, -0.0f,     1f, 1f,   0, 0, -1,
-			 .25f, -.25f, -0.0f,     0f, 0f,   0, 0, -1
+			.25f, -.25f, -0.0f,     0f, 0f,   0, 0, -1
 	};
 	static int[] index = new int[]{0,1,2, 0,3,1};
-	
+
 	public HelloElements() {
 		FloatBuffer vertexBuffer = null;
 		IntBuffer indBuff = null;
@@ -45,29 +45,29 @@ public class HelloElements implements Drawable{
 			glBindBuffer(GL_ARRAY_BUFFER, vbo);
 			glBufferData(GL_ARRAY_BUFFER, vertexBuffer, GL_STATIC_DRAW);
 
-			
+
 			ibo = glGenBuffers();
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indBuff, GL_STATIC_DRAW);
-			
+
 			int stride = Float.BYTES * 8;
 			glVertexAttribPointer(0, 3, GL_FLOAT, false, stride, 0);
 			glVertexAttribPointer(1, 2, GL_FLOAT, false, stride, 3 * Float.BYTES);
 			glVertexAttribPointer(2, 3, GL_FLOAT, false, stride, 5 * Float.BYTES);
-			
-			
+
+
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
-			
+
 		}finally{
-				Utils.freeBuffer(vertexBuffer);
-				Utils.freeBuffer(indBuff);
+			Utils.freeBuffer(vertexBuffer);
+			Utils.freeBuffer(indBuff);
 		}
 
 		shader = ShaderManager.INSTANCE.get("showUv");
 	}
-	
+
 	public void onDestroy() {
 		shader.ifPresent(s->s.disableVertexAttribArray("vPosition"));
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -78,14 +78,14 @@ public class HelloElements implements Drawable{
 	}
 
 	public void drawAsColor(Color color) {
-		
+
 	}
 
-	
+
 
 	@Override
 	public void draw() {
-		try (MatrixStack stk = MatrixStack.modelViewStack.pushTransform(location)){
+		try (MatrixStack stk = MatrixStack.modelViewStack.push(location)){
 			glBindVertexArray(vao);
 
 			shader.ifPresentOrElse(s->{
@@ -112,7 +112,10 @@ public class HelloElements implements Drawable{
 			ShaderProgram.unbind();
 		}
 	}
-
+	@Override
+	public boolean showBounds() {
+		return false;
+	}
 	@Override
 	public boolean isTransparent() {
 		return false;
