@@ -1,11 +1,15 @@
 package com.theincgi.tests;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.mvc.models.OBB;
 import com.theincgi.lwjglApp.mvc.models.RadialBounds;
@@ -45,5 +49,20 @@ class BoundsTests {
 		Vector3f b = new Vector3f(0, 1, 0);
 		
 		assertEquals(new Vector3f(1, 1, 2),OBB.projectToPlane(p, o, a, b));
+	}
+	
+	@Test
+	void reduceInvertMatrix4f() {
+		Matrix4f m = new Matrix4f();
+		m.m00 = 0;
+		m.m11 = 0;
+		m.m22 = 0;
+		m.m33 = 0;
+		
+		m.m02 = -.04f;
+		m.m13 = -.0052f;
+		Utils.rowReduce(m);
+		assertTrue(m.m02==1);
+		assertTrue(m.m10==25);
 	}
 }
