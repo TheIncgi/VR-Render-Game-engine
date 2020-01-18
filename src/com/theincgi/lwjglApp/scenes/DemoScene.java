@@ -63,13 +63,15 @@ public class DemoScene extends Scene{
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
 		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
-		monkey.setBounds(new RadialBounds(0, 0, -5, 1));
-		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 2, 1, -3);
+		//monkey.setBounds(new RadialBounds(0, 0, -5, 1));
+		monkey.setBounds(new AABB(-1, -1, -6, 1, 1, -4));
+		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 3, 1, -1);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
 		location = new Object3D("cmodels/locator/locator.obj", "full");
 		addDrawables(monkey, lantern, sky, location);
 		for(int x = -4; x<=4; x+=2) {
 			for(int y = -4; y<=4; y+=2) {
+				if(x==0 && y==-2) continue;
 				final int X = x*2, Y = y*2;
 				Object3D cube =  new Object3D("cmodels/softcube/softcube.obj", X, -1, Y);
 				addDrawable(cube);
@@ -114,28 +116,42 @@ public class DemoScene extends Scene{
 	
 	public void onTick() {
 		if(lastRayLeft!=null && lastRayLeft.raycastedObject!=null){
-			lastRayLeft.raycastedObject.setShowBounds(false);
+			lastRayLeft.raycastedObject.ifPresent(b->b.setShowBounds(false));
 		}if(lastRayRight!=null && lastRayRight.raycastedObject!=null){
-			lastRayRight.raycastedObject.setShowBounds(false);
+			lastRayRight.raycastedObject.ifPresent(b->b.setShowBounds(false));
 		}
 			lastRayLeft = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
 			raycast(Launcher.getMainWindow().vrControllers, lastRayLeft);
 			lastRayRight= new RayCast(Launcher.getMainWindow().vrControllers.getRightPointingSource(), Launcher.getMainWindow().vrControllers.getRightPointingVector());
 			raycast(Launcher.getMainWindow().vrControllers, lastRayRight);
 			
-			if(lastRayLeft.raycastedObject!=null) lastRayLeft.raycastedObject.setShowBounds(true);
-			if(lastRayRight.raycastedObject!=null) lastRayRight.raycastedObject.setShowBounds(true);
+			if(lastRayLeft.raycastedObject!=null) 
+			if(lastRayRight.raycastedObject!=null) lastRayRight.raycastedObject.ifPresent(b->b.setShowBounds(true));
 			
-			rayResultMessageLeft = lastRayLeft.result==null? "\n\t低1,0,0;NULL" : 
-				"\n\t低0,0,1;"+lastRayLeft.result.toString()+
-				"\n\t低1,1,1;"+"Length: 低0,1,0;"+lastRayLeft.result.length()+
-				"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayLeft.raycastedObject==null?"unknown object":lastRayLeft.raycastedObject.toString());
-			pointingLasers.setLeftLength(lastRayLeft.result==null?.05f:lastRayLeft.result.length());
-			rayResultMessageRight = lastRayRight.result==null? "\n\t低1,0,0;NULL" : 
-				"\n\t低0,0,1;"+lastRayRight.result.toString()+
-				"\n\t低1,1,1;"+"Length: 低0,1,0;"+lastRayRight.result.length()+
-				"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedObject==null?"unknown object":lastRayRight.raycastedObject.toString());
-			pointingLasers.setRightLength(lastRayRight.result==null?.05f:lastRayRight.result.length());
+			lastRayLeft.result.ifPresentOrElse(result->{
+				lastRayLeft.raycastedObject.ifPresent(b->b.setShowBounds(true));
+				rayResultMessageLeft =
+					"\n\t低0,0,1;"+result.toString()+
+					"\n\t低1,1,1;"+"Length: 低0,1,0;"+result.length()+
+					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayLeft.raycastedObject.isEmpty()?"unknown object":lastRayLeft.raycastedObject.get().toString());
+				pointingLasers.setLeftLength(result.length());
+			}, ()->{
+				rayResultMessageLeft = "\n\t低1,0,0;NULL";
+				pointingLasers.setLeftLength(.05f);
+			});
+			
+			
+			lastRayRight.result.ifPresentOrElse(result->{
+				rayResultMessageRight = 
+					"\n\t低0,0,1;"+result.toString()+
+					"\n\t低1,1,1;"+"Length: 低0,1,0;"+result.length()+
+					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedObject.isEmpty()?"unknown object":lastRayRight.raycastedObject.get().toString());
+				pointingLasers.setRightLength(result.length());
+			}, ()->{
+				rayResultMessageRight = "\n\t低1,0,0;NULL";
+				pointingLasers.setRightLength(.05f);
+			});
+			
 		 
 		synchronized (tickables) {
 			LinkedList<Tickable> toRemove = new LinkedList<>();

@@ -152,17 +152,19 @@ public class Utils {
 	
 	
 	private static Optional<Model> m = Optional.empty();
-	public static void drawVecLine(Vector3f origin, Vector3f target, final Color color) {
+	
+	public static void drawVecLine(Vector3f origin, Vector3f vector, final Color color) {
 		if(m.isEmpty())
 			m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
 		m.ifPresent(mod->{
+			float l;
 			mod.shader.ifPresent(s->{
 				s.bind();
 				s.trySetUniform("color", color);
 			});
 			Location location = new Location();
-			float yaw = (float) -Math.atan2(target.z, target.x);
-			float pitch = (float) Math.asin(target.y / target.length());
+			float yaw = (float) -Math.atan2(vector.z, vector.x);
+			float pitch = (float) Math.asin(vector.y / (l = vector.length()));
 			if(Float.isNaN(pitch)) return;
 			Matrix4f matrix = new Matrix4f();
 			matrix.translate(origin);
@@ -171,6 +173,7 @@ public class Utils {
 			matrix.rotate(pitch, AXIS_OUT);
 			matrix.rotate((float) Math.toRadians(-90), AXIS_UP);
 			
+			matrix.scale(new Vector3f(l, l, l));
 			
 			try(MatrixStack m1 = MatrixStack.modelViewStack.push(matrix)){
 				mod.drawAtOrigin();

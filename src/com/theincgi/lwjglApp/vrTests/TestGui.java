@@ -28,9 +28,11 @@ public class TestGui extends Gui{
 	
 	
 	public void open(Side summonSide) {
-		location.translate(new Vector3f(0,0,-.05f)); //5cm buffer
+		location.setIdentity();
 		VRController vrController = Launcher.getMainWindow().vrControllers;
 		Matrix4f.mul(location, summonSide.isLeft()? vrController.getLeftTransform() : vrController.getRightTransform(), location);
+		location.translate(new Vector3f(0,0,-.05f)); //5cm buffer
+		location.rotate((float)Math.toRadians(-45), new Vector3f(1, 0 ,0));
 		super.open();
 	}
 	

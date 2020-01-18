@@ -114,9 +114,10 @@ public class RadialBounds implements Bounds{
 		float r2 = radius*radius;
 		th = (float) Math.sqrt( radius*radius - d*d );
 		
+		Vector4f result = Vector4f.sub(tcav, (Vector4f) new Vector4f(tcav).normalize().scale(th), new Vector4f());
+		result.w = 1;
+		ray.setShortResult( result );
 		
-		ray.result = Vector4f.sub(tcav, (Vector4f) new Vector4f(tcav).normalize().scale(th), new Vector4f());
-		ray.result.w = 1;
 		return true;
 	}
 	

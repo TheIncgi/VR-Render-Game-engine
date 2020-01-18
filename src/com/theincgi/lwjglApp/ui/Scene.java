@@ -11,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
+import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
@@ -108,7 +109,8 @@ public class Scene {
 	/**Tries to find a hit for some ray in the list of drawable objects
 	 * if multiple hit, the closest will be returned*/
 	public void raycast(Drawable optIgnore, RayCast ray) {
-		Vector4f best = new Vector4f();
+		float best = Float.MAX_VALUE; //very far
+		Vector4f bestV = null;
 		boolean found = false;
 		synchronized (opaqueDrawables) {
 			for(Drawable d : opaqueDrawables) {
@@ -116,15 +118,18 @@ public class Scene {
 				if(d.getBounds().isPresent()) {
 					Bounds b = d.getBounds().get();
 					if(b.isRaycastPassthru(ray)) {
-						if(ray.result==null)
+						if(ray.result.isPresent()) {
+							Vector4f result = ray.result.get(); 
+							float newLen = new Vector3f(Vector4f.sub(result, ray.worldOffset, new Vector4f())).length();
+							if(best > result.length() || !found) {
+									best = newLen;
+									bestV = result;
+									ray.raycastedObject = Optional.of(d);
+							}
+							found = true;
+						}else
 							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
-						else {
-						if(best.length() > ray.result.length() || !found) {
-							best.set(ray.result);
-							ray.raycastedObject = d;
-						}
-						found = true;
-					}
+						
 					}
 				};
 			}
@@ -133,17 +138,24 @@ public class Scene {
 				if(d.getBounds().isPresent()) {
 					Bounds b = d.getBounds().get();
 					if(b.isRaycastPassthru(ray)) {
-						found = true;
-						if(best.length() > ray.result.length()) {
-							best.set(ray.result);
-							ray.raycastedObject = d;
-						}
+						if(ray.result.isPresent()) {
+							Vector4f result = ray.result.get();
+							float newLen = new Vector3f(Vector4f.sub(result, ray.worldOffset, new Vector4f())).length();
+							if(best > result.length() || !found) {
+									best = newLen;
+									bestV = result;
+									ray.raycastedObject = Optional.of(d);
+							}
+							found = true;
+					}else
+							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
 					}
 				};
 			}
 		}
 		if(found)
-			ray.result.set(best);
+			ray.result = Optional.ofNullable(bestV);
+		
 	}
 	
 	/**adds any drawables that are colliding with the target drawable<br>

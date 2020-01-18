@@ -57,9 +57,10 @@ public class Gui implements Drawable, Tickable{
 	public void draw() {
 		try(MatrixStack m1 = MatrixStack.modelViewStack.push(location)){
 			square.ifPresent(sq->{
-				try(MatrixStack m2 = 
-						MatrixStack.modelViewStack
-						.push(new Matrix4f().scale(new Vector3f(guiWidth, guiHeight, 1)))){
+				try(MatrixStack m2 = MatrixStack.modelViewStack
+						.push()){
+					m2.get();
+					Matrix4f.mul(m2.get(), new Matrix4f().scale(new Vector3f(guiWidth, guiHeight, 1)), m2.get());
 					sq.drawAtOrigin();	
 				}
 			});

@@ -68,9 +68,10 @@ public class AABB implements Bounds{
 	public boolean isRaycastPassthru(RayCast ray) {
 		if(ray.rayDirection.length()==0) return false;
 		if(isIn(ray.worldOffset.x, ray.worldOffset.y, ray.worldOffset.z)) {
-			ray.result = ray.worldOffset;
+			ray.setShortResult( ray.worldOffset );
 			return true;
 		}
+		boolean passed = false;
 		/**If world offset is in an axis bound*/
 		boolean 
 			isInX = inRangeI(ray.worldOffset.x, p1[0], p2[0]),
@@ -92,39 +93,47 @@ public class AABB implements Bounds{
 				scale = hx / ray.rayDirection.x;
 			
 			if(scale <= 0) return false;
-			if(inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]) &&
-				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2])){
-				ray.result = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
-				return true;
-			}return false;
-		}else if(!isInY && ray.rayDirection.y!=0) {
+			if(inRangeI(ray.worldOffset.y + ray.rayDirection.y * scale, p1[1], p2[1]) &&
+				   inRangeI(ray.worldOffset.z + ray.rayDirection.z * scale, p1[2], p2[2])){
+				Vector4f out = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
+				Vector4f.add(out, ray.worldOffset, out);
+				ray.setShortResult( out );
+				passed = true;
+			};
+		}
+		if(!isInY && ray.rayDirection.y!=0) {
 			float scale;
 			if(ray.worldOffset.y < p1[1])
 				scale = ly / ray.rayDirection.y;
 			else
 				scale = hy / ray.rayDirection.y;
 			if(scale <= 0) return false;
-			if( inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
-				   inRangeI(ray.rayDirection.z * scale, p1[2], p2[2])) {
-				ray.result = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
-				return true;
-			}return false;
-		}else if(!isInZ && ray.rayDirection.z!=0) {
+			if( inRangeI(ray.worldOffset.x + ray.rayDirection.x * scale, p1[0], p2[0]) &&
+				   inRangeI(ray.worldOffset.z + ray.rayDirection.z * scale, p1[2], p2[2])) {
+				Vector4f out = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
+				Vector4f.add(out, ray.worldOffset, out);
+				ray.setShortResult( out );
+				passed = true;
+			}
+		}
+		if(!isInZ && ray.rayDirection.z!=0) {
 			float scale;
 			if(ray.worldOffset.z < p1[2])
 				scale = lz / ray.rayDirection.z;
 			else
 				scale = hz / ray.rayDirection.z;
 			if(scale <= 0) return false;
-			if( inRangeI(ray.rayDirection.x * scale, p1[0], p2[0]) &&
-				   inRangeI(ray.rayDirection.y * scale, p1[1], p2[1]) ) {
-				ray.result = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
-				return true;
-			}return false;
-		}else {
-			//Logger.preferedLogger.w("AABB#isRaycastPassThru", "a ray casted is not sourced from the AABB is also not in any axis' range while also not having a direction vector of length 0...");
-			return false; 
+			if( inRangeI(ray.worldOffset.x + ray.rayDirection.x * scale, p1[0], p2[0]) &&
+				   inRangeI(ray.worldOffset.y + ray.rayDirection.y * scale, p1[1], p2[1]) ) {
+				Vector4f out = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
+				Vector4f.add(out, ray.worldOffset, out);
+				ray.setShortResult( out );
+				passed = true;
+			}
 		}
+		if(passed) return true;
+		return false; 
+		
 	};
 	
 	/**Checks if a point in b is contained by a*/
