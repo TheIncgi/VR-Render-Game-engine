@@ -10,6 +10,7 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.openvr.HmdMatrix34;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
+import org.lwjgl.util.vector.Matrix3f;
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
@@ -189,46 +190,111 @@ public class Utils {
 	}
 
 	/**Row reduces to invert the matrix as best it can, some rows may have only zeros at the end
-	 * returns a boolean if the operation was completed successfully*/
-	public static boolean rowReduce(Matrix4f matrix) {
+	 */
+	public static void rowReduce(Matrix4f matrix) {
 		Matrix4f inverse = new Matrix4f();//identity
-		try(MemoryStack ms = MemoryStack.stackPush()){
-			FloatBuffer left = ms.mallocFloat(16);
-			matrix.store(left);
 			//make x,y 1
 			//make x,y+n 0
 			for(int x = 0; x<4; x++) { //col
 				for(int y = 0; y<4; y++) { //row
 					int row2 = -1;
 					float value = 0;
-					for(int i = 1; i<3; i++) {
-						if((value = get(left, (y+i)%4, x)) != 0) {//prefers rows below current
+					for(int i = 1; i<4; i++) {
+						if((value = get(matrix, (y+i)%4, x)) != 0) {//prefers rows below current
 							row2 = (y+i)%4;
 							break;
 						}
 					}
-					
+
 					if(row2==-1) continue; //all others are 0
-					
+
 					float factor;
 					if(x==y) { //make 1
-						float difference = get(left, y, x) - 1;
+						float difference = get(matrix, y, x) - 1;
 						factor = -difference / value; //if xy==1 at 7 | and value = 2 | dif=6, factor becomes -3 | 7 + -3*2 = 1
 					}else { //make 0
-						float difference = get(left, y, x);
+						float difference = get(matrix, y, x);
 						factor = -difference / value; //if xy==1 at 7 | and value = 2 | dif=7, factor becomes -3.5 | 7 + -3.5*2 = 0
 					}
 					if(factor==0) continue; //no point
 					rowCombine(matrix, inverse, row2, y, factor);
-					left.clear();
-					matrix.store(left);
 				}
 			}
-		}
+		
 		matrix.load(inverse);
-		return false; //TODO
 	}
-	private static float get(FloatBuffer matrixBuffer, int row, int col) {
+	/**Row reduces to invert the matrix as best it can, some rows may have only zeros at the end
+	 */
+	public static void rowReduce(Matrix3f matrix) {
+		Matrix3f inverse = new Matrix3f();//identity
+		//make x,y 1
+		//make x,y+n 0
+		for(int x = 0; x<3; x++) { //col
+			for(int y = 0; y<3; y++) { //row
+				int row2 = -1;
+				float value = 0;
+				for(int i = 1; i<3; i++) {
+					if((value = get(matrix, (y+i)%3, x)) != 0) {//prefers rows below current
+						row2 = (y+i)%3;
+						break;
+					}
+				}
+				
+				if(row2==-1) continue; //all others are 0
+				
+				float factor;
+				if(x==y) { //make 1
+					float difference = get(matrix, y, x) - 1;
+					factor = -difference / value; //if xy==1 at 7 | and value = 2 | dif=6, factor becomes -3 | 7 + -3*2 = 1
+				}else { //make 0
+					float difference = get(matrix, y, x);
+					factor = -difference / value; //if xy==1 at 7 | and value = 2 | dif=7, factor becomes -3.5 | 7 + -3.5*2 = 0
+				}
+				if(factor==0) continue; //no point
+				rowCombine(matrix, inverse, row2, y, factor);
+			}
+		}
+		
+		matrix.load(inverse);
+	}
+	private static float get(Matrix4f m, int row, int col) {
+		int i = row+col*4;
+		switch(i) {
+		case 0:  return m.m00;
+		case 1:  return m.m01;
+		case 2:  return m.m02;
+		case 3:  return m.m03;
+		case 4:  return m.m10;
+		case 5:  return m.m11;
+		case 6:  return m.m12;
+		case 7:  return m.m13;
+		case 8:  return m.m20;
+		case 9:  return m.m21;
+		case 10: return m.m22;
+		case 11: return m.m23;
+		case 12: return m.m30;
+		case 13: return m.m31;
+		case 14: return m.m32;
+		case 15: return m.m33;
+		}
+		throw new IndexOutOfBoundsException(i);
+	}
+	private static float get(Matrix3f m, int row, int col) {
+		int i = row+col*3;
+		switch(i) {
+		case 0:  return m.m00;
+		case 1:  return m.m01;
+		case 2:  return m.m02;
+		case 3:  return m.m10;
+		case 4:  return m.m11;
+		case 5:  return m.m12;
+		case 6:  return m.m20;
+		case 7:  return m.m21;
+		case 8: return m.m22;
+		}
+		throw new IndexOutOfBoundsException(i);
+	}
+	private static float getM3(FloatBuffer matrixBuffer, int row, int col) {
 		return matrixBuffer.get( row + 4 * col ); //ordered by [ col[ r,r,r,r]...
 	}
 	private static void rowCombine(Matrix4f left, Matrix4f right, int rowsrc, int rowtarget, float factor) {
@@ -290,4 +356,45 @@ public class Utils {
 			break;
 		}
 	}
-}
+	private static void rowCombine(Matrix3f left, Matrix3f right, int rowsrc, int rowtarget, float factor) {
+		rowCombine(left, rowsrc, rowtarget, factor);
+		rowCombine(right, rowsrc, rowtarget, factor);
+	}
+	private static void rowCombine(Matrix3f left, int rowsrc, int rowtarget, float factor) {
+		float a=0,b=0,c=0,d=0;
+		switch (rowsrc) {
+		case 0:
+			a = left.m00;
+			b = left.m10;
+			c = left.m20;
+			break;
+		case 1:
+			a = left.m01;
+			b = left.m11;
+			c = left.m21;
+			break;
+		case 2:
+			a = left.m02;
+			b = left.m12;
+			c = left.m22;
+			break;
+		}
+			switch (rowtarget) {
+			case 0:
+				left.m00 += a * factor;
+				left.m10 += b * factor;
+				left.m20 += c * factor;
+				break;
+			case 1:
+				left.m01 += a * factor;
+				left.m11 += b * factor;
+				left.m21 += c * factor;
+				break;
+			case 2:
+				left.m02 += a * factor;
+				left.m12 += b * factor;
+				left.m22 += c * factor;
+				break;
+			}
+		}
+	}

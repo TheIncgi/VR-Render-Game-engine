@@ -306,9 +306,10 @@ public class OBB implements Bounds, Cloneable{
 		Matrix3f a = new Matrix3f();
 		a.m00 = axis1.x;   a.m10 = axis2.x;        //0 
 		a.m01 = axis1.y;   a.m11 = axis2.y;        //0
-		a.m02 = axis1.z;   a.m12 = axis2.z;  a.m22 = 1; //padding to create inverse
-		a = (Matrix3f) a.invert(); //TODO replace with row reduction inverse thing
-		if(a==null) return null;
+		a.m02 = axis1.z;   a.m12 = axis2.z;  a.m22 = 0; 
+		//a = (Matrix3f) a.invert(); //replace with row reduction inverse thing
+		Utils.rowReduce(a);
+//		if(a==null) return null;
 		Vector3f result = Matrix3f.transform(a, thePoint, new Vector3f());
 		return new Vector2f(result);
 	}
