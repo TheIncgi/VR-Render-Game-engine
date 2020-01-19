@@ -12,8 +12,7 @@ import com.theincgi.lwjglApp.render.shaders.ShaderManager;
 public class Object3D implements Drawable{
 	Optional<Model> model;
 	Location location;
-	Bounds bounds;
-	public boolean showBounds;
+
 	private String label;
 	
 	public Object3D(File model) {
@@ -38,14 +37,6 @@ public class Object3D implements Drawable{
 		return location;
 	}
 	
-	public void setBounds(Bounds bounds) {
-		this.bounds = bounds;
-	}
-	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.ofNullable(bounds);
-	}
-	
 	public void draw() {
 		model.ifPresent(m->m.drawAt(location));
 	}
@@ -60,14 +51,7 @@ public class Object3D implements Drawable{
 	public float[] getTransparentObjectPos() {
 		return null;
 	}
-	@Override
-	public boolean showBounds() {
-		return showBounds;
-	}
-	@Override
-	public void setShowBounds(boolean show) {
-		showBounds = show;
-	}
+	
 	@Override
 	public String toString() {
 		return label==null?(getClass().getSimpleName()+": "+(model.isPresent()?model.get().getName():"missing-name")):label;

@@ -21,4 +21,6 @@ public interface Bounds{
 	boolean isRaycastPassthru(RayCast ray);
 	
 	public void draw();
+	
+	public Colideable getParent();
 }

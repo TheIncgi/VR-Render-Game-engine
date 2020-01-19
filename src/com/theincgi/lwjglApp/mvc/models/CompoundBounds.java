@@ -12,7 +12,9 @@ import com.theincgi.lwjglApp.render.Location;
 public class CompoundBounds implements Bounds {
 
 	private final ArrayList<Bounds> bounds = new ArrayList<>();
-	public CompoundBounds(Bounds...bounds) {
+	private Colideable parent;
+	public CompoundBounds(Colideable parent, Bounds...bounds) {
+		this.parent = parent;
 		Collections.addAll(this.bounds, bounds);
 	}
 
@@ -66,6 +68,11 @@ public class CompoundBounds implements Bounds {
 		b.ifPresent(bo->{
 			bounds.add(bo);
 		});
+	}
+	
+	@Override
+	public Colideable getParent() {
+		return parent;
 	}
 	
 	/**Does nothing, should be handled per bound so parent classes do not render bounds of the child elements twice*/

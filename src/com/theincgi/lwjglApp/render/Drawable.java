@@ -1,11 +1,5 @@
 package com.theincgi.lwjglApp.render;
 
-
-import java.util.Optional;
-
-import com.theincgi.lwjglApp.mvc.models.Bounds;
-import com.theincgi.lwjglApp.ui.Color;
-
 public interface Drawable {
 	public void draw();
 	/**A drawable must return true if it can at any point render something transparent<br>
@@ -15,10 +9,4 @@ public interface Drawable {
 	/**Used to sort transparent objects<br>
 	 * Opaque objects are not required to return a value for this*/
 	public float[] getTransparentObjectPos();
-	
-	/**Returns the bounding box of this object if it exists*/
-	public Optional<Bounds> getBounds();
-	
-	public void setShowBounds(boolean show);
-	public boolean showBounds();
 }

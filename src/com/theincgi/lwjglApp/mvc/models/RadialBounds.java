@@ -20,11 +20,15 @@ import java.util.Optional;
 public class RadialBounds implements Bounds{
 	public float radius;
 	public final Vector4f center;
-	public RadialBounds(float x, float y, float z, float r) {
+	private Colideable parent;
+	
+	public RadialBounds(Colideable parent, float x, float y, float z, float r) {
+		this.parent = parent;
 		center = new Vector4f(x,y,z,1);
 		this.radius = r;
 	}
-	public RadialBounds(Vector4f v, float r) {
+	public RadialBounds(Colideable parent, Vector4f v, float r) {
+		this.parent = parent;
 		center = v;
 		this.radius = r;
 	}
@@ -119,6 +123,11 @@ public class RadialBounds implements Bounds{
 		ray.setShortResult( result );
 		
 		return true;
+	}
+	
+	@Override
+	public Colideable getParent() {
+		return parent;
 	}
 	
 	private static float closest(float target, float a, float b) {

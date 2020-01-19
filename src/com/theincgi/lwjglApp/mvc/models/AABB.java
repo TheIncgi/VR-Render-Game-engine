@@ -6,6 +6,7 @@ import org.lwjgl.util.vector.Vector4f;
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.RayCast;
+import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.ui.Color;
 
@@ -19,7 +20,9 @@ import static java.lang.Math.max;
 
 public class AABB implements Bounds{
 	float[] p1, p2;
-	public AABB(float x1, float y1, float z1, float x2, float y2, float z2) {
+	Colideable parent;
+	public AABB(Colideable parent, float x1, float y1, float z1, float x2, float y2, float z2) {
+		this.parent = parent;
 		p1 = new float[] {min(x1,x2), min(y1,y2), min(z1,z2)};
 		p2 = new float[] {max(x1,x2), max(y1,y2), max(z1,z2)};
 	}
@@ -173,6 +176,11 @@ public class AABB implements Bounds{
 		origin = new Vector3f(p1[0], p1[1], p2[2]);
 		Utils.drawVecLine(origin, new Vector3f(p2[0]-p1[0], 0, 0), Color.GRAY);
 		Utils.drawVecLine(origin, new Vector3f(0, p2[1]-p1[1], 0), Color.GRAY);
+	}
+	
+	@Override
+	public Colideable getParent() {
+		return parent;
 	}
 	
 }

@@ -36,10 +36,11 @@ public class OBB implements Bounds, Cloneable{
 	right,
 	forward,
 	up;
+	private Colideable parent;
 
 	/**Origin, the negative coord on all 3 axis, x, y, z, relative direction of each axis*/
-	public OBB(Vector3f origin, Vector3f x, Vector3f y, Vector3f z) {
-		super();
+	public OBB(Colideable parent, Vector3f origin, Vector3f x, Vector3f y, Vector3f z) {
+		this.parent = parent;
 		this.origin = origin;
 		this.right = x;
 		this.up = y;
@@ -47,8 +48,8 @@ public class OBB implements Bounds, Cloneable{
 	}
 
 	/**Origin, the negative coord on all 3 axis, and then the x width, y height, and z length*/
-	public OBB(Vector3f origin, float width, float height, float length) {
-		super();
+	public OBB(Colideable parent, Vector3f origin, float width, float height, float length) {
+		this.parent = parent;
 		this.origin = origin;
 		this.right = new Vector3f(width, 0, 0);
 		this.up = new Vector3f(0, height, 0);
@@ -111,7 +112,7 @@ public class OBB implements Bounds, Cloneable{
 					pointOfThisIsInOther(otherObb) || otherObb.pointOfThisIsInOther(this);       //or point inside
 		}else if(other instanceof AABB) {
 			AABB aabb = (AABB)other;
-			OBB temp = new OBB(
+			OBB temp = new OBB( aabb.getParent(), 
 					new Vector3f(aabb.p1[0], aabb.p1[1], aabb.p1[2]),
 					new Vector3f(aabb.p2[0]-aabb.p1[0], 0, 0),
 					new Vector3f(0, aabb.p2[1]-aabb.p1[1], 0),
@@ -280,7 +281,9 @@ public class OBB implements Bounds, Cloneable{
 		ray.setShortResult(
 				Utils.vec4(Vector3f.add(p, (Vector3f) v.scale(t), p), 1)
 				);
-		pointToPlaneSpace(new Vector3f(ray.result.get()), planeOrigin, dim1, dim2);
+		Vector2f local = pointToPlaneSpace(new Vector3f(ray.result.get()), planeOrigin, dim1, dim2);
+		if(!inRangeI(local.x, 0, 1)) return false;
+		if(!inRangeI(local.y, 0, 1)) return false;
 		return true;
 	}
 	//	https://math.stackexchange.com/questions/100439/determine-where-a-vector-will-intersect-a-plane
@@ -311,6 +314,8 @@ public class OBB implements Bounds, Cloneable{
 		Utils.rowReduce(a);
 //		if(a==null) return null;
 		Vector3f result = Matrix3f.transform(a, thePoint, new Vector3f());
+		Vector3f ori2d  = Matrix3f.transform(a, origin, new Vector3f());
+		sub(result, ori2d, result);
 		return new Vector2f(result);
 	}
 	/**
@@ -329,10 +334,13 @@ public class OBB implements Bounds, Cloneable{
 
 	@Override
 	public OBB clone() {
-		return new OBB(new Vector3f(origin), new Vector3f(right), new Vector3f(up), new Vector3f(forward));
+		return new OBB(parent, new Vector3f(origin), new Vector3f(right), new Vector3f(up), new Vector3f(forward));
 	}
 
-
+	@Override
+	public Colideable getParent() {
+		return parent;
+	}
 
 	@Override
 	public void draw() {
