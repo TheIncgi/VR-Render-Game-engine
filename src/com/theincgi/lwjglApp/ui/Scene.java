@@ -23,6 +23,7 @@ import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.Bounds;
+import com.theincgi.lwjglApp.mvc.models.Colideable;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.EyeCamera;
@@ -81,10 +82,6 @@ public class Scene {
 		synchronized (opaqueDrawables) {
 			opaqueDrawables.forEach(d->{
 				d.draw();
-				if(d.showBounds())
-					d.getBounds().ifPresent(bounds->{
-						bounds.draw();
-					});
 			});
 		}
 		synchronized (transparentDrawables) {
@@ -98,56 +95,56 @@ public class Scene {
 			}
 			transparentDrawables.forEach(d->{
 				d.draw();
-				if(d.showBounds())
-					d.getBounds().ifPresent(bounds->{
-						bounds.draw();
-					});
 			});
 		}
 	}
-	
+
 	/**Tries to find a hit for some ray in the list of drawable objects
 	 * if multiple hit, the closest will be returned*/
-	public void raycast(Drawable optIgnore, RayCast ray) {
+	public void raycast(Colideable optIgnore, RayCast ray) {
 		float best = Float.MAX_VALUE; //very far
 		Vector4f bestV = null;
 		boolean found = false;
 		synchronized (opaqueDrawables) {
 			for(Drawable d : opaqueDrawables) {
 				if(d==optIgnore) continue;
-				if(d.getBounds().isPresent()) {
-					Bounds b = d.getBounds().get();
+				if(d instanceof Colideable) {
+					Colideable c = (Colideable)d;
+					if(!c.allowRaytraceHits())continue;
+					Bounds b = c.getBounds();
 					if(b.isRaycastPassthru(ray)) {
 						if(ray.result.isPresent()) {
 							Vector4f result = ray.result.get(); 
 							float newLen = new Vector3f(Vector4f.sub(result, ray.worldOffset, new Vector4f())).length();
 							if(best > result.length() || !found) {
-									best = newLen;
-									bestV = result;
-									ray.raycastedObject = Optional.of(d);
+								best = newLen;
+								bestV = result;
+								ray.raycastedObject = Optional.of(d);
 							}
 							found = true;
 						}else
 							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
-						
+
 					}
-				};
+				}
 			}
 			for(Drawable d : transparentDrawables) { //should be closest last
 				if(d==optIgnore) continue;
-				if(d.getBounds().isPresent()) {
-					Bounds b = d.getBounds().get();
+				if(d instanceof Colideable) {
+					Colideable c = (Colideable)d;
+					if(!c.allowRaytraceHits())continue;
+					Bounds b = c.getBounds();
 					if(b.isRaycastPassthru(ray)) {
 						if(ray.result.isPresent()) {
 							Vector4f result = ray.result.get();
 							float newLen = new Vector3f(Vector4f.sub(result, ray.worldOffset, new Vector4f())).length();
 							if(best > result.length() || !found) {
-									best = newLen;
-									bestV = result;
-									ray.raycastedObject = Optional.of(d);
+								best = newLen;
+								bestV = result;
+								ray.raycastedObject = Optional.of(d);
 							}
 							found = true;
-					}else
+						}else
 							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
 					}
 				};
@@ -155,31 +152,34 @@ public class Scene {
 		}
 		if(found)
 			ray.result = Optional.ofNullable(bestV);
-		
+
 	}
-	
+
 	/**adds any drawables that are colliding with the target drawable<br>
 	 * (will exclude itself from results)<br>
 	 * if the target object does not have bounds then no results will be added*/
 	public void findCollisions(Drawable self, List<Drawable> collisions) {
-		if(self.getBounds().isEmpty()) return;
-		Bounds b = self.getBounds().get();
+		if(!(self instanceof Colideable)) return;
+		Colideable c = (Colideable) self;
+		Bounds b = c.getBounds();
 		for(Drawable d : opaqueDrawables) {
-			if(d==self) continue;
-			d.getBounds().ifPresent(c->{
-				if(b.intersects(c))
+			if(d instanceof Colideable) {
+				Colideable dc = (Colideable) d;
+				if(dc==self) continue;
+				if(dc.getBounds().intersects(c))
 					collisions.add(d);
-			});
+			}
 		}
 		for (Drawable d : transparentDrawables) {
-			if(d==self) continue;
-			d.getBounds().ifPresent(c->{
-				if(b.intersects(c))
+			if(d instanceof Colideable) {
+				Colideable dc = (Colideable) d;
+				if(dc==self) continue;
+				if(dc.getBounds().intersects(c))
 					collisions.add(d);
-			});
+			}
 		}
 	}
-	
+
 	public void onTick() {}
 
 	public Optional<CallbackListener> getSceneListener() {

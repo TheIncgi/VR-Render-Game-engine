@@ -59,18 +59,4 @@ public class PointingLasers implements Drawable{
 	public void setRightLength(float rightLength) {
 		this.rightLength = rightLength;
 	}
-
-	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean showBounds() {
-		return false;
-	}
-	@Override
-	public void setShowBounds(boolean show) {
-		//not really useful
-	}
 }

@@ -5,10 +5,11 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+import com.theincgi.lwjglApp.mvc.models.Colideable;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Side;
 
-public interface VRController extends Drawable{
+public interface VRController extends Colideable{
 
 	/**Supported controller types*/
 	public enum Type {

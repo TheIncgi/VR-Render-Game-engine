@@ -131,15 +131,4 @@ public class Quad implements Drawable {
 	public float[] getTransparentObjectPos() {
 		return null;
 	}
-	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.empty();
-	}
-	@Override
-	public boolean showBounds() {
-		return false;
-	}
-	@Override
-	public void setShowBounds(boolean show) {
-	}
 }

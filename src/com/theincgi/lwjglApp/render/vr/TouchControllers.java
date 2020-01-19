@@ -88,7 +88,7 @@ public class TouchControllers implements VRController {
 		bButton 		= ObjManager.INSTANCE.get(RIGHT+"button_b.obj", 	shaderName);
 		enter 			= ObjManager.INSTANCE.get(LEFT+ "button_enter.obj", shaderName);
 		home 			= ObjManager.INSTANCE.get(RIGHT+ "button_home.obj", shaderName);
-		bounds = new CompoundBounds(leftBounds = new RadialBounds(0, 0, 0, .0585f), rightBounds = new RadialBounds(0, 0, 0, .0585f));
+		bounds = new CompoundBounds(this, leftBounds = new RadialBounds(this, 0, 0, 0, .0585f), rightBounds = new RadialBounds(this, 0, 0, 0, .0585f));
 	}
 
 	@Override
@@ -566,12 +566,13 @@ public class TouchControllers implements VRController {
 	public float[] getTransparentObjectPos() {
 		return null;
 	}
-	
-	/**Left empty so controllers are not collision tested<br>
-	 * instead see {@link TouchControllers#getLeftBounds()} and {@link TouchControllers#getRightBounds()}*/
 	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.empty();
+	public boolean allowRaytraceHits() {
+		return false;
+	}
+	@Override
+	public Bounds getBounds() {
+		return bounds;
 	}
 	@Override
 	public boolean showBounds() {

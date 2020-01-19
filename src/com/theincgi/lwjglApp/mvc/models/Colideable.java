@@ -7,5 +7,5 @@ public interface Colideable extends Drawable{
 	public Bounds getBounds();
 	public void setShowBounds(boolean show);
 	public boolean showBounds();
-	
+	public boolean allowRaytraceHits();
 }

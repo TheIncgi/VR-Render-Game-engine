@@ -22,8 +22,10 @@ import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.AABB;
+import com.theincgi.lwjglApp.mvc.models.Colideable;
 import com.theincgi.lwjglApp.mvc.models.Object3D;
 import com.theincgi.lwjglApp.mvc.models.RadialBounds;
+import com.theincgi.lwjglApp.mvc.models.SolidObject;
 import com.theincgi.lwjglApp.render.Camera;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.render.ParticleSystem;
@@ -57,14 +59,14 @@ public class DemoScene extends Scene{
 	private String rayResultMessageRight = "-";
 	private PointingLasers pointingLasers;
 	TestGui testGui;
-	AABB testAABB = new AABB(-1.5f, 2, -3, -.5f, 3, -2);
+	//AABB testAABB = new AABB(-1.5f, 2, -3, -.5f, 3, -2);
 	private RayCast lastRayLeft, lastRayRight;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
-		Object3D monkey = new Object3D("cmodels/monkey/monkey.obj", 0, 0, -5);
+		SolidObject monkey = new SolidObject("cmodels/monkey/monkey.obj", 0, 0, -5);
 		//monkey.setBounds(new RadialBounds(0, 0, -5, 1));
-		monkey.setBounds(new AABB(-1, -1, -6, 1, 1, -4));
+		monkey.setBounds(new AABB(monkey, -1, -1, -6, 1, 1, -4));
 		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 3, 1, -1);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
 		location = new Object3D("cmodels/locator/locator.obj", "full");

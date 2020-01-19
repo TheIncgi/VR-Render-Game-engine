@@ -23,7 +23,6 @@ public class HelloElements implements Drawable{
 	private int ibo;
 	private Optional<ShaderProgram> shader;
 	private IntBuffer indices;
-	private boolean showBounds;
 	static float data[] = {   // in counterclockwise order:
 			-.25f, -.25f, -0.0f,     0f, 1f,   0, 0, -1,
 			.25f,  .25f, -0.0f,     1f, 0f,   0, 0, -1,
@@ -113,10 +112,7 @@ public class HelloElements implements Drawable{
 			ShaderProgram.unbind();
 		}
 	}
-	@Override
-	public boolean showBounds() {
-		return showBounds;
-	}
+	
 	@Override
 	public boolean isTransparent() {
 		return false;
@@ -127,12 +123,4 @@ public class HelloElements implements Drawable{
 		return null;
 	}
 
-	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.empty();
-	}
-	@Override
-	public void setShowBounds(boolean show) {
-		showBounds = show;
-	}
 }
