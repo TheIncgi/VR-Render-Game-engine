@@ -63,7 +63,7 @@ public class SolidObject extends Object3D implements Colideable {
 	
 	@Override
 	public void draw() {
-		draw();
+		super.draw();
 		if(showBounds() && bounds!=null)
 			bounds.draw();
 	}
