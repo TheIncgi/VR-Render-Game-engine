@@ -9,12 +9,11 @@ import org.lwjgl.util.vector.Vector3f;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
 
+/**Effectively a union of bounds*/
 public class CompoundBounds implements Bounds {
-
 	private final ArrayList<Bounds> bounds = new ArrayList<>();
 	private Colideable parent;
-	public CompoundBounds(Colideable parent, Bounds...bounds) {
-		this.parent = parent;
+	public CompoundBounds(Bounds...bounds) {
 		Collections.addAll(this.bounds, bounds);
 	}
 
@@ -64,17 +63,21 @@ public class CompoundBounds implements Bounds {
 		return bounds;
 	}
 
-	public void addBounds(Optional<Bounds> b) {
-		b.ifPresent(bo->{
-			bounds.add(bo);
-		});
+	public void addBounds(Bounds b) {
+		bounds.add(b);
 	}
 	
 	@Override
 	public Colideable getParent() {
 		return parent;
 	}
-	
+	/**Sets teh parent of this and child elements*/
+	@Override
+	public void setParent(Colideable parent) {
+		this.parent = parent;
+		for (Bounds b : bounds)
+			b.setParent(parent);
+	}
 	/**Does nothing, should be handled per bound so parent classes do not render bounds of the child elements twice*/
 	@Override
 	public void draw() {

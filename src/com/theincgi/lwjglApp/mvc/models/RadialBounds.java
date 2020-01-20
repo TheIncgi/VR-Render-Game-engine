@@ -22,13 +22,11 @@ public class RadialBounds implements Bounds{
 	public final Vector4f center;
 	private Colideable parent;
 	
-	public RadialBounds(Colideable parent, float x, float y, float z, float r) {
-		this.parent = parent;
+	public RadialBounds(float x, float y, float z, float r) {
 		center = new Vector4f(x,y,z,1);
 		this.radius = r;
 	}
-	public RadialBounds(Colideable parent, Vector4f v, float r) {
-		this.parent = parent;
+	public RadialBounds(Vector4f v, float r) {
 		center = v;
 		this.radius = r;
 	}
@@ -120,7 +118,7 @@ public class RadialBounds implements Bounds{
 		
 		Vector4f result = Vector4f.sub(tcav, (Vector4f) new Vector4f(tcav).normalize().scale(th), new Vector4f());
 		result.w = 1;
-		ray.setShortResult( result );
+		ray.setShortResult( result, this );
 		
 		return true;
 	}
@@ -129,7 +127,10 @@ public class RadialBounds implements Bounds{
 	public Colideable getParent() {
 		return parent;
 	}
-	
+	@Override
+	public void setParent(Colideable parent) {
+		this.parent = parent;
+	}
 	private static float closest(float target, float a, float b) {
 		return abs(target-a)>abs(target-b)?b:a;
 	}

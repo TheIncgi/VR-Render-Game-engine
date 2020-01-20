@@ -88,7 +88,8 @@ public class TouchControllers implements VRController {
 		bButton 		= ObjManager.INSTANCE.get(RIGHT+"button_b.obj", 	shaderName);
 		enter 			= ObjManager.INSTANCE.get(LEFT+ "button_enter.obj", shaderName);
 		home 			= ObjManager.INSTANCE.get(RIGHT+ "button_home.obj", shaderName);
-		bounds = new CompoundBounds(this, leftBounds = new RadialBounds(this, 0, 0, 0, .0585f), rightBounds = new RadialBounds(this, 0, 0, 0, .0585f));
+		bounds = new CompoundBounds(leftBounds = new RadialBounds(0, 0, 0, .0585f), rightBounds = new RadialBounds(0, 0, 0, .0585f));
+		bounds.setParent(this);
 	}
 
 	@Override

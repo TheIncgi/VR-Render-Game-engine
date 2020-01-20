@@ -112,20 +112,7 @@ public class Scene {
 					Colideable c = (Colideable)d;
 					if(!c.allowRaytraceHits())continue;
 					Bounds b = c.getBounds();
-					if(b.isRaycastPassthru(ray)) {
-						if(ray.result.isPresent()) {
-							Vector4f result = ray.result.get(); 
-							float newLen = new Vector3f(Vector4f.sub(result, ray.worldOffset, new Vector4f())).length();
-							if(best > result.length() || !found) {
-								best = newLen;
-								bestV = result;
-								ray.raycastedObject = Optional.of(d);
-							}
-							found = true;
-						}else
-							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
-
-					}
+					b.isRaycastPassthru(ray);
 				}
 			}
 			for(Drawable d : transparentDrawables) { //should be closest last
@@ -134,20 +121,8 @@ public class Scene {
 					Colideable c = (Colideable)d;
 					if(!c.allowRaytraceHits())continue;
 					Bounds b = c.getBounds();
-					if(b.isRaycastPassthru(ray)) {
-						if(ray.result.isPresent()) {
-							Vector4f result = ray.result.get();
-							float newLen = new Vector3f(Vector4f.sub(result, ray.worldOffset, new Vector4f())).length();
-							if(best > result.length() || !found) {
-								best = newLen;
-								bestV = result;
-								ray.raycastedObject = Optional.of(d);
-							}
-							found = true;
-						}else
-							Logger.preferedLogger.w("Scene#raycast", "Drawable "+d+" returned true for raycast, but provided no result locaiton");
-					}
-				};
+					b.isRaycastPassthru(ray);
+				}
 			}
 		}
 		if(found)
@@ -166,7 +141,7 @@ public class Scene {
 			if(d instanceof Colideable) {
 				Colideable dc = (Colideable) d;
 				if(dc==self) continue;
-				if(dc.getBounds().intersects(c))
+				if(dc.getBounds().intersects(c.getBounds()))
 					collisions.add(d);
 			}
 		}
@@ -174,7 +149,7 @@ public class Scene {
 			if(d instanceof Colideable) {
 				Colideable dc = (Colideable) d;
 				if(dc==self) continue;
-				if(dc.getBounds().intersects(c))
+				if(dc.getBounds().intersects(c.getBounds()))
 					collisions.add(d);
 			}
 		}

@@ -64,9 +64,8 @@ public class DemoScene extends Scene{
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
-		SolidObject monkey = new SolidObject("cmodels/monkey/monkey.obj", 0, 0, -5);
+		SolidObject monkey = new SolidObject("cmodels/monkey/monkey.obj", new AABB( -1, -1, -6, 1, 1, -4), 0, 0, -5);
 		//monkey.setBounds(new RadialBounds(0, 0, -5, 1));
-		monkey.setBounds(new AABB(monkey, -1, -1, -6, 1, 1, -4));
 		lantern = new Object3D("cmodels/emissionTest/cube_lamp.obj", 3, 1, -1);
 		Object3D sky = new Object3D("cmodels/sky/sky_test.obj", "sky");
 		location = new Object3D("cmodels/locator/locator.obj", "full");
@@ -77,84 +76,84 @@ public class DemoScene extends Scene{
 				final int X = x*2, Y = y*2;
 				Object3D cube =  new Object3D("cmodels/softcube/softcube.obj", X, -1, Y);
 				addDrawable(cube);
-//				cube.setBounds(new AABB(X-1, -2, Y-1, X+1, 0, Y+1));
+				//				cube.setBounds(new AABB(X-1, -2, Y-1, X+1, 0, Y+1));
 				cube.setLabel("Ground cube <"+X+":"+Y+">");
 			}
 		}
 		lantern.getLocation().setYaw(180);
 		font = FontTextures.INSTANCE.get(new Pair<>("ascii_consolas", 100));
 		createDefaultDebugControls();
-		
+
 		testAnimation = new Animation(this, Animation.Updater.makeFloatUpdater(Animation.Interpolator.SIGMOID, 0f, 90f, v->{
 			monkey.getLocation().setYaw(v);
 		})).setDuration(5f, TimeUnit.SECONDS);
 		addTickable(testAnimation);
-		
+
 		testSystem = new ParticleSystem(this, 0, 1, -5)
-		.addForce((psAge, s,d)->{
-			if(s.age==0) {
-				d.velocity.x =  Utils.ndRandom(.83f);
-				d.velocity.y =  Utils.ndRandom(.83f);
-				d.velocity.z =-(Utils.ndRandom(.6f)+.43f);
-				Vector4f tmp = new Vector4f(d.velocity.x, d.velocity.y, d.velocity.z, 0);
-				Matrix4f.transform(new Matrix4f().rotate(-45, new Vector3f(1, 0, 0)), tmp, tmp);
-				Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), tmp,tmp);
-				d.velocity.x = tmp.x;
-				d.velocity.y = tmp.y;
-				d.velocity.z = tmp.z;
-				d.velocity.scale(.04f);
-			}
-			d.emissionStrength = (float)(1-Math.pow(s.age/(float)s.maxAge, 3));
-		}).setTexture("particleTextures/star4.png");
-		
-			addDrawable(pointingLasers = new PointingLasers(Launcher.getMainWindow().vrControllers));
-			testSystem.addEmitter(()->{
-				Vector4f x = new Vector4f(0,0,0,1);
-				Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), x, x);
-				return new Vector3f(x);
-			});
+				.addForce((psAge, s,d)->{
+					if(s.age==0) {
+						d.velocity.x =  Utils.ndRandom(.83f);
+						d.velocity.y =  Utils.ndRandom(.83f);
+						d.velocity.z =-(Utils.ndRandom(.6f)+.43f);
+						Vector4f tmp = new Vector4f(d.velocity.x, d.velocity.y, d.velocity.z, 0);
+						Matrix4f.transform(new Matrix4f().rotate(-45, new Vector3f(1, 0, 0)), tmp, tmp);
+						Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), tmp,tmp);
+						d.velocity.x = tmp.x;
+						d.velocity.y = tmp.y;
+						d.velocity.z = tmp.z;
+						d.velocity.scale(.04f);
+					}
+					d.emissionStrength = (float)(1-Math.pow(s.age/(float)s.maxAge, 3));
+				}).setTexture("particleTextures/star4.png");
+
+		addDrawable(pointingLasers = new PointingLasers(Launcher.getMainWindow().vrControllers));
+		testSystem.addEmitter(()->{
+			Vector4f x = new Vector4f(0,0,0,1);
+			Matrix4f.transform(Launcher.getMainWindow().vrControllers.getLeftTransform(), x, x);
+			return new Vector3f(x);
+		});
 		testGui = new TestGui(this);
 	}
-	
+
 	public void onTick() {
-		if(lastRayLeft!=null && lastRayLeft.raycastedObject!=null){
-			lastRayLeft.raycastedObject.ifPresent(b->b.setShowBounds(false));
-		}if(lastRayRight!=null && lastRayRight.raycastedObject!=null){
-			lastRayRight.raycastedObject.ifPresent(b->b.setShowBounds(false));
+		if(lastRayLeft!=null && lastRayLeft.raycastedBounds.isPresent()){
+			lastRayLeft.raycastedBounds.get().getParent().setShowBounds(false);
+		}if(lastRayRight!=null && lastRayRight.raycastedBounds.isPresent()){
+			lastRayRight.raycastedBounds.get().getParent().setShowBounds(false);
 		}
-			lastRayLeft = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
-			raycast(Launcher.getMainWindow().vrControllers, lastRayLeft);
-			lastRayRight= new RayCast(Launcher.getMainWindow().vrControllers.getRightPointingSource(), Launcher.getMainWindow().vrControllers.getRightPointingVector());
-			raycast(Launcher.getMainWindow().vrControllers, lastRayRight);
-			
-			if(lastRayLeft.raycastedObject!=null) 
-			if(lastRayRight.raycastedObject!=null) lastRayRight.raycastedObject.ifPresent(b->b.setShowBounds(true));
-			
-			lastRayLeft.result.ifPresentOrElse(result->{
-				lastRayLeft.raycastedObject.ifPresent(b->b.setShowBounds(true));
-				rayResultMessageLeft =
+		lastRayLeft = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
+		raycast(Launcher.getMainWindow().vrControllers, lastRayLeft);
+		lastRayRight= new RayCast(Launcher.getMainWindow().vrControllers.getRightPointingSource(), Launcher.getMainWindow().vrControllers.getRightPointingVector());
+		raycast(Launcher.getMainWindow().vrControllers, lastRayRight);
+
+		
+		if(lastRayRight.raycastedBounds!=null) lastRayRight.raycastedBounds.ifPresent(b->b.getParent().setShowBounds(true));
+
+		lastRayLeft.result.ifPresentOrElse(result->{
+			lastRayLeft.raycastedBounds.ifPresent(b->b.getParent().setShowBounds(true));
+			rayResultMessageLeft =
 					"\n\t低0,0,1;"+result.toString()+
 					"\n\t低1,1,1;"+"Length: 低0,1,0;"+result.length()+
-					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayLeft.raycastedObject.isEmpty()?"unknown object":lastRayLeft.raycastedObject.get().toString());
-				pointingLasers.setLeftLength(result.length());
-			}, ()->{
-				rayResultMessageLeft = "\n\t低1,0,0;NULL";
-				pointingLasers.setLeftLength(.05f);
-			});
-			
-			
-			lastRayRight.result.ifPresentOrElse(result->{
-				rayResultMessageRight = 
+					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayLeft.raycastedBounds.isEmpty()?"unknown object":lastRayLeft.raycastedBounds.get().toString());
+			pointingLasers.setLeftLength(result.length());
+		}, ()->{
+			rayResultMessageLeft = "\n\t低1,0,0;NULL";
+			pointingLasers.setLeftLength(.05f);
+		});
+
+
+		lastRayRight.result.ifPresentOrElse(result->{
+			rayResultMessageRight = 
 					"\n\t低0,0,1;"+result.toString()+
 					"\n\t低1,1,1;"+"Length: 低0,1,0;"+result.length()+
-					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedObject.isEmpty()?"unknown object":lastRayRight.raycastedObject.get().toString());
-				pointingLasers.setRightLength(result.length());
-			}, ()->{
-				rayResultMessageRight = "\n\t低1,0,0;NULL";
-				pointingLasers.setRightLength(.05f);
-			});
-			
-		 
+					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedBounds.isEmpty()?"unknown object":lastRayRight.raycastedBounds.get().toString());
+			pointingLasers.setRightLength(result.length());
+		}, ()->{
+			rayResultMessageRight = "\n\t低1,0,0;NULL";
+			pointingLasers.setRightLength(.05f);
+		});
+
+
 		synchronized (tickables) {
 			LinkedList<Tickable> toRemove = new LinkedList<>();
 			tickables.forEach(t->{
@@ -165,24 +164,22 @@ public class DemoScene extends Scene{
 				tickables.remove(toRemove.removeFirst());
 		}
 	}
-	
+
 	@Override
 	public void render(Camera camera, double mouseX, double mouseY) {
 		super.render(camera, mouseX, mouseY);
 		try(MatrixStack ms = MatrixStack.modelViewStack.push(new Vector3f(-1f, 1, -1.98f))){	
 			font.ifPresent(ft->{
-					TextRenderer.renderText(ft, 
-							 "低1,1,1;Raycast Result [left ]: "+rayResultMessageLeft +"\n"+
-							 "低1,1,1;Raycast Result [right]: "+rayResultMessageRight
-							, true, 8);
+				TextRenderer.renderText(ft, 
+						"低1,1,1;Raycast Result [left ]: "+rayResultMessageLeft +"\n"+
+								"低1,1,1;Raycast Result [right]: "+rayResultMessageRight
+								, true, 8);
 			});
 		}
 		RayCast test = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
-		if(testAABB.isRaycastPassthru(test))
-			testAABB.draw();
-		
+
 	}
-	
+
 	private class SceneCallbackListener extends CallbackListener
 	implements CallbackListener.OnMouseButton, CallbackListener.OnVRControllerButtonPress, CallbackListener.OnVRControllerButtonUnpress, CallbackListener.OnVRControllerButtonTouch, CallbackListener.OnVRControllerButtonUntouch {
 
@@ -202,13 +199,13 @@ public class DemoScene extends Scene{
 				Logger.preferedLogger.i("DemoScene#onPress", "Playing an animation...");
 				testAnimation.playToggled();
 				return true;
-			
+
 			default:
 				break;
 			}
 			return false;
 		}
-		
+
 		@Override public boolean onUntouch(VRWindow window, Input input) {
 			String action = controls.get(input);
 			if(action==null) return false;
@@ -221,7 +218,7 @@ public class DemoScene extends Scene{
 			}
 			return false;
 		}
-		
+
 		@Override
 		public boolean onPress(VRWindow window, Input input) {
 			String action = controls.get(input);
@@ -230,7 +227,7 @@ public class DemoScene extends Scene{
 			case "tryParticleSystem":
 				testSystem.emit(1000, 8000, 500, 200);
 				return true;
-			
+
 			case "tryGui":
 				testGui.toggle(Side.RIGHT);
 				break;
@@ -244,7 +241,7 @@ public class DemoScene extends Scene{
 			return false;
 		}
 	}
-	
+
 	public void createDefaultDebugControls() {
 		controls = Settings.computeControllMappingIfAbsent(Settings.CONTROLS+"debug");
 		//TODO bind some buttons
@@ -257,7 +254,7 @@ public class DemoScene extends Scene{
 		controls.put(TouchControllers.X_BUTTON, "tryParticleSystem");
 		controls.put(TouchControllers.B_BUTTON, "tryGui");
 	}
-	
+
 	@Override
 	public void onUnload() {
 	}

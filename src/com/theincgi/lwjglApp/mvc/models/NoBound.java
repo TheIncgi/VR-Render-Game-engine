@@ -8,8 +8,7 @@ import com.theincgi.lwjglApp.render.Location;
 public class NoBound implements Bounds{
 	
 	private Colideable parent;
-	public NoBound(Colideable parent) {
-		this.parent = parent;
+	public NoBound() {
 	}
 	
 	@Override
@@ -39,6 +38,10 @@ public class NoBound implements Bounds{
 		return false;
 	}
 	
+	@Override
+	public void setParent(Colideable parent) {
+		this.parent = parent;
+	}
 	
 	@Override
 	public Colideable getParent() {

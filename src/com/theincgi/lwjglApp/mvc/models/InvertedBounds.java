@@ -7,7 +7,7 @@ import com.theincgi.lwjglApp.render.Location;
 
 public class InvertedBounds implements Bounds{
 	private Bounds bound;
-
+	
 	public InvertedBounds(Bounds toInvert) {
 		this.bound = toInvert;
 	}
@@ -19,6 +19,10 @@ public class InvertedBounds implements Bounds{
 	@Override
 	public Colideable getParent() {
 		return bound.getParent();
+	}
+	@Override
+	public void setParent(Colideable parent) {
+		bound.setParent(parent);
 	}
 	@Override
 	public boolean intersects(Bounds other) {
@@ -43,5 +47,9 @@ public class InvertedBounds implements Bounds{
 	@Override
 	public boolean isRaycastPassthru(RayCast ray) {
 		return !bound.isRaycastPassthru(ray);
+	}
+	@Override
+	public String toString() {
+		return "INVERTED: ["+bound.toString()+"]";
 	}
 }

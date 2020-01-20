@@ -21,8 +21,8 @@ import static java.lang.Math.max;
 public class AABB implements Bounds{
 	float[] p1, p2;
 	Colideable parent;
-	public AABB(Colideable parent, float x1, float y1, float z1, float x2, float y2, float z2) {
-		this.parent = parent;
+	String label;
+	public AABB(float x1, float y1, float z1, float x2, float y2, float z2) {
 		p1 = new float[] {min(x1,x2), min(y1,y2), min(z1,z2)};
 		p2 = new float[] {max(x1,x2), max(y1,y2), max(z1,z2)};
 	}
@@ -71,7 +71,7 @@ public class AABB implements Bounds{
 	public boolean isRaycastPassthru(RayCast ray) {
 		if(ray.rayDirection.length()==0) return false;
 		if(isIn(ray.worldOffset.x, ray.worldOffset.y, ray.worldOffset.z)) {
-			ray.setShortResult( ray.worldOffset );
+			ray.setShortResult( ray.worldOffset, this );
 			return true;
 		}
 		boolean passed = false;
@@ -100,7 +100,7 @@ public class AABB implements Bounds{
 				   inRangeI(ray.worldOffset.z + ray.rayDirection.z * scale, p1[2], p2[2])){
 				Vector4f out = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
 				Vector4f.add(out, ray.worldOffset, out);
-				ray.setShortResult( out );
+				ray.setShortResult( out, this );
 				passed = true;
 			};
 		}
@@ -115,7 +115,7 @@ public class AABB implements Bounds{
 				   inRangeI(ray.worldOffset.z + ray.rayDirection.z * scale, p1[2], p2[2])) {
 				Vector4f out = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
 				Vector4f.add(out, ray.worldOffset, out);
-				ray.setShortResult( out );
+				ray.setShortResult( out, this );
 				passed = true;
 			}
 		}
@@ -130,7 +130,7 @@ public class AABB implements Bounds{
 				   inRangeI(ray.worldOffset.y + ray.rayDirection.y * scale, p1[1], p2[1]) ) {
 				Vector4f out = (Vector4f) new Vector4f(ray.rayDirection).scale(scale);
 				Vector4f.add(out, ray.worldOffset, out);
-				ray.setShortResult( out );
+				ray.setShortResult( out, this );
 				passed = true;
 			}
 		}
@@ -138,6 +138,11 @@ public class AABB implements Bounds{
 		return false; 
 		
 	};
+	
+	@Override
+	public void setParent(Colideable parent) {
+		this.parent = parent;	
+	}
 	
 	/**Checks if a point in b is contained by a*/
 	private static boolean contains(AABB a, AABB b) {
@@ -178,9 +183,21 @@ public class AABB implements Bounds{
 		Utils.drawVecLine(origin, new Vector3f(0, p2[1]-p1[1], 0), Color.GRAY);
 	}
 	
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
+	}
+	
 	@Override
 	public Colideable getParent() {
 		return parent;
+	}
+	
+	@Override
+	public String toString() {
+		return (label==null?"":label) + parent.toString();
 	}
 	
 }

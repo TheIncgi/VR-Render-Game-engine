@@ -2,6 +2,7 @@ package com.theincgi.lwjglApp.mvc.models;
 
 import java.io.File;
 
+
 public class SolidObject extends Object3D implements Colideable {
 	Bounds bounds;
 	private boolean showBounds = false;
@@ -9,26 +10,31 @@ public class SolidObject extends Object3D implements Colideable {
 	public SolidObject(File model, Bounds bounds, float x, float y, float z) {
 		super(model, x, y, z);
 		this.bounds = bounds;
+		this.bounds.setParent(this);
 	}
 
 	public SolidObject(File model, Bounds bounds) {
 		super(model);
 		this.bounds = bounds;
+		this.bounds.setParent(this);
 	}
 
-	public SolidObject(String model, Bounds bounds, float x, float y, float z) {
+	public SolidObject(String model, Bounds bounds,  float x, float y, float z) {
 		super(model, x, y, z);
 		this.bounds = bounds;
+		this.bounds.setParent(this);
 	}
 
-	public SolidObject(String model, Bounds bounds, String shaderName) {
+	public SolidObject(String model, Bounds bounds,  String shaderName) {
 		super(model, shaderName);
 		this.bounds = bounds;
+		this.bounds.setParent(this);
 	}
 
 	public SolidObject(String model, Bounds bounds) {
 		super(model);
 		this.bounds = bounds;
+		this.bounds.setParent(this);
 	}
 
 	@Override
@@ -43,12 +49,18 @@ public class SolidObject extends Object3D implements Colideable {
 
 	@Override
 	public boolean showBounds() {
-		return showBounds();
+		return showBounds;
 	}
 	@Override
 	public boolean allowRaytraceHits() {
 		return true;
 	}
+	
+	public SolidObject setBounds(Bounds bounds) {
+		this.bounds = bounds;
+		return this;
+	}
+	
 	@Override
 	public void draw() {
 		draw();

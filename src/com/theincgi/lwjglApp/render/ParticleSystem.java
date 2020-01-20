@@ -134,10 +134,7 @@ public class ParticleSystem implements Drawable, Tickable{
 		});
 
 	}
-	@Override
-	public boolean showBounds() {
-		return false;
-	}
+	
 
 	@Override
 	public boolean onTickUpdate() {
@@ -246,13 +243,5 @@ public class ParticleSystem implements Drawable, Tickable{
 			this.maxAge = other.maxAge;
 			this.emissionStrength = other.emissionStrength;
 		}
-	}
-	
-	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.empty();
-	}
-	@Override
-	public void setShowBounds(boolean show) {//nothing to show, you dont want hundreds or thousands of bounding boxes for points...	
 	}
 }

@@ -23,4 +23,7 @@ public interface Bounds{
 	public void draw();
 	
 	public Colideable getParent();
+	
+	public void setParent(Colideable parent);
+	
 }

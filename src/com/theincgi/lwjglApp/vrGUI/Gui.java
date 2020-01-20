@@ -9,6 +9,7 @@ import org.lwjgl.util.vector.Vector3f;
 import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.Bounds;
+import com.theincgi.lwjglApp.mvc.models.Colideable;
 import com.theincgi.lwjglApp.mvc.models.CompoundBounds;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.Material;
@@ -17,7 +18,7 @@ import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.ui.Scene;
 
-public class Gui implements Drawable, Tickable{
+public class Gui implements Colideable, Tickable{
 	protected ArrayList<Drawable> guiElements = new ArrayList<>();
 	public Matrix4f location = new Matrix4f();
 	Optional<Model> square;
@@ -112,8 +113,8 @@ public class Gui implements Drawable, Tickable{
 	}
 
 	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.of(bounds);
+	public Bounds getBounds() {
+		return bounds;
 	}
 	@Override
 	public boolean showBounds() {
@@ -121,5 +122,11 @@ public class Gui implements Drawable, Tickable{
 	}
 	@Override
 	public void setShowBounds(boolean show) {	
+	}
+
+	@Override
+	public boolean allowRaytraceHits() {
+
+		return false;
 	}
 }

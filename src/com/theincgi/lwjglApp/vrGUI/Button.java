@@ -13,6 +13,7 @@ import com.theincgi.lwjglApp.misc.MatrixStack;
 import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.AABB;
 import com.theincgi.lwjglApp.mvc.models.Bounds;
+import com.theincgi.lwjglApp.mvc.models.Colideable;
 import com.theincgi.lwjglApp.mvc.models.OBB;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.ImgTexture;
@@ -25,7 +26,7 @@ import com.theincgi.lwjglApp.render.text.TextRenderer;
 import com.theincgi.lwjglApp.ui.Color;
 import com.theincgi.lwjglApp.ui.Scene;
 
-public class Button implements Drawable, Tickable {
+public class Button implements Colideable, Tickable {
 	Optional<String> text = Optional.empty();
 	//Optional<ImgTexture> icon = Optional.empty();
 	Optional<Consumer<Boolean>> onPress = Optional.empty(),
@@ -166,8 +167,8 @@ public class Button implements Drawable, Tickable {
 		return null;
 	}
 	@Override
-	public Optional<Bounds> getBounds() {
-		return Optional.of(bounds);
+	public Bounds getBounds() {
+		return bounds;
 	}
 	
 	public float getWidth() {
@@ -216,5 +217,9 @@ public class Button implements Drawable, Tickable {
 
 	public void setGui(Gui gui) {
 		this.gui = gui;
+	}
+	@Override
+	public boolean allowRaytraceHits() {
+		return true;
 	}
 }
