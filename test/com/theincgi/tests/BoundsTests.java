@@ -85,6 +85,54 @@ class BoundsTests {
 		assertEquals(2, result.y, .1f);
 	}
 	
+	@Test
+	void OriIsIn() {
+		OrientedBoundingBox oob = new OrientedBoundingBox(new Vector4f(-1, -1, -1, 1), 2, 2, 2);
+		oob.setTransform(new Matrix4f());
+		assertTrue(oob.isIn( 0.0f,  0.0f,  0.0f));
+		assertTrue(oob.isIn(-0.4f,  0.0f,  0.0f));
+		assertTrue(oob.isIn( 0.4f,  0.0f,  0.0f));
+		assertTrue(oob.isIn( 0.0f, -0.5f,  0.0f));
+		assertTrue(oob.isIn( 0.0f,  0.5f,  0.0f));
+		assertTrue(oob.isIn( 0.0f,  0.0f, -0.5f));
+		assertTrue(oob.isIn( 0.0f,  0.0f,  0.5f));
+		assertTrue(oob.isIn( 0.5f,  0.5f,  0.5f));
+		
+		assertFalse(oob.isIn(-2.4f, 0, 0));
+		assertFalse(oob.isIn(0, -2.4f, 0));
+		assertFalse(oob.isIn(0, 0, -2.4f));
+		assertFalse(oob.isIn( 2.4f, 0, 0));
+		assertFalse(oob.isIn(0,  2.4f, 0));
+		assertFalse(oob.isIn(0, 0,  2.4f));
+		
+	}
+	
+	@Test
+	void OriIsInTranslated() {
+		OrientedBoundingBox oob = new OrientedBoundingBox(new Vector4f(-1, -1, -1, 1), 2, 2, 2);
+		Matrix4f m = new Matrix4f();
+		m.translate(new Vector3f(5,0,0));
+		oob.setTransform(m);
+		
+		assertFalse(oob.isIn( 0.0f,  0.0f,  0.0f));
+		assertFalse(oob.isIn(-0.4f,  0.0f,  0.0f));
+		assertFalse(oob.isIn( 0.4f,  0.0f,  0.0f));
+		assertFalse(oob.isIn( 0.0f, -0.5f,  0.0f));
+		assertFalse(oob.isIn( 0.0f,  0.5f,  0.0f));
+		assertFalse(oob.isIn( 0.0f,  0.0f, -0.5f));
+		assertFalse(oob.isIn( 0.0f,  0.0f,  0.5f));
+		assertFalse(oob.isIn( 0.5f,  0.5f,  0.5f));
+		
+		assertFalse(oob.isIn(-2.4f, 0, 0));
+		assertFalse(oob.isIn(0, -2.4f, 0));
+		assertFalse(oob.isIn(0, 0, -2.4f));
+		assertFalse(oob.isIn( 2.4f, 0, 0));
+		assertFalse(oob.isIn(0,  2.4f, 0));
+		assertFalse(oob.isIn(0, 0,  2.4f));
+		
+		assertTrue(oob.isIn(5, 0, 0));
+	}
+	
 	
 //	@Test
 //	void reduceInvertMatrix4f() {

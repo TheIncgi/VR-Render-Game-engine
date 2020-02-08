@@ -7,14 +7,20 @@ import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
 import com.theincgi.lwjglApp.Utils;
+import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.render.Location;
 import com.theincgi.lwjglApp.ui.Color;
 import static org.lwjgl.util.vector.Matrix4f.transform;
+import static org.lwjgl.util.vector.Vector3f.add;
+import static org.lwjgl.util.vector.Vector3f.dot;
+import static org.lwjgl.util.vector.Vector3f.sub;
 import static org.lwjgl.util.vector.Vector4f.add;
 import static org.lwjgl.util.vector.Vector4f.sub;
 import static com.theincgi.lwjglApp.Utils.cross;
 import static org.lwjgl.util.vector.Vector4f.dot;
+import static com.theincgi.lwjglApp.Utils.inRangeE;
+import static com.theincgi.lwjglApp.Utils.inRangeI;
 
 import org.lwjgl.util.vector.Matrix3f;
 
@@ -24,10 +30,12 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 	Vector4f localizedXDim;
 	Vector4f localizedYDim;
 	Vector4f localizedZDim;
-	Matrix4f transform;
+	Matrix4f transform = null;
 	Colideable parent;
 	
-	/**w will be set to an acceptable value automaticly*/
+	Vector4f debugVec1 = new Vector4f();
+	
+	/**w will be set to an acceptable value automaticly<br>*/
 	public OrientedBoundingBox(Vector4f localizedOrigin, Vector4f localizedXDim, Vector4f localizedYDim,
 			Vector4f localizedZDim) {
 		this.localizedOrigin = localizedOrigin;
@@ -45,24 +53,33 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 	}
 	@Override
 	public void setParent(Colideable parent) {
-		setParent(parent);
+		this.parent = parent;
 	}
 	@Override
 	public Colideable getParent() {
 		return parent;
 	}
 	
+	/**Replaces Object*/
 	public void setTransform(Matrix4f transform) {
 		this.transform = transform;
+	}
+	/**Copies*/
+	public void setTransformFrom(Matrix4f transform) {
+		if(this.transform==null) this.transform = new Matrix4f();
+		this.transform.load(transform);
 	}
 	
 	@Override
 	public void draw() {
+		if(transform == null)return;
 		Vector4f a = new Vector4f(), b = new Vector4f();
 		Vector4f tx = new Vector4f(), ty = new Vector4f(), tz = new Vector4f();
 		Utils.drawVecLine(Matrix4f.transform(transform, localizedOrigin, a), 	Matrix4f.transform(transform, localizedXDim, tx), Color.RED);
 		Utils.drawVecLine(a,													Matrix4f.transform(transform, localizedYDim, ty), Color.GREEN);
 		Utils.drawVecLine(a, 													Matrix4f.transform(transform, localizedZDim, tz), Color.BLUE);
+		
+		Utils.drawVecLine(a, debugVec1, Color.PURPLE);
 		
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, localizedXDim, a), a), ty, Color.GRAY);
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, localizedXDim, a), a), tz, Color.GRAY);
@@ -76,6 +93,8 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, Vector4f.add(localizedXDim, localizedYDim, a), a), a), tz, Color.GRAY);
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, Vector4f.add(localizedXDim, localizedZDim, a), a), a), ty, Color.GRAY);
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, Vector4f.add(localizedYDim, localizedZDim, a), a), a), tx, Color.GRAY);
+		
+		
 	}
 	
 	public boolean isIn(float x, float y, float z) {
@@ -94,20 +113,67 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 		return isIn(Utils.vec4(v, 1));
 	}
 	public boolean isIn(Vector4f p) {
+		if(transform == null)return false;
 		//if point p is projected on to 3 orthogonal sides, and those projections exist within the bounds of those faces
 		//then the point is contained within this Oriented Bounding Box
-		return false;
+		Vector4f[] outputBuffer = new Vector4f[3];
+		getFace(Face.XM, outputBuffer);
+		Vector4f worldPlanePoint = projectToPlane(p, outputBuffer[0], outputBuffer[1], outputBuffer[2]);
+		Vector2f planePoint = pointToPlaneSpace(worldPlanePoint, outputBuffer[0], outputBuffer[1], outputBuffer[2]);
+		if(!inRangeE(planePoint.x, 0, 1)) return false;
+		if(!inRangeE(planePoint.y, 0, 1)) return false;
+		
+		getFace(Face.YM, outputBuffer);
+		worldPlanePoint = projectToPlane(p, outputBuffer[0], outputBuffer[1], outputBuffer[2]);
+		planePoint = pointToPlaneSpace(worldPlanePoint, outputBuffer[0], outputBuffer[1], outputBuffer[2]);
+		if(!inRangeE(planePoint.x, 0, 1)) return false;
+		if(!inRangeE(planePoint.y, 0, 1)) return false;
+		
+		getFace(Face.ZM, outputBuffer);
+		worldPlanePoint = projectToPlane(p, outputBuffer[0], outputBuffer[1], outputBuffer[2]);
+		planePoint = pointToPlaneSpace(worldPlanePoint, outputBuffer[0], outputBuffer[1], outputBuffer[2]);
+		if(!inRangeE(planePoint.x, 0, 1)) return false;
+		if(!inRangeE(planePoint.y, 0, 1)) return false;
+		
+		return true;
 	}
-	@Override
-	public boolean intersects(Bounds other) {
-		// TODO Auto-generated method stub
-		return false;
-	}
+
 	@Override
 	public boolean isRaycastPassthru(RayCast ray) {
+		if(transform == null)return false;
 		// TODO Auto-generated method stub
 		//1. Extend ray to faces
 		//2. Check if an extended ray is within the bounds of a face
+		Vector4f[] buffer = new Vector4f[3];
+		boolean flag = false;
+		for (Face face : Face.values()) {
+			getFace(face, buffer);
+			flag |= rayToPlane(ray, buffer[0], buffer[1], buffer[2]);
+		}
+		return flag;
+	}
+	
+	public boolean rayToPlane(RayCast ray, Vector4f planeOrigin, Vector4f axis1, Vector4f axis2) {
+		if(transform == null)return false;
+		Vector4f normal = (Vector4f) cross(axis1, axis2, null).normalize();
+		float denom = -Vector4f.dot(ray.rayDirection, normal); //should be sin between angles
+		if(denom <= .00001) return false;
+		Vector4f proj = projectToPlane(ray.worldOffset, planeOrigin, axis1, axis2);
+		float x = Utils.distVec3(proj, ray.worldOffset);
+		float t = x/denom;
+		Vector4f result = (Vector4f) new Vector4f(ray.rayDirection).normalize();
+		result = Vector4f.add(ray.worldOffset, ((Vector4f)result.scale(t)), result);
+		Vector2f localSpace = pointToPlaneSpace(result, planeOrigin, axis1, axis2);
+		if(!inRangeE(localSpace.x, 0, 1)) return false;
+		if(!inRangeE(localSpace.y, 0, 1)) return false;
+		ray.setShortResult(result, this);
+		return true;
+	}
+	
+	@Override
+	public boolean intersects(Bounds other) {
+		if(transform == null)return false;
+		// TODO Auto-generated method stub
 		return false;
 	}
 	

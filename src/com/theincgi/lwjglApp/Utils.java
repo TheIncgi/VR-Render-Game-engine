@@ -180,7 +180,8 @@ public class Utils {
 
 			matrix.scale(new Vector3f(l, l, l));
 
-			try(MatrixStack m1 = MatrixStack.modelViewStack.push(matrix)){
+			try(MatrixStack m1 = MatrixStack.modelViewStack.push()){
+				MatrixStack.modelViewStack.get().load(matrix);
 				mod.drawAtOrigin();
 			}
 			//			location.setX(origin.x);
@@ -227,7 +228,7 @@ public class Utils {
 				for(int y = 0; y<4; y++) { //row
 					int row2 = -1;
 					float value = 0;
-					for(int i = 1; i<4; i++) {
+					for(int i = 1; i<=4; i++) {
 						if((value = get(matrix, (y+i)%4, x)) != 0) {//prefers rows below current
 							row2 = (y+i)%4;
 							break;
@@ -261,7 +262,7 @@ public class Utils {
 			for(int y = 0; y<3; y++) { //row
 				int row2 = -1;
 				float value = 0;
-				for(int i = 1; i<3; i++) {
+				for(int i = 1; i<=3; i++) {
 					if((value = get(matrix, (y+i)%3, x)) != 0) {//prefers rows below current
 						row2 = (y+i)%3;
 						break;

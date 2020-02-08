@@ -52,6 +52,7 @@ public class Button implements Colideable, Tickable {
 		if(size!=null)
 			buttonModel = ObjManager.INSTANCE.get(size.getModelName(), "full");
 		this.bounds = size.getBounds().clone();
+		bounds.setParent(this);
 	}
 	public Button(ImgTexture icon, Size size) {
 		this(Optional.ofNullable(icon), size);
@@ -62,6 +63,7 @@ public class Button implements Colideable, Tickable {
 		if(size!=null)
 			buttonModel = ObjManager.INSTANCE.get(size.getModelName(), "full");
 		this.bounds = size.getBounds().clone();
+		bounds.setParent(this);
 	}
 
 	public void setImage(Optional<ImgTexture> icon) {
@@ -149,7 +151,7 @@ public class Button implements Colideable, Tickable {
 		});
 		
 		if(bounds!=null) {
-			bounds.setTransform(MatrixStack.modelViewStack.get()); //TODO FIXME clone 
+			bounds.setTransformFrom(MatrixStack.modelViewStack.get());
 			bounds.draw();
 		}
 	}
