@@ -30,6 +30,7 @@ public class RayCast {
 			}	
 		}, ()->{
 			result = Optional.of(altV);
+			raycastedBounds = Optional.of(bounds);
 		});
 	}
 	public void setLongResult(Vector4f altV, Bounds bounds) {
@@ -41,6 +42,7 @@ public class RayCast {
 			}	
 		}, ()->{
 			result = Optional.of(altV);
+			raycastedBounds = Optional.of(bounds);
 		});
 	}
 }

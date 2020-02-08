@@ -31,7 +31,7 @@ import static com.theincgi.lwjglApp.Utils.inRangeI;
 public class OBB implements Bounds, Cloneable{
 
 	/**Renaming needed, origin (---), right(+00), forward(00+) up(0+0)*/
-	Vector3f
+	public Vector3f
 	origin,
 	right,
 	forward,
@@ -276,13 +276,15 @@ public class OBB implements Bounds, Cloneable{
 		if (t <= 0)
 			return false;
 
-		ray.setShortResult(
-				Utils.vec4(Vector3f.add(p, (Vector3f) v.scale(t), p), 1),
-				this
-				);
-		Vector2f local = pointToPlaneSpace(new Vector3f(ray.result.get()), planeOrigin, dim1, dim2);
+		Vector3f planePoint = Vector3f.add(p, (Vector3f) v.scale(t), p);
+		Vector2f local = pointToPlaneSpace(planePoint, planeOrigin, dim1, dim2);
 		if(!inRangeI(local.x, 0, 1)) return false;
 		if(!inRangeI(local.y, 0, 1)) return false;
+		
+		ray.setShortResult(
+				Utils.vec4(planePoint, 1),
+				this
+				);
 		return true;
 	}
 	//	https://math.stackexchange.com/questions/100439/determine-where-a-vector-will-intersect-a-plane
@@ -312,9 +314,8 @@ public class OBB implements Bounds, Cloneable{
 		//a = (Matrix3f) a.invert(); //replace with row reduction inverse thing
 		Utils.rowReduce(a);
 //		if(a==null) return null;
-		Vector3f result = Matrix3f.transform(a, thePoint, new Vector3f());
-		Vector3f ori2d  = Matrix3f.transform(a, origin, new Vector3f());//TODO transform point before transforming by matrix
-		sub(result, ori2d, result);
+		Vector3f p2 = sub(thePoint, origin, new Vector3f());
+		Vector3f result = Matrix3f.transform(a, p2, new Vector3f());
 		return new Vector2f(result);
 	}
 	/**

@@ -26,6 +26,7 @@ public class Gui implements Colideable, Tickable{
 	protected CompoundBounds bounds = new CompoundBounds();
 	private Scene scene;
 	private boolean isOpen = false;
+	private boolean showBounds;
 	public Gui(Scene scene, float widthMeters, float heightMeters) {
 		this.scene = scene;
 		square = ObjManager.INSTANCE.get("cmodels/plane/plane.obj", "full");
@@ -118,15 +119,15 @@ public class Gui implements Colideable, Tickable{
 	}
 	@Override
 	public boolean showBounds() {
-		return false;
+		return showBounds;
 	}
 	@Override
-	public void setShowBounds(boolean show) {	
+	public void setShowBounds(boolean show) {
+		showBounds = show;
 	}
 
 	@Override
 	public boolean allowRaytraceHits() {
-
-		return false;
+		return true;
 	}
 }

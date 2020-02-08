@@ -44,7 +44,7 @@ public class SolidObject extends Object3D implements Colideable {
 
 	@Override
 	public void setShowBounds(boolean show) {
-		this.showBounds = true;
+		this.showBounds = show;
 	}
 
 	@Override

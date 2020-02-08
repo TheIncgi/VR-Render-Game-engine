@@ -102,9 +102,6 @@ public class Scene {
 	/**Tries to find a hit for some ray in the list of drawable objects
 	 * if multiple hit, the closest will be returned*/
 	public void raycast(Colideable optIgnore, RayCast ray) {
-		float best = Float.MAX_VALUE; //very far
-		Vector4f bestV = null;
-		boolean found = false;
 		synchronized (opaqueDrawables) {
 			for(Drawable d : opaqueDrawables) {
 				if(d==optIgnore) continue;
@@ -125,8 +122,6 @@ public class Scene {
 				}
 			}
 		}
-		if(found)
-			ray.result = Optional.ofNullable(bestV);
 
 	}
 

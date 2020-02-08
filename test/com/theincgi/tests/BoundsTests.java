@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Vector4f;
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.RayCast;
 import com.theincgi.lwjglApp.mvc.models.OBB;
+import com.theincgi.lwjglApp.mvc.models.OrientedBoundingBox;
 import com.theincgi.lwjglApp.mvc.models.RadialBounds;
 
 class BoundsTests {
@@ -44,24 +45,24 @@ class BoundsTests {
 //	}
 	@Test
 	void projectTest1() {
-		Vector3f p = new Vector3f(-3, 1, 2);
-		Vector3f o = new Vector3f(1, 0, 0);
-		Vector3f a = new Vector3f(0, 0, 1);
-		Vector3f b = new Vector3f(0, 1, 0);
+		Vector4f p = new Vector4f(-3, 1, 2, 1);
+		Vector4f o = new Vector4f(1, 0, 0, 1);
+		Vector4f a = new Vector4f(0, 0, 1, 0);
+		Vector4f b = new Vector4f(0, 1, 0, 0);
 		
-		assertEquals(new Vector3f(1, 1, 2),OBB.projectToPlane(p, o, a, b));
+		assertEquals(new Vector4f(1, 1, 2, 1),OrientedBoundingBox.projectToPlane(p, o, a, b));
 	}
 	
 	@Test
 	void projectTest2() {
-		Vector3f p = new Vector3f(.5937f, -.7872f, .155f);
-		Vector3f o = new Vector3f(.07029f, -.2216f, -1.395f);
-		Vector3f a = new Vector3f(1.135f, .8407f, -.07639f);
-		Vector3f b = new Vector3f(-1.135f, -.8497f, .07639f);
-		Vector3f.sub(a, o, a);
-		Vector3f.sub(b, o, b);	
+		Vector4f p = new Vector4f(.5937f, -.7872f, .155f,    1);
+		Vector4f o = new Vector4f(.07029f, -.2216f, -1.395f, 1);
+		Vector4f a = new Vector4f(1.135f, .8407f, -.07639f,  0);
+		Vector4f b = new Vector4f(-1.135f, -.8497f, .07639f, 0);
+		Vector4f.sub(a, o, a);
+		Vector4f.sub(b, o, b);	
 		
-		Vector3f result = OBB.projectToPlane(p, o, a, b); //normal 0.5968486, -0.7876969, 0.15266058
+		Vector4f result = OrientedBoundingBox.projectToPlane(p, o, a, b); //normal 0.5968486, -0.7876969, 0.15266058
 		
 		assertEquals(0, result.x, .01f);
 		assertEquals(0, result.y, .01f);
@@ -70,15 +71,15 @@ class BoundsTests {
 	
 	@Test
 	void toPlaneSpace() {
-		Vector3f p = new Vector3f(-1.2752f, -.39743f, 2.8663f);
-		Vector3f o = new Vector3f(.07029f, -.2216f, -1.395f);
-		Vector3f a = new Vector3f(1.135f, .8407f, -.07639f);
-		Vector3f b = new Vector3f(-1.135f, -.8497f, .07639f);
+		Vector4f p = new Vector4f(-1.2752f, -.39743f, 2.8663f,   1);
+		Vector4f o = new Vector4f(.07029f, -.2216f, -1.395f,     1);
+		Vector4f a = new Vector4f(1.135f, .8407f, -.07639f ,     0);
+		Vector4f b = new Vector4f(-1.135f, -.8497f, .07639f,     0 );
 		
-		Vector3f.sub(a, o, a);
-		Vector3f.sub(b, o, b);
+		Vector4f.sub(a, o, a);
+		Vector4f.sub(b, o, b);
 		
-		Vector2f result = OBB.pointToPlaneSpace(p, o, a, b);
+		Vector2f result = OrientedBoundingBox.pointToPlaneSpace(p, o, a, b);
 		
 		assertEquals(1, result.x, .1f);
 		assertEquals(2, result.y, .1f);

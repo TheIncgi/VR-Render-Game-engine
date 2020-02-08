@@ -154,7 +154,10 @@ public class Utils {
 
 
 	private static Optional<Model> m = Optional.empty();
-
+	
+	public static void drawVecLine(Vector4f origin, Vector4f vector, final Color color) {
+		drawVecLine(new Vector3f(origin), new Vector3f(vector), color);
+	}
 	public static void drawVecLine(Vector3f origin, Vector3f vector, final Color color) {
 		if(m.isEmpty())
 			m = ObjManager.INSTANCE.get("cmodels/laser/vector.obj", "flat");
@@ -189,6 +192,31 @@ public class Utils {
 		});
 	}
 
+	/**
+	 * The cross product of two vectors.<br/>
+	 * Similar except that this is for vec4 and will leave w as 0 (since these should be two directions and directions shouldn't be translated)
+	 * @param left The LHS vector
+	 * @param right The RHS vector
+	 * @param dest The destination result, or null if a new vector is to be created
+	 * @return left cross right
+	 */
+	public static Vector4f cross(
+			Vector4f left,
+			Vector4f right,
+			Vector4f dest)
+	{
+
+		if (dest == null)
+			dest = new Vector4f();
+
+		dest.set(
+				left.y * right.z - left.z * right.y,
+				right.x * left.z - right.z * left.x,
+				left.x * right.y - left.y * right.x
+				);
+		dest.w = 0;
+		return dest;
+	}
 	/**Row reduces to invert the matrix as best it can, some rows may have only zeros at the end
 	 */
 	public static void rowReduce(Matrix4f matrix) {

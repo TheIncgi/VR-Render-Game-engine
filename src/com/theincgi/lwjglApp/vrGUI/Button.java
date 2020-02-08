@@ -14,7 +14,7 @@ import com.theincgi.lwjglApp.misc.Tickable;
 import com.theincgi.lwjglApp.mvc.models.AABB;
 import com.theincgi.lwjglApp.mvc.models.Bounds;
 import com.theincgi.lwjglApp.mvc.models.Colideable;
-import com.theincgi.lwjglApp.mvc.models.OBB;
+import com.theincgi.lwjglApp.mvc.models.OrientedBoundingBox;
 import com.theincgi.lwjglApp.render.Drawable;
 import com.theincgi.lwjglApp.render.ImgTexture;
 import com.theincgi.lwjglApp.render.Material;
@@ -41,7 +41,7 @@ public class Button implements Colideable, Tickable {
 	private Optional<FontTexture> fontTexture;
 	public float fontSize = 1;
 	private Gui gui;
-	private Bounds bounds;
+	private OrientedBoundingBox bounds;
 	private boolean showBounds;
 	
 	
@@ -147,6 +147,11 @@ public class Button implements Colideable, Tickable {
 				});
 			}
 		});
+		
+		if(bounds!=null) {
+			bounds.setTransform(MatrixStack.modelViewStack.get()); //TODO FIXME clone 
+			bounds.draw();
+		}
 	}
 	
 	@Override
@@ -187,15 +192,15 @@ public class Button implements Colideable, Tickable {
 	// 0.045 - large dim
 	// 0.02 - small dim
 	public enum Size{						/*                 (           origin                  )               (     x+ width     )             (      y+ height   )                 z+          */
-		s5x5(  "cmodels/buttons/5x5.obj",   .05f, .05f, new OBB(new Vector3f(-0.020f, -0.020f, 0.0f),  0.04f, 0.04f, 0.0052f)),
-		s5x10( "cmodels/buttons/5x10.obj",  .05f, .10f, new OBB(new Vector3f(-0.020f, -0.045f, 0.0f),  0.04f, 0.09f, 0.0052f)),
-		s10x5( "cmodels/buttons/10x5.obj",  .10f, .05f, new OBB(new Vector3f(-0.045f, -0.020f, 0.0f),  0.09f, 0.04f, 0.0052f)),
-		s10x10("cmodels/buttons/10x10.obj", .10f, .10f, new OBB(new Vector3f(-0.045f, -0.045f, 0.0f),  0.09f, 0.09f, 0.0052f));
+		s5x5(  "cmodels/buttons/5x5.obj",   .05f, .05f, new OrientedBoundingBox(new Vector4f(-0.020f, -0.020f, 0.0f, 1),  0.04f, 0.04f, 0.0052f)),
+		s5x10( "cmodels/buttons/5x10.obj",  .05f, .10f, new OrientedBoundingBox(new Vector4f(-0.020f, -0.045f, 0.0f, 1),  0.04f, 0.09f, 0.0052f)),
+		s10x5( "cmodels/buttons/10x5.obj",  .10f, .05f, new OrientedBoundingBox(new Vector4f(-0.045f, -0.020f, 0.0f, 1),  0.09f, 0.04f, 0.0052f)),
+		s10x10("cmodels/buttons/10x10.obj", .10f, .10f, new OrientedBoundingBox(new Vector4f(-0.045f, -0.045f, 0.0f, 1),  0.09f, 0.09f, 0.0052f));
 		
 		private final String modelName;
 		float width, height;
-		private OBB bounds;
-		private Size(String model, float width, float height, OBB bounds) {
+		private OrientedBoundingBox bounds;
+		private Size(String model, float width, float height, OrientedBoundingBox bounds) {
 			this.bounds = bounds;
 			modelName = model;
 			this.width = width;
@@ -210,7 +215,7 @@ public class Button implements Colideable, Tickable {
 		public float getHeight() {
 			return height;
 		}
-		public OBB getBounds() {
+		public OrientedBoundingBox getBounds() {
 			return bounds;
 		}
 	}
