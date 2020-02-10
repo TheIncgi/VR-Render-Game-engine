@@ -17,6 +17,9 @@ import static org.lwjgl.util.vector.Vector3f.dot;
 import static org.lwjgl.util.vector.Vector3f.sub;
 import static org.lwjgl.util.vector.Vector4f.add;
 import static org.lwjgl.util.vector.Vector4f.sub;
+
+import org.lwjgl.opengl.GL43;
+
 import static com.theincgi.lwjglApp.Utils.cross;
 import static org.lwjgl.util.vector.Vector4f.dot;
 import static com.theincgi.lwjglApp.Utils.inRangeE;
@@ -162,7 +165,8 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 		float x = Utils.distVec3(proj, ray.worldOffset);
 		float t = x/denom;
 		Vector4f result = (Vector4f) new Vector4f(ray.rayDirection).normalize();
-		result = Vector4f.add(ray.worldOffset, ((Vector4f)result.scale(t)), result);
+		result.scale(t); 
+		result = Vector4f.add(ray.worldOffset, result, result);
 		Vector2f localSpace = pointToPlaneSpace(result, planeOrigin, axis1, axis2);
 		if(!inRangeE(localSpace.x, 0, 1)) return false;
 		if(!inRangeE(localSpace.y, 0, 1)) return false;
@@ -173,6 +177,18 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 	@Override
 	public boolean intersects(Bounds other) {
 		if(transform == null)return false;
+		if(other instanceof AABB) {
+			
+		}else if(other instanceof RadialBounds) {
+			//center contained
+			//or, clamped local space to center is less than radius
+		}else if(other instanceof OrientedBoundingBox) {
+			//Point of other is contained by this
+			//or, ray between points of other intersects this
+		}else {
+			Logger.preferedLogger.w("OrientedBoundingBox#intersects", "No definition for the intersection with type "+other.getClass());
+			return false;
+		}
 		// TODO Auto-generated method stub
 		return false;
 	}

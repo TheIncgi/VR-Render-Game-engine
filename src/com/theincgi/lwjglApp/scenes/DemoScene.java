@@ -135,7 +135,7 @@ public class DemoScene extends Scene{
 					"\n\t低0,0,1;"+result.toString()+
 					"\n\t低1,1,1;"+"Length: 低0,1,0;"+result.length()+
 					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayLeft.raycastedBounds.isEmpty()?"unknown object":lastRayLeft.raycastedBounds.get().toString());
-			pointingLasers.setLeftLength(result.length());
+			pointingLasers.setLeftLength(lastRayLeft.getLength());
 		}, ()->{
 			rayResultMessageLeft = "\n\t低1,0,0;NULL";
 			pointingLasers.setLeftLength(.05f);
@@ -146,8 +146,9 @@ public class DemoScene extends Scene{
 			rayResultMessageRight = 
 					"\n\t低0,0,1;"+result.toString()+
 					"\n\t低1,1,1;"+"Length: 低0,1,0;"+result.length()+
-					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedBounds.isEmpty()?"unknown object":lastRayRight.raycastedBounds.get().toString());
-			pointingLasers.setRightLength(result.length());
+					"\n\t低1,1,1;Target: 低1,0,1;"+(lastRayRight.raycastedBounds.isEmpty()?"unknown object":lastRayRight.raycastedBounds.get().toString()) +
+					"\n\t低1,1,1;Length: 低0,1,1;"+lastRayRight.getLength();
+			pointingLasers.setRightLength(lastRayRight.getLength());
 		}, ()->{
 			rayResultMessageRight = "\n\t低1,0,0;NULL";
 			pointingLasers.setRightLength(.05f);
