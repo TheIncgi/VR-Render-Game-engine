@@ -56,6 +56,13 @@ public class Utils {
 	public static boolean inRangeI(long x, long min, long max) {
 		return min<=x && x <= max;
 	}
+	
+	public static int clamp(int x, int min, int max) {
+		return Math.min(max, Math.max(x, min));
+	}
+	public static float clamp(float x, float min, float max) {
+		return Math.min(max, Math.max(x, min));
+	}
 
 	public static double max(double a, double... args) {
 		double m = a;

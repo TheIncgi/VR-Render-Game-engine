@@ -23,6 +23,7 @@ import com.theincgi.lwjglApp.render.Model;
 import com.theincgi.lwjglApp.render.ObjManager;
 import com.theincgi.lwjglApp.render.text.FontTexture;
 import com.theincgi.lwjglApp.render.text.TextRenderer;
+import com.theincgi.lwjglApp.render.vr.VRController;
 import com.theincgi.lwjglApp.ui.Color;
 import com.theincgi.lwjglApp.ui.Scene;
 
@@ -128,7 +129,18 @@ public class Button implements Colideable, Tickable {
 
 	@Override
 	public boolean onTickUpdate() {
-		//Launcher.getMainWindow().vrControllers
+		VRController contr = Launcher.getMainWindow().vrControllers;
+		if(!isLocked && contr.getBounds().intersects(bounds)) {
+			if(!isPressed) {
+				isPressed = true;
+				onPress.ifPresent(c->{c.accept(true);});
+			}
+		}else {
+			if(isPressed) {
+				isPressed = false;
+				onPress.ifPresent(c->{c.accept(false);});
+			}
+		}
 		return false;
 	}
 	

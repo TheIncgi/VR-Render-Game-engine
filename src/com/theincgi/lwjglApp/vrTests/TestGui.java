@@ -21,7 +21,7 @@ public class TestGui extends Gui{
 	public TestGui(Scene scene) {
 		super(scene, .05f * 3, .05f*3);
 		defaultFont = FontTextures.INSTANCE.get(new Pair<String, Integer>("consolas", 64));
-		addButton(new Button(defaultFont, "OK", Button.Size.s5x5), 0, 0);
+		addButton(new Button(defaultFont, "§C1,0,1;OK", Button.Size.s5x5), 0, 0);
 		
 	}
 	

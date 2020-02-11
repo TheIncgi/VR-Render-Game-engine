@@ -17,7 +17,7 @@ import static org.lwjgl.util.vector.Vector3f.dot;
 import static org.lwjgl.util.vector.Vector3f.sub;
 import static org.lwjgl.util.vector.Vector4f.add;
 import static org.lwjgl.util.vector.Vector4f.sub;
-
+import static com.theincgi.lwjglApp.Utils.clamp;
 import org.lwjgl.opengl.GL43;
 
 import static com.theincgi.lwjglApp.Utils.cross;
@@ -28,7 +28,7 @@ import static com.theincgi.lwjglApp.Utils.inRangeI;
 import org.lwjgl.util.vector.Matrix3f;
 
 public class OrientedBoundingBox implements Bounds, Cloneable{
-	/**Point of the --- corner, not a 000, rotation should be about the center not corner*/
+	/**Point of the --- corner, Rotation occurs about this point*/
 	Vector4f localizedOrigin;
 	Vector4f localizedXDim;
 	Vector4f localizedYDim;
@@ -36,7 +36,7 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 	Matrix4f transform = null;
 	Colideable parent;
 	
-	Vector4f debugVec1 = new Vector4f();
+	//Vector4f debugVec1 = new Vector4f();
 	
 	/**w will be set to an acceptable value automaticly<br>*/
 	public OrientedBoundingBox(Vector4f localizedOrigin, Vector4f localizedXDim, Vector4f localizedYDim,
@@ -82,7 +82,7 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 		Utils.drawVecLine(a,													Matrix4f.transform(transform, localizedYDim, ty), Color.GREEN);
 		Utils.drawVecLine(a, 													Matrix4f.transform(transform, localizedZDim, tz), Color.BLUE);
 		
-		Utils.drawVecLine(a, debugVec1, Color.PURPLE);
+		//Utils.drawVecLine(a, debugVec1, Color.PURPLE);
 		
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, localizedXDim, a), a), ty, Color.GRAY);
 		Utils.drawVecLine(Matrix4f.transform(transform, Vector4f.add(localizedOrigin, localizedXDim, a), a), tz, Color.GRAY);
@@ -178,21 +178,114 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 	public boolean intersects(Bounds other) {
 		if(transform == null)return false;
 		if(other instanceof AABB) {
-			
-		}else if(other instanceof RadialBounds) {
-			//center contained
-			//or, clamped local space to center is less than radius
+			AABB aabb = (AABB) other;
+			OrientedBoundingBox temp = new OrientedBoundingBox(new Vector4f(aabb.p1[0], aabb.p1[1], aabb.p1[2], 1),
+					aabb.p2[0]-aabb.p1[0], aabb.p2[1]-aabb.p1[1], aabb.p2[2]-aabb.p1[2]);
+			return this.intersects(temp);
+		}else if(other instanceof RadialBounds) {//center in this, or clamped projection is in sphere
+			RadialBounds rb = (RadialBounds) other;
+			if(isIn(rb.center)) return true;
+			Vector4f[] buffer = new Vector4f[3];
+			for (Face f : Face.values()) {
+				getFace(f, buffer);
+				Vector4f proj = projectToPlane(rb.center, buffer[0], buffer[1], buffer[2]);
+				Vector2f local= pointToPlaneSpace(proj, buffer[0], buffer[1], buffer[2]);
+				local.x = clamp(local.x, 0, 1);
+				local.y = clamp(local.x, 0, 1);
+				proj = Vector4f.add(
+						buffer[0], 
+						Vector4f.add(
+							(Vector4f)(buffer[1].scale(local.x)),
+							(Vector4f)(buffer[2].scale(local.y)),
+							proj
+						),
+						proj);
+				if(Utils.distVec3(proj, rb.center) <= rb.radius) return true;
+			}
+			return false;
 		}else if(other instanceof OrientedBoundingBox) {
 			//Point of other is contained by this
 			//or, ray between points of other intersects this
+			OrientedBoundingBox obb = (OrientedBoundingBox) other;
+			
+			//for the OBB to not need to check rays and be colliding the box must completly contain the other,
+			//so any point is valid to test
+			if(obb.isIn(this.localizedOrigin)) return true;
+			if(this.isIn(obb.localizedOrigin)) return true;
+			
+			//if any ray from either OBB intersects the others face then there is a collision
+			//a case where a corner intersects the middle of a face requires that both be checked against eachother
+			//(24 ray tests)
+			
+			if(_rayIntersects(this, obb)) return true;
+			if(_rayIntersects(obb, this)) return true;
+			
+			return false;
 		}else {
 			Logger.preferedLogger.w("OrientedBoundingBox#intersects", "No definition for the intersection with type "+other.getClass());
 			return false;
 		}
 		// TODO Auto-generated method stub
-		return false;
 	}
 	
+	private static boolean _rayIntersects(OrientedBoundingBox a, OrientedBoundingBox b) {
+		//rays to test: (not in order)
+		//O->X
+		//O->Y
+		//O->Z
+		//X->XY | +y
+		//X->XZ | +z...
+		
+		//Y->XY
+		//Y->YZ
+		
+		//Z->XZ
+		//Z->YZ
+		
+		//XY->XYZ
+		//XZ->XYZ
+		//YZ->XYZ
+		
+		//ray sources:
+		//O, X, Y, Z, XY, XZ, YZ
+		RayCast r = new RayCast(null, null);
+		Vector4f test = new Vector4f(a.localizedOrigin);
+		
+		r.worldOffset = test; //O->
+		r.rayDirection = a.localizedXDim;
+		if(b.isRaycastPassthru(r)) return true;
+		r.rayDirection = a.localizedYDim;
+		if(b.isRaycastPassthru(r)) return true;
+		r.rayDirection = a.localizedZDim;
+		if(b.isRaycastPassthru(r)) return true;
+		
+		add(test, a.localizedXDim, test);//X->
+		if(b.isRaycastPassthru(r)) return true; //last is zDim
+		r.rayDirection = a.localizedYDim;
+		if(b.isRaycastPassthru(r)) return true;
+		
+		add(test, a.localizedYDim, test); //XY -> XYZ
+		r.rayDirection = a.localizedZDim;
+		if(b.isRaycastPassthru(r)) return true;
+		
+		sub(test, a.localizedXDim, test); //Y->
+		if(b.isRaycastPassthru(r)) return true;// Y->YZ
+		r.rayDirection = a.localizedXDim;
+		if(b.isRaycastPassthru(r)) return true;// Y->XY
+		
+		add(test, a.localizedZDim, test); //YZ->XYZ
+		if(b.isRaycastPassthru(r)) return true; //still dir x
+		
+		sub(test, a.localizedYDim, test); //Z->
+		if(b.isRaycastPassthru(r)) return true; //Z->XZ
+		r.rayDirection = a.localizedYDim;
+		if(b.isRaycastPassthru(r)) return true; //Z->YZ
+		
+		add(test, a.localizedXDim, test); //XZ->
+		if(b.isRaycastPassthru(r)) return true; //XZ->XYZ
+		
+		return false;
+	}
 	//	https://math.stackexchange.com/questions/100439/determine-where-a-vector-will-intersect-a-plane
 	//	https://math.stackexchange.com/questions/100761/how-do-i-find-the-projection-of-a-point-onto-a-plane
 	//normal abc
