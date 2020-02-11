@@ -59,8 +59,8 @@ public class AABB implements Bounds{
 			return AABB.contains(this, aabb) || AABB.contains(aabb, this);
 		}else if(other instanceof RadialBounds) {
 			return ((RadialBounds)other).intersects(this); //radialBounds has the definition already
-		}else if(other instanceof OBB) {
-			OBB obb = (OBB) other;
+		}else if(other instanceof OrientedBoundingBox) {
+			OrientedBoundingBox obb = (OrientedBoundingBox) other;
 			return obb.intersects(this); //handled in obb
 		}else {
 			Logger.preferedLogger.w("AABB#intersects", "No definition for the intersection with type "+other.getClass());

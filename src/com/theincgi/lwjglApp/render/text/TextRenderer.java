@@ -97,7 +97,7 @@ public class TextRenderer {
 			switch(cp) {
 				case '\n':
 					cursor.x = 0;
-					cursor.y += ft.getTileHeight(); //same as ascent+descent here
+					cursor.y += 1;//ft.getTileHeight(); //same as ascent+descent here
 					break;
 				case '\t':
 					cursor.x += ft.getTileWidth()*2;

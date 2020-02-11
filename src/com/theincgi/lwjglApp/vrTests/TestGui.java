@@ -20,9 +20,12 @@ public class TestGui extends Gui{
 	/**Creates the test gui at the pointing pointing position of the controller + a litle distance*/
 	public TestGui(Scene scene) {
 		super(scene, .05f * 3, .05f*3);
-		defaultFont = FontTextures.INSTANCE.get(new Pair<String, Integer>("consolas", 64));
-		addButton(new Button(defaultFont, "低1,0,1;OK", Button.Size.s5x5), 0, 0);
-		
+		defaultFont = FontTextures.INSTANCE.get(new Pair<String, Integer>("ascii_consolas", 64));
+		Button b;
+		addButton(b = new Button(defaultFont, "低1,0,1;OK", Button.Size.s5x5), 0, 0);
+		b.setOnPress(e->{
+			b.setText(e?"Very\n低0,1,0;oki":"still\n低1,0,1;oki");
+		});
 	}
 	
 	

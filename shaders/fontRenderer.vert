@@ -29,7 +29,7 @@ void main(){
 		       0,          vscale.y,     0,       		 0,
 		       0,                 0,     1,              0,
 /*tx*/	cursor.x/tileSize.x*vecNextChar.x*scale/2+(vPosition.y==0 &&checkFlag(fontFlags, 1)?vecNextChar.x/3*scale:0), 
-/*ty*/ -cursor.y/tileSize.y/pxpcm *2,
+/*ty*/  cursor.y*(-tileSize.y/(pxpcm*300))*scale,
 /*tz*/	       0,
 /* 1*/         1
 	);

@@ -13,6 +13,7 @@ import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 import org.lwjgl.util.vector.Vector4f;
 
+
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.Utils;
 import com.theincgi.lwjglApp.misc.Logger;
@@ -61,6 +62,7 @@ public class DemoScene extends Scene{
 	TestGui testGui;
 	//AABB testAABB = new AABB(-1.5f, 2, -3, -.5f, 3, -2);
 	private RayCast lastRayLeft, lastRayRight;
+	private float debugFontSize = 8;
 	public DemoScene(AWindow window) {
 		super(window);
 		sceneListener = Optional.of(new SceneCallbackListener());
@@ -154,7 +156,7 @@ public class DemoScene extends Scene{
 			pointingLasers.setRightLength(.05f);
 		});
 
-
+		
 		synchronized (tickables) {
 			LinkedList<Tickable> toRemove = new LinkedList<>();
 			tickables.forEach(t->{
@@ -174,9 +176,10 @@ public class DemoScene extends Scene{
 				TextRenderer.renderText(ft, 
 						"§C1,1,1;Raycast Result [left ]: "+rayResultMessageLeft +"\n"+
 								"§C1,1,1;Raycast Result [right]: "+rayResultMessageRight
-								, true, 8);
+								, true, debugFontSize );
 			});
 		}
+		Launcher.getMainWindow().vrControllers.setShowBounds(true);
 		RayCast test = new RayCast(Launcher.getMainWindow().vrControllers.getLeftPointingSource(), Launcher.getMainWindow().vrControllers.getLeftPointingVector());
 
 	}
@@ -232,6 +235,8 @@ public class DemoScene extends Scene{
 			case "tryGui":
 				testGui.toggle(Side.RIGHT);
 				break;
+			case "fontSize":
+				debugFontSize = ((debugFontSize-2)%32 )+ 4;
 			default:
 				break;
 			}
@@ -254,6 +259,7 @@ public class DemoScene extends Scene{
 		controls.put(TouchControllers.A_BUTTON, "playAnimationTest");
 		controls.put(TouchControllers.X_BUTTON, "tryParticleSystem");
 		controls.put(TouchControllers.B_BUTTON, "tryGui");
+		controls.put(TouchControllers.RTHUMB_BUTTON, "fontSize");
 	}
 
 	@Override

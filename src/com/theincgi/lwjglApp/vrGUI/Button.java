@@ -78,6 +78,12 @@ public class Button implements Colideable, Tickable {
 			});
 		});
 	}
+	public void setText(String text){
+		setText(Optional.ofNullable(text));
+	}
+	public void setText(Optional<String> text) {
+		this.text = text;
+	}
 	public void setButtonColor(Color color) {
 		buttonModel.ifPresent(mod->{
 			mod.getMaterial().ifPresent(matg->{
@@ -154,8 +160,9 @@ public class Button implements Colideable, Tickable {
 					if(fontTexture==null) return;
 					if(fontTexture.isEmpty()) return;
 					Vector2f area = TextRenderer.measureArea(fontTexture.get(), txt);
-					area.scale(-.5f);
-					try(MatrixStack m2 = MatrixStack.modelViewStack.push(new Vector3f(area.x, area.y, 0))){
+					area.scale(.0004f);
+					area.x = -area.x;
+					try(MatrixStack m2 = MatrixStack.modelViewStack.push(new Vector3f(area.x, area.y, .0055f))){
 						TextRenderer.renderText(fontTexture.get(), txt, fontSize);
 					}
 				});

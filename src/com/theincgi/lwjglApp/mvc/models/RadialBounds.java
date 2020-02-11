@@ -70,8 +70,8 @@ public class RadialBounds implements Bounds{
 			near[1] = inY? center.y : closest(center.y, aabb.p1[1], aabb.p2[1]);
 			near[2] = inZ? center.z : closest(center.z, aabb.p1[2], aabb.p2[2]);
 			return isIn(near);	
-		}else if(other instanceof OBB) {
-			OBB obb = (OBB) other;
+		}else if(other instanceof OrientedBoundingBox) {
+			OrientedBoundingBox obb = (OrientedBoundingBox) other;
 			return obb.intersects(this); //handled in obb
 		}else {
 			Logger.preferedLogger.w("RadialBounds#intersects", "No definition for the intersection with "+other.getClass());

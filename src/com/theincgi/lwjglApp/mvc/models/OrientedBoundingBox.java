@@ -28,7 +28,7 @@ import static com.theincgi.lwjglApp.Utils.inRangeI;
 import org.lwjgl.util.vector.Matrix3f;
 
 public class OrientedBoundingBox implements Bounds, Cloneable{
-	/**Point of the --- corner, Rotation occurs about this point*/
+	/**Point of the --- corner, Rotation occurs about this point, does not include world transformations for moveable elements*/
 	Vector4f localizedOrigin;
 	Vector4f localizedXDim;
 	Vector4f localizedYDim;
@@ -226,6 +226,10 @@ public class OrientedBoundingBox implements Bounds, Cloneable{
 			return false;
 		}
 		// TODO Auto-generated method stub
+	}
+	
+	public Vector4f getLocalizedOrigin() {
+		return localizedOrigin;
 	}
 	
 	private static boolean _rayIntersects(OrientedBoundingBox a, OrientedBoundingBox b) {
