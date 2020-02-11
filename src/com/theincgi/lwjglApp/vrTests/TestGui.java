@@ -8,6 +8,7 @@ import org.lwjgl.util.vector.Vector3f;
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.Side;
+import com.theincgi.lwjglApp.render.TextureManager;
 import com.theincgi.lwjglApp.render.text.FontTexture;
 import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.vr.VRController;
@@ -24,8 +25,9 @@ public class TestGui extends Gui{
 		Button b;
 		addButton(b = new Button(defaultFont, "低1,0,1;OK", Button.Size.s5x5), 0, 0);
 		b.setOnPress(e->{
-			b.setText(e?"Very\n低0,1,0;oki":"still\n低1,0,1;oki");
+			b.setText(e?"\n\nVery\n低0,1,0;oki":"\n\nstill\n低1,0,1;oki");
 		});
+		b.setImage(TextureManager.INSTANCE.get("img/testIcon.png"));
 	}
 	
 	

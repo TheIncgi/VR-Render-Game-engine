@@ -72,7 +72,10 @@ public class Button implements Colideable, Tickable {
 		buttonModel.ifPresent(mod->{
 			mod.getMaterial().ifPresent(matg->{
 				mod.makeMaterialUnique();
+				matg = mod.getMaterial().get();
 				Material mat = matg.materials.get("image");
+				Logger.preferedLogger.d("Button#setImage", "Old: "+mat.map_kd);
+				Logger.preferedLogger.d("Button#setImage", "New: "+icon.get());
 				if(mat==null) return;
 				mat.map_kd = icon; //diffuse map
 			});
@@ -91,7 +94,7 @@ public class Button implements Colideable, Tickable {
 				Material mat = matg.materials.get("image");
 				if(mat!=null);
 					mat.kd = color; //diffuse color
-				mat = matg.materials.get("white"); //name of the material for the edges
+				mat = matg.materials.get("frame"); //name of the material for the edges
 				if(mat!=null)
 					mat.kd = color;
 			});
