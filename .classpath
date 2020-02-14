@@ -167,7 +167,6 @@
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-stb-natives-macos.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-stb-natives-windows-x86.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-stb-natives-windows.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-stb.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-stb-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-tinyexr-natives-linux-arm32.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-tinyexr-natives-linux-arm64.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-tinyexr-natives-linux.jar"/>
@@ -220,13 +219,7 @@
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/steamworks4j-1.8.0.jar" sourcepath="lwjgl-release-3.2.3-custom/steamworks4j-1.8.0-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/steamworks4j-server-1.8.0.jar" sourcepath="lwjgl-release-3.2.3-custom/steamworks4j-server-1.8.0-sources.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux-arm32.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux-arm64.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-linux.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-macos.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-windows-x86.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal-natives-windows.jar"/>
-	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-openal.jar"/>
+	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-stb.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-stb-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
