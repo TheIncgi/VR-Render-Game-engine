@@ -221,5 +221,6 @@
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/steamworks4j-server-1.8.0.jar" sourcepath="lwjgl-release-3.2.3-custom/steamworks4j-server-1.8.0-sources.jar"/>
 	<classpathentry kind="lib" path="lwjgl-release-3.2.3-custom/lwjgl-stb.jar" sourcepath="lwjgl-release-3.2.3-custom/lwjgl-stb-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/AudioPlugin"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

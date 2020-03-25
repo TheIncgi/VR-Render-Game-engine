@@ -1,26 +1,28 @@
 package com.theincgi.lwjglApp;
 
 import java.awt.Font;
+import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-
+import com.theincgi.audio.AudioLib;
+import com.theincgi.audio.AudioManager;
 import com.theincgi.lwjglApp.misc.Logger;
 import com.theincgi.lwjglApp.misc.ObjCompresser;
 import com.theincgi.lwjglApp.misc.Settings;
 import com.theincgi.lwjglApp.render.text.FontTextures;
 import com.theincgi.lwjglApp.render.vr.VRUtil;
 import com.theincgi.lwjglApp.scenes.DemoScene;
-import com.theincgi.lwjglApp.ui.AWindow;
 import com.theincgi.lwjglApp.ui.VRWindow;
-import com.theincgi.lwjglApp.ui.Window;
 
 public class Launcher {
 	public static final String APPLICATION_NAME = "Unnamed Application";
 	private static VRWindow mainWindow;
 	static Logger log = Logger.preferedLogger;
+	private static Optional<AudioLib> AUDIO_LIB;
 	static {
 		Settings.load();
 		Settings.save();
@@ -31,6 +33,8 @@ public class Launcher {
 			FontTextures.generate("ascii_",new Font("consolas", Font.PLAIN, 64), 0, 255);
 		}
 		FontTextures.updateFontList();
+		//String soundLib = Settings.getString(Settings.AUDIO_PLUGIN, "openAL");
+		//AUDIO_LIB = AudioManager.get(new File(Settings.getRunFolder(), "audioPlugins"), soundLib+".jar");
 	}
 	private static VRUtil vrUtil;
 	public static void main(String[] args) {
@@ -59,6 +63,9 @@ public class Launcher {
 	}
 	public static VRUtil getVrUtil() {
 		return vrUtil;
+	}
+	public static Optional<AudioLib> getAudioLib() {
+		return AUDIO_LIB;
 	}
 }
 

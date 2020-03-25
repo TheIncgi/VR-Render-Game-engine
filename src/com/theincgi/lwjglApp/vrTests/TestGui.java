@@ -1,10 +1,13 @@
 package com.theincgi.lwjglApp.vrTests;
 
+import java.io.IOException;
 import java.util.Optional;
 
 import org.lwjgl.util.vector.Matrix4f;
 import org.lwjgl.util.vector.Vector3f;
 
+import com.theincgi.audio.ASound;
+import com.theincgi.audio.ASource;
 import com.theincgi.lwjglApp.Launcher;
 import com.theincgi.lwjglApp.misc.Pair;
 import com.theincgi.lwjglApp.render.Side;
@@ -19,13 +22,34 @@ import com.theincgi.lwjglApp.vrGUI.Gui;
 public class TestGui extends Gui{
 	Optional<FontTexture> defaultFont;
 	/**Creates the test gui at the pointing pointing position of the controller + a litle distance*/
-	public TestGui(Scene scene) {
+	public TestGui(final Scene scene) {
 		super(scene, .05f * 3, .05f*3);
 		defaultFont = FontTextures.INSTANCE.get(new Pair<String, Integer>("ascii_consolas", 64));
 		Button b;
 		addButton(b = new Button(defaultFont, "§C1,0,1;OK", Button.Size.s5x5), 0, 0);
 		b.setOnPress(e->{
 			b.setText(e?"\n\nVery\n§C0,1,0;oki":"\n\nstill\n§C1,0,1;oki");
+			if(e) {
+				Launcher.getAudioLib().ifPresent(audio->{
+					final ASound sound = audio.getSound("sounds/notification_03.ogg");
+					final ASource src = audio.getSource();
+					src.setLocation(location.m30, location.m31, location.m32);
+					
+					scene.addTickable(()->{
+						if(!src.isPlaying()) {
+							try {
+								src.close();
+								sound.close();
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+							return true;
+						}
+						return false;
+					});
+				});
+				
+			}
 		});
 		b.setImage(TextureManager.INSTANCE.get("img/testIcon.png"));
 	}

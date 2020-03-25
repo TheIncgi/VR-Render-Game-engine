@@ -157,15 +157,7 @@ public class DemoScene extends Scene{
 		});
 
 		
-		synchronized (tickables) {
-			LinkedList<Tickable> toRemove = new LinkedList<>();
-			tickables.forEach(t->{
-				if(t.onTickUpdate())
-					toRemove.add(t);
-			});
-			while(!toRemove.isEmpty())
-				tickables.remove(toRemove.removeFirst());
-		}
+		super.onTick();
 	}
 
 	@Override
@@ -173,7 +165,9 @@ public class DemoScene extends Scene{
 		super.render(camera, mouseX, mouseY);
 		try(MatrixStack ms = MatrixStack.modelViewStack.push(new Vector3f(-1f, 1, -1.98f))){	
 			font.ifPresent(ft->{
+				Matrix4f c = MatrixStack.view.get();
 				TextRenderer.renderText(ft, 
+						String.format("低0,1,0;Cam: 低1,1,1;<%f, %f, %f>\n", c.m30, c.m31, c.m32)+
 						"低1,1,1;Raycast Result [left ]: "+rayResultMessageLeft +"\n"+
 								"低1,1,1;Raycast Result [right]: "+rayResultMessageRight
 								, true, debugFontSize );

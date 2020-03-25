@@ -53,6 +53,7 @@ public class Model {
 	//  get index values
 	//  create VAO, VBO, IBO
 	public Model(File source) throws FileNotFoundException, IOException{
+		Logger.preferedLogger.i("Model", "Loading: "+source.toString());
 		File material = new File(source.getParentFile(), source.getName().substring(0, source.getName().lastIndexOf("."))+".mtl");
 		if(material.exists())
 			this.material = MaterialManager.INSTANCE.get(material);
@@ -74,7 +75,6 @@ public class Model {
 			for(int mg = 0; mg<materialGroups; mg++) {
 				materials[mg] = in.readUTF().trim();
 				int uniqueIndexCount = in.readInt();
-				System.out.println("\tUInd: "+uniqueIndexCount);
 				float[] rawData = new float[uniqueIndexCount * 8]; //3 vert, 2 uv, 3 norm per element
 				for (int i = 0; i < rawData.length; i++) 
 					rawData[i] = in.readFloat();

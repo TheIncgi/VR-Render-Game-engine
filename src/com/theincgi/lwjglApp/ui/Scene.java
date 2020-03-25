@@ -63,12 +63,12 @@ public class Scene {
 
 		camera.viewMatrix(); //load the view
 		ShaderManager.INSTANCE.forLoaded(s->{
-			camera.tellShader(s);
 			s.bind();
+			camera.tellShader(s);
 			s.trySetUniform("uptime", (System.currentTimeMillis()-startupTime)/1000f); //casted to float
 			s.trySetUniform("sunPos", sun.pos);
 			s.trySetUniform("sunColor", sunColor.vec());
-			s.trySetUniform("cameraPos", camera.getLocation().pos);
+//			s.trySetUniform("cameraPos", camera.getLocation().pos);
 			s.trySetMatrix("projectionMatrix", camera.projectionMatrix());
 			s.trySetMatrix("viewMatrix", MatrixStack.view.get());
 
@@ -150,7 +150,17 @@ public class Scene {
 		}
 	}
 
-	public void onTick() {}
+	public void onTick() {
+		synchronized (tickables) {
+			LinkedList<Tickable> toRemove = new LinkedList<>();
+			tickables.forEach(t->{
+				if(t.onTickUpdate())
+					toRemove.add(t);
+			});
+			while(!toRemove.isEmpty())
+				tickables.remove(toRemove.removeFirst());
+		}
+	}
 
 	public Optional<CallbackListener> getSceneListener() {
 		return sceneListener;
@@ -201,6 +211,7 @@ public class Scene {
 		return Optional.empty();
 	}
 
+	
 
 
 

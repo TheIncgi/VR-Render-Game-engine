@@ -24,6 +24,8 @@ public class Settings {
 	 * */
 	public static final String CONTROLS = "button_controls.";
 	
+	public static final String AUDIO_PLUGIN = "openAL";
+	
 	static {
 		runFolder = Paths.get("").toAbsolutePath().normalize().toFile();
 		dataFile = new File(runFolder, "gameData.dat");

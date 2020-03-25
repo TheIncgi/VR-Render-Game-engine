@@ -79,10 +79,9 @@ public class RadialBounds implements Bounds{
 		}
 	}
 	
-	
+	Optional<Model> model = ObjManager.INSTANCE.get("cmodels/debug/sphereBounds.obj", "full");
 	@Override
 	public void draw() {
-		Optional<Model> model = ObjManager.INSTANCE.get("cmodels/debug/sphereBounds.obj", "full");
 		model.ifPresent(mod->{mod.getMaterial().ifPresent(matg->{matg.materials.get("sphereBounds").kd=new Color(0, 0, 0, 0);});});
 		try(MatrixStack m = MatrixStack.modelViewStack.push(center)){
 			m.get().scale(new Vector3f(radius, radius, radius));
